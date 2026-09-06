@@ -311,7 +311,7 @@ export function SiteHeader() {
           <DialogDescription className="sr-only">
             Search for charts, blocks, engines, themes, or guides
           </DialogDescription>
-          <Command className="bg-transparent text-foreground">
+          <Command className="bg-transparent text-foreground flex flex-col w-full overflow-hidden">
             <CommandInput placeholder="Search charts, docs, themes…" />
             <CommandList className="max-h-[60vh] sm:max-h-[360px] overflow-y-auto no-scrollbar p-2">
               <CommandEmpty className="py-10 text-center text-sm text-zinc-500">
@@ -357,7 +357,7 @@ export function SiteHeader() {
             </CommandList>
 
             {/* Desktop / Tablet Keyboard Legend Footer */}
-            <div className="flex items-center justify-between border-t border-white/[0.08] px-3.5 py-2.5 bg-zinc-950/60 text-[10px] font-mono text-zinc-500 select-none">
+            <div className="flex items-center justify-between border-t border-white/[0.08] px-3.5 py-2.5 bg-zinc-950/60 text-[10px] font-mono text-zinc-500 select-none shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
                   <kbd className="rounded border border-zinc-700/60 bg-zinc-800/60 px-1 py-0.5 text-[9px] text-zinc-400">

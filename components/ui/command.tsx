@@ -26,7 +26,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+        "flex w-full flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground",
         className
       )}
       {...props}
@@ -72,7 +72,7 @@ function CommandInput({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div data-slot="command-input-wrapper" className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3 sm:py-3.5">
+    <div data-slot="command-input-wrapper" className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3 sm:py-3.5 shrink-0 bg-transparent">
       <HugeiconsIcon icon={SearchIcon} strokeWidth={2} className="size-4 shrink-0 text-muted-foreground" />
       <CommandPrimitive.Input
         data-slot="command-input"

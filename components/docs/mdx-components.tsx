@@ -5,20 +5,42 @@ import { DocsCallout, type CalloutType } from "./docs-callout"
 import { PackageManagerTabs } from "./package-manager-tabs"
 import { CodeBlock } from "./code-block"
 import { slugify } from "@/lib/slugify"
+import {
+  DocsIntroHero,
+  DocsMeta,
+  DocsDivider,
+  VisualizationSystemPreview,
+  EngineGrid,
+  RegistryFlow,
+  PlotcnArchitecture,
+  ProjectStatus,
+  DocsNextSteps,
+} from "./intro-components"
+import { DocsArticleActions } from "./docs-article-actions"
 
 interface MDXRendererProps {
   content: string
+  slug?: string
+  rawContent?: string
 }
 
-export async function MDXRenderer({ content }: MDXRendererProps) {
-  const elements = await parseMarkdownToReact(content)
+export async function MDXRenderer({ content, slug, rawContent }: MDXRendererProps) {
+  const elements = await parseMarkdownToReact(content, { slug, rawContent })
   return <div className="docs-content max-w-none text-zinc-300">{elements}</div>
+}
+
+interface ParseContext {
+  slug?: string
+  rawContent?: string
 }
 
 /**
  * Parses markdown body into a structured array of React server elements.
  */
-async function parseMarkdownToReact(markdown: string): Promise<React.ReactNode[]> {
+async function parseMarkdownToReact(
+  markdown: string,
+  context?: ParseContext
+): Promise<React.ReactNode[]> {
   const lines = markdown.split(/\r?\n/)
   const elements: React.ReactNode[] = []
   let i = 0
@@ -122,7 +144,143 @@ async function parseMarkdownToReact(markdown: string): Promise<React.ReactNode[]
       continue
     }
 
-    // 5. Headings: ## and ###
+    // 5. Custom Docs Component Tags
+    if (trimmed.startsWith("<DocsIntroHero")) {
+      const tagLines: string[] = []
+      while (i < lines.length) {
+        tagLines.push(lines[i])
+        if (lines[i].includes("/>") || lines[i].includes("</DocsIntroHero>")) {
+          i++
+          break
+        }
+        i++
+      }
+      const fullTag = tagLines.join(" ")
+      const eyebrowMatch = fullTag.match(/eyebrow="([^"]*)"/)
+      const titleMatch = fullTag.match(/title="([^"]*)"/)
+      const descMatch = fullTag.match(/description="([^"]*)"/)
+
+      elements.push(
+        <DocsIntroHero
+          key={`hero-${i}`}
+          eyebrow={eyebrowMatch ? eyebrowMatch[1] : undefined}
+          title={titleMatch ? titleMatch[1] : undefined}
+          description={descMatch ? descMatch[1] : undefined}
+        />
+      )
+      continue
+    }
+
+    if (trimmed.startsWith("<DocsMeta")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DocsMeta>")) {
+        i++
+      }
+      i++
+      elements.push(<DocsMeta key={`meta-${i}`} />)
+      if (context?.slug === "introduction" && context?.rawContent) {
+        elements.push(
+          <div key={`meta-actions-${i}`} className="my-2 not-prose">
+            <DocsArticleActions rawContent={context.rawContent} slug={context.slug} />
+          </div>
+        )
+      }
+      continue
+    }
+
+    if (trimmed.startsWith("<VisualizationSystemPreview")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</VisualizationSystemPreview>")) {
+        i++
+      }
+      i++
+      elements.push(<VisualizationSystemPreview key={`vis-prev-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineGrid")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineGrid>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineGrid key={`engine-grid-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RegistryFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RegistryFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<RegistryFlow key={`reg-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PlotcnArchitecture")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PlotcnArchitecture>")) {
+        i++
+      }
+      i++
+      elements.push(<PlotcnArchitecture key={`arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ProjectStatus")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ProjectStatus>")) {
+        i++
+      }
+      i++
+      elements.push(<ProjectStatus key={`proj-status-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DocsDivider")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DocsDivider>")) {
+        i++
+      }
+      i++
+      elements.push(<DocsDivider key={`divider-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DocsNextSteps")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DocsNextSteps>")) {
+        i++
+      }
+      i++
+      elements.push(<DocsNextSteps key={`next-steps-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DocsCallout")) {
+      const openLine = trimmed
+      const titleMatch = openLine.match(/title="([^"]*)"/)
+      const typeMatch = openLine.match(/type="([^"]*)"/)
+      const title = titleMatch ? titleMatch[1] : undefined
+      const calloutType = (typeMatch ? typeMatch[1] : "note") as CalloutType
+
+      i++
+      const bodyLines: string[] = []
+      while (i < lines.length && !lines[i].includes("</DocsCallout>")) {
+        bodyLines.push(lines[i])
+        i++
+      }
+      i++ // skip closing </DocsCallout>
+
+      const calloutBody = bodyLines.join("\n").trim()
+      elements.push(
+        <DocsCallout key={`callout-${i}`} title={title} type={calloutType}>
+          {renderInlineFormatting(calloutBody)}
+        </DocsCallout>
+      )
+      continue
+    }
+
+    if (trimmed.startsWith("<")) {
+      // Skip unhandled HTML/JSX opening tag
+      i++
+      continue
+    }
+
+    // 6. Headings: ## and ###
     const h2Match = line.match(/^##\s+(.+)$/)
     if (h2Match) {
       const title = h2Match[1].trim()
@@ -151,7 +309,7 @@ async function parseMarkdownToReact(markdown: string): Promise<React.ReactNode[]
       continue
     }
 
-    // 6. Markdown Table: | col | col |
+    // 7. Markdown Table: | col | col |
     if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
       const tableLines: string[] = []
       while (i < lines.length && lines[i].trim().startsWith("|") && lines[i].trim().endsWith("|")) {
@@ -209,6 +367,7 @@ async function parseMarkdownToReact(markdown: string): Promise<React.ReactNode[]
       !lines[i].trim().startsWith(":::") &&
       !lines[i].trim().startsWith(">") &&
       !lines[i].trim().startsWith("|") &&
+      !lines[i].trim().startsWith("<") &&
       !/^[-*]\s+/.test(lines[i].trim()) &&
       !/^\d+\.\s+/.test(lines[i].trim())
     ) {

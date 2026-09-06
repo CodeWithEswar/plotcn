@@ -119,9 +119,11 @@ const docCache = new Map<string, DocData>()
  * Get doc data by slug with in-memory caching
  */
 export async function getDocData(slug: string): Promise<DocData | null> {
-  const cached = docCache.get(slug)
-  if (cached) {
-    return cached
+  if (process.env.NODE_ENV === "production") {
+    const cached = docCache.get(slug)
+    if (cached) {
+      return cached
+    }
   }
 
   const relativePath = SLUG_TO_FILE[slug]
