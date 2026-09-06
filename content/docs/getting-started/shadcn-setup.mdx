@@ -1,0 +1,81 @@
+---
+title: "shadcn/ui Setup"
+description: "How to configure components.json to consume Plotcn charts through the shadcn Registry."
+section: "Getting Started"
+---
+
+Plotcn builds directly upon the **shadcn Registry specification**. This enables you to install charts with the official `shadcn` CLI without any proprietary CLI tools or bespoke package managers.
+
+## Why the shadcn Registry?
+
+The shadcn distribution model provides significant advantages over traditional npm package distributions:
+
+1. **Zero Runtime Dependency Lock-in**: You are not beholden to an external package maintainer's release schedule for a small bugfix or styling adjustment.
+2. **Cohesive Design System**: Plotcn charts share the exact same CSS variables, border radii, and typography tokens as your existing shadcn buttons, cards, and tooltips.
+3. **Full Customization**: You can rewrite any portion of a chart's JSX markup or event handlers because the code lives in your repository.
+
+## The components.json File
+
+The `components.json` configuration file at your project root tells the CLI where to install files, what icon library to use, and which registries to resolve.
+
+Here is the recommended configuration for Plotcn:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "hugeicons",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@plotcn": "https://plotcn.com/r"
+  }
+}
+```
+
+## Key Configuration Fields
+
+### iconLibrary
+Set to `"hugeicons"`. Plotcn visualization controls, toolbars, and legends use **Hugeicons** for crisp rendering, uniform stroke widths, and accessibility.
+
+```json
+"iconLibrary": "hugeicons"
+```
+
+### aliases
+Defines path aliases matching your `tsconfig.json`. Ensure `@/components`, `@/lib/utils`, and `@/components/ui` point to your actual project directories.
+
+### registries
+Registers the Plotcn remote registry under the `@plotcn` namespace:
+
+```json
+"registries": {
+  "@plotcn": "https://plotcn.com/r"
+}
+```
+
+With this entry, commands like `npx shadcn@latest add @plotcn/line` will automatically fetch the component schema, dependencies, and styles from the Plotcn registry.
+
+## Adding shadcn Primitives
+
+Many Plotcn charts and dashboard blocks use standard shadcn UI primitives for toolbars, dropdown filters, and tooltips. You can install them with:
+
+:::package-manager
+pnpm dlx shadcn@latest add tooltip dropdown-menu button badge tabs
+:::
+
+Next, learn how component installation works in the [Plotcn Registry](/docs/registry) guide.

@@ -1,0 +1,100 @@
+---
+title: "Accessibility"
+description: "WCAG contrast standards, screen-reader data layers, keyboard navigation, and reduced-motion compliance."
+section: "Fundamentals"
+---
+
+Data visualizations often present significant barriers to users relying on screen readers, keyboard navigation, or high-contrast settings. Plotcn treats accessibility as an architectural requirement rather than an afterthought.
+
+## WCAG 2.1 AA Standards
+
+All default themes and components adhere to **WCAG 2.1 Level AA** visualization criteria:
+
+- **Contrast ratio**: At least 3:1 contrast for graphical objects and graphical components against adjacent backgrounds.
+- **Text contrast**: At least 4.5:1 contrast for axis labels, legends, and tooltip metric values.
+- **Non-color cues**: Information is never conveyed solely through color hue.
+
+## Non-Color Data Differentiation
+
+Users with color vision deficiencies must be able to distinguish multiple data series. Plotcn supports multiple non-color differentiators:
+
+### 1. Line Dash Patterns
+Configure dashed or dotted patterns for secondary or baseline series:
+
+```tsx
+series={[
+  { key: "revenue", label: "Actual", color: "var(--chart-1)" },
+  { key: "target", label: "Target", color: "var(--chart-2)", strokeDasharray: "5 5" },
+  { key: "forecast", label: "Forecast", color: "var(--chart-3)", strokeDasharray: "2 2" },
+]}
+```
+
+### 2. Geometric Point Markers
+Use distinct point shapes (circles, squares, triangles) to distinguish series independent of color.
+
+## Screen-Reader Data Layers
+
+SVG paths and canvas pixels are invisible to screen readers by default. Plotcn addresses this through a multi-tier screen reader strategy:
+
+### 1. Semantic SVG Roles
+The root SVG element includes `role="graphics-document"` and an `aria-roledescription="chart"` attribute, accompanied by a descriptive `title` and `desc`.
+
+### 2. Visually-Hidden Data Summaries
+For complex charts, Plotcn renders a visually-hidden (`sr-only`) summary table immediately adjacent to the chart. Screen-reader users can navigate data points sequentially using familiar table reading keys:
+
+```tsx
+{/* Accessible screen-reader fallback */}
+<div className="sr-only">
+  <table>
+    <caption>Quarterly Revenue Summary</caption>
+    <thead>
+      <tr><th>Quarter</th><th>Revenue</th><th>Growth</th></tr>
+    </thead>
+    <tbody>
+      {data.map((row) => (
+        <tr key={row.quarter}>
+          <td>{row.quarter}</td>
+          <td>${row.revenue.toLocaleString()}</td>
+          <td>{row.growth}%</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+```
+
+## Keyboard Interaction
+
+Users navigating with keyboards can tab directly into interactive visualization canvases:
+
+- **Tab**: Focus the chart container or individual active markers.
+- **Arrow keys (← / →)**: Step forward and backward through chronological data points.
+- **Escape**: Dismiss active tooltips or popovers.
+
+Every interactive element includes explicit `:focus-visible` styling (`outline: 2px solid var(--ring)` with offset) to maintain clear visual focus indicator visibility.
+
+## Reduced Motion Compliance
+
+Plotcn components strictly observe the user's OS-level `prefers-reduced-motion` settings.
+
+When reduced motion is enabled:
+- Entry transitions and line sweep animations are instantly completed.
+- Hover pulse and glow effects are replaced with instantaneous opacity state changes.
+- Force-directed physics simulations settle immediately without prolonged bouncing.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+## Touch & Mobile Gestures
+
+On touch devices:
+- Minimum hit target sizes for data points and toolbar buttons are sized to at least 44x44px.
+- Tooltips activate on touch-drag without requiring pinch-to-zoom interference.
+- Multi-column legends gracefully collapse into horizontal scrolling bars.

@@ -1,0 +1,68 @@
+---
+title: "Theming"
+description: "CSS variables, OKLCH and HSL chart tokens, dark mode switching, and custom palette overrides."
+section: "Fundamentals"
+---
+
+Plotcn uses a clean, CSS-variable-first theming system. Charts never hardcode hex colors in their component logic; instead, they reference CSS tokens that adapt automatically across themes.
+
+## Chart Color Tokens
+
+Plotcn defines 5 primary categorical chart tokens in `app/globals.css`, mapped to the modern OKLCH color space for uniform perceptual luminance:
+
+| Token | Light Mode | Dark Mode | Usage |
+| :--- | :--- | :--- | :--- |
+| `--chart-1` | `oklch(0.87 0 0)` | `oklch(0.87 0 0)` | Primary line / leading metric |
+| `--chart-2` | `oklch(0.556 0 0)` | `oklch(0.556 0 0)` | Secondary series / comparison |
+| `--chart-3` | `oklch(0.439 0 0)` | `oklch(0.439 0 0)` | Tertiary metric / target line |
+| `--chart-4` | `oklch(0.371 0 0)` | `oklch(0.371 0 0)` | Supporting data series |
+| `--chart-5` | `oklch(0.269 0 0)` | `oklch(0.269 0 0)` | Dim / baseline series |
+
+```css title="app/globals.css"
+:root {
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+
+.dark {
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+```
+
+## Structural & Surface Tokens
+
+In addition to categorical chart colors, charts inherit your application's global design tokens:
+
+- **Grid lines & Axes**: Drawn with `var(--border)` or `oklch(1 0 0 / 10%)`.
+- **Axis text & Tick labels**: Styled with `var(--muted-foreground)` in monospace or sans-serif font.
+- **Tooltip popovers**: Rendered on `var(--popover)` with `var(--popover-foreground)` text and subtle backdrop blur.
+- **Crosshairs**: Rendered with subtle dashes using `var(--muted-foreground)`.
+
+## Customizing Palettes
+
+You can override chart tokens globally in `app/globals.css` or scope custom palettes to specific dashboard cards:
+
+```tsx title="app/dashboard/custom-card.tsx"
+{/* Scoped palette override on a single card */}
+<div
+  className="rounded-xl border border-border p-6"
+  style={{
+    "--chart-1": "oklch(0.7 0.15 145)", // Emerald
+    "--chart-2": "oklch(0.65 0.18 45)",  // Amber
+  } as React.CSSProperties}
+>
+  <LineChart data={data} xKey="date" series={series} />
+</div>
+```
+
+> [!NOTE]
+> Plotcn's signature brand aesthetic is grounded in refined Zinc, Titanium, and Black/White monochrome tones. If you introduce chromatic colors (blues, greens, purples), maintain sufficient contrast against `--background` for accessibility.
+
+Next, learn how Plotcn adheres to accessible visualization guidelines in the [Accessibility](/docs/accessibility) guide.

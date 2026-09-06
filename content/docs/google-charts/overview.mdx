@@ -1,0 +1,137 @@
+---
+title: "Google Charts Overview"
+description: "Architecture, singleton package loader, theme adapters, and usage conventions for Google Charts in Plotcn."
+section: "Google Charts"
+---
+
+Plotcn integrates **Google Charts** as a first-class third visualization engine alongside **Recharts** and **D3.js**.
+
+While Recharts excels at React-first composable dashboard charts and D3.js provides complete custom geometric control, Google Charts offers mature, time-tested charting algorithms and native choropleth geographic mapping through **GeoChart**.
+
+```text
+Plotcn Architecture
+├── Recharts         (Composable React SVG charts)
+├── D3.js            (Custom geometric & mathematical visualizations)
+└── Google Charts    (Mature standard charts + statistical choropleths)
+    ├── Core Charts  (Line, Bar, Column, Area, Pie)
+    └── Geo          (GeoChart world & regional choropleths)
+```
+
+## Architectural Isolation
+
+To keep Plotcn clean and maintainable, the three engines remain strictly isolated:
+
+- **No Cross-Engine Dependencies**: Google Charts components never import Recharts or D3 helpers.
+- **Shared Presentation Layer**: All engines share the Plotcn container shell, loading skeletons, error surfaces with retry buttons, theme token adapters, and accessible screen-reader summaries.
+- **No Monolithic Normalizer**: Plotcn does not attempt to force every library into an artificial generic API. Each engine retains its natural strengths while adopting Plotcn's visual styling.
+
+## GeoChart vs. Google Maps Platform
+
+An essential distinction in Plotcn's architecture:
+
+- **Google GeoChart**: A statistical SVG choropleth visualization that is part of Google Charts. It renders country, state, and province maps shaded by data values. It does **not** require Google Maps Platform, an API key, or a billing account.
+- **Google Maps Platform**: A separate interactive mapping product with street maps, raster/vector tiles, navigation routes, and 3D terrain. If Plotcn introduces interactive mapping in the future, it will be housed in a separate `Maps` family rather than bundled into charts.
+
+## Singleton Script Loader
+
+Google Charts relies on an external runtime loaded from Google's content delivery network (`https://www.gstatic.com/charts/loader.js`).
+
+Plotcn implements a resilient singleton loader located in `@/lib/google-charts/loader.ts` that guarantees:
+
+1. **Single Script Injection**: The script tag is injected into the DOM at most once across the entire application lifetime.
+2. **Concurrent Request Deduplication**: If five Google chart components mount simultaneously, they all await the same initialization Promise.
+3. **On-Demand Package Loading**: Only the specific package needed (such as `corechart` for line/bar charts or `geochart` for maps) is requested via `google.charts.load`.
+4. **SSR Safety**: Guards against accessing `window` or `document` during server-side pre-rendering, rendering a stable loading skeleton during hydration.
+5. **Timeout & Error Handling**: If Google's CDN is unreachable or blocked by a Content Security Policy (CSP), the loader transitions gracefully to an error state with an optional retry button.
+
+## Theming & Dark Mode
+
+By default, Google Charts renders with white canvas backgrounds and bright default colors. Plotcn provides a theme adapter (`@/lib/google-charts/theme.ts`) that maps your CSS variables directly into Google Charts options:
+
+```typescript
+// Dark theme mapping example
+{
+  backgroundColor: { fill: "transparent" },
+  colors: ["#ffffff", "#a1a1aa", "#71717a", "#52525b", "#3f3f46"],
+  hAxis: {
+    textStyle: { color: "#a1a1aa", fontSize: 11 },
+    gridlines: { color: "rgba(255, 255, 255, 0.06)" },
+  },
+  vAxis: {
+    textStyle: { color: "#71717a", fontSize: 11 },
+    gridlines: { color: "rgba(255, 255, 255, 0.06)" },
+  }
+}
+```
+
+## Responsive Container
+
+Google Charts renders SVG graphics with fixed dimensions. Plotcn wraps each chart in a `GoogleChartContainer` equipped with a debounced `ResizeObserver`:
+
+- Watches the bounding box of the parent container.
+- Automatically calls `.draw()` when layout boundaries change (e.g. sidebar collapse, window resize, or grid layout shift).
+- Properly cleans up resize observers and chart event listeners upon unmount to prevent memory leaks.
+
+## Available Components
+
+Plotcn currently provides the following Google Charts components:
+
+| Component | Package | Description |
+| :--- | :--- | :--- |
+| `<GoogleGeoChart />` | `geochart` | World, country, and regional choropleth maps |
+| `<GoogleLineChart />` | `corechart` | Smooth or straight Cartesian line graphs |
+| `<GoogleBarChart />` | `corechart` | Horizontal bar and vertical column charts |
+
+## Installation
+
+Add individual components directly to your project via the registry CLI:
+
+```bash
+# Add Google Line Chart
+npx shadcn@latest add @plotcn/google-line
+
+# Add Google Bar Chart
+npx shadcn@latest add @plotcn/google-bar
+
+# Add Google GeoChart
+npx shadcn@latest add @plotcn/google-geochart
+```
+
+## Example: Google Line Chart
+
+```tsx
+import { GoogleLineChart } from "@/components/charts/google"
+
+const monthlyRevenue = [
+  { month: "Jan", revenue: 4200, expenses: 2400 },
+  { month: "Feb", revenue: 5100, expenses: 2800 },
+  { month: "Mar", revenue: 6400, expenses: 3100 },
+  { month: "Apr", revenue: 7800, expenses: 3900 },
+  { month: "May", revenue: 9200, expenses: 4300 },
+]
+
+export function RevenueTrend() {
+  return (
+    <GoogleLineChart
+      data={monthlyRevenue}
+      xKey="month"
+      series={["revenue", "expenses"]}
+      curveType="function"
+      height={320}
+      title="Monthly Financial Overview"
+      accessibility={{
+        title: "Monthly Financial Performance",
+        description: "Revenue grew from $4,200 in January to $9,200 in May.",
+      }}
+    />
+  )
+}
+```
+
+## Content Security Policy (CSP)
+
+Because Google Charts loads from an external CDN, ensure your CSP headers allow Google's script domain:
+
+```http
+script-src 'self' https://www.gstatic.com;
+```

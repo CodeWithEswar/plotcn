@@ -1,0 +1,159 @@
+---
+title: "Google GeoChart"
+description: "Statistical choropleth maps for world countries, sub-continents, and state/provincial territories with typed React APIs."
+section: "Google Charts"
+---
+
+The `<GoogleGeoChart />` component renders interactive statistical choropleth maps using Google Charts' SVG mapping engine. It displays geographical regions shaded proportionally to numerical data values.
+
+```text
+Google GeoChart
+├── Statistical Choropleth (Values mapped to regional color gradients)
+├── Multi-Region Support   (World, Continents, Countries, Provinces)
+├── Typed React Objects    (Array of records with regionKey & valueKey)
+└── Fully Accessible       (Screen-reader table & aria-labels)
+```
+
+## GeoChart vs. Google Maps Platform
+
+> **Important Architectural Note**  
+> Google GeoChart is an SVG-based statistical charting component included in Google Charts. It is **not** part of Google Maps Platform. It requires **no API key**, no billing account, and does not download the heavy Google Maps JavaScript SDK.
+>
+> Use GeoChart for:
+> - Country-by-country user distributions and traffic metrics
+> - State or province revenue heatmaps
+> - Continental market shares
+>
+> If you need pan-and-zoom street maps, vector tiles, driving routes, or pin markers, use a dedicated map library (such as Google Maps Platform, MapLibre, or Leaflet).
+
+## Installation
+
+Add the GeoChart component to your project:
+
+```bash
+npx shadcn@latest add @plotcn/google-geochart
+```
+
+## Basic Usage: World Map
+
+By default, `<GoogleGeoChart />` accepts standard React object arrays. Pass `regionKey` for the ISO country code (or country name) and `valueKey` for the numerical metric:
+
+```tsx
+import { GoogleGeoChart } from "@/components/charts/google"
+
+const globalUsers = [
+  { country: "United States", activeUsers: 48500 },
+  { country: "Germany", activeUsers: 24200 },
+  { country: "United Kingdom", activeUsers: 19800 },
+  { country: "India", activeUsers: 38200 },
+  { country: "Japan", activeUsers: 16400 },
+  { country: "Brazil", activeUsers: 14700 },
+  { country: "France", activeUsers: 12900 },
+  { country: "Australia", activeUsers: 9800 },
+]
+
+export function WorldUserDistribution() {
+  return (
+    <GoogleGeoChart
+      data={globalUsers}
+      regionKey="country"
+      valueKey="activeUsers"
+      region="world"
+      title="Global User Distribution"
+      subtitle="Total active accounts across top markets"
+      height={420}
+      accessibility={{
+        title: "Active accounts by country",
+        description: "United States has the highest user base with 48,500 users, followed by India with 38,200.",
+      }}
+    />
+  )
+}
+```
+
+## Regional Maps: Countries & Provinces
+
+You can zoom into specific countries or sub-continents by setting the `region` prop to an ISO-3166-1 alpha-2 country code (e.g. `"US"`, `"IN"`, `"DE"`) or UN M.49 region code (e.g. `"150"` for Europe), and setting `resolution="provinces"`:
+
+```tsx
+import { GoogleGeoChart } from "@/components/charts/google"
+
+const usStateRevenue = [
+  { state: "US-CA", revenue: 420000 },
+  { state: "US-NY", revenue: 380000 },
+  { state: "US-TX", revenue: 310000 },
+  { state: "US-WA", revenue: 240000 },
+  { state: "US-FL", revenue: 195000 },
+  { state: "US-IL", revenue: 175000 },
+]
+
+export function USStateRevenueMap() {
+  return (
+    <GoogleGeoChart
+      data={usStateRevenue}
+      regionKey="state"
+      valueKey="revenue"
+      region="US"
+      resolution="provinces"
+      height={380}
+      title="Revenue by State"
+      subtitle="United States Q3 2026 performance"
+    />
+  )
+}
+```
+
+## Interactive Region Selection
+
+Listen for region clicks with the typed `onRegionSelect` callback:
+
+```tsx
+<GoogleGeoChart
+  data={globalUsers}
+  regionKey="country"
+  valueKey="activeUsers"
+  onRegionSelect={(item) => {
+    if (item) {
+      console.log(`Selected region: ${item.region} with value: ${item.value}`)
+    }
+  }}
+/>
+```
+
+## Customizing Color Scales
+
+Plotcn defaults to a subtle dark zinc gradient (`#27272a` to `#ffffff`) with a transparent container background and dark dataless regions (`#141416`).
+
+You can customize the color spectrum via `colorScale`:
+
+```tsx
+<GoogleGeoChart
+  data={globalUsers}
+  regionKey="country"
+  valueKey="activeUsers"
+  colorScale={{
+    minColor: "#1e293b",     // Low values
+    maxColor: "#38bdf8",     // High values
+    datalessColor: "#09090b" // Unmapped regions
+  }}
+/>
+```
+
+## Props Reference
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly T[] \| GoogleDataTableRow[]` | *Required* | Data array (records or 2D table array) |
+| `regionKey` | `keyof T` | `undefined` | Key for region identifier when passing object array |
+| `valueKey` | `keyof T` | `undefined` | Key for numeric value when passing object array |
+| `labelKey` | `keyof T` | `undefined` | Optional key for custom tooltip label |
+| `region` | `string` | `"world"` | Focus region (`"world"`, ISO code `"US"`, or region code) |
+| `resolution` | `"countries" \| "provinces" \| "metros"` | `"countries"` | Geographic resolution level |
+| `displayMode` | `"regions" \| "markers" \| "text"` | `"regions"` | Render mode |
+| `colorScale` | `{ minColor?, maxColor?, datalessColor? }` | Plotcn zinc | Custom color spectrum |
+| `height` | `number \| string` | `400` | Chart container height |
+| `title` | `string` | `undefined` | Header title |
+| `subtitle` | `string` | `undefined` | Header subtitle |
+| `onRegionSelect` | `(item?: { region: string; value: number } \| null) => void` | `undefined` | Region click callback |
+| `accessibility` | `{ title: string; description: string }` | `undefined` | Screen reader summary |
+| `googleOptions` | `GoogleGeoChartOptions` | `{}` | Raw escape hatch for underlying Google options |

@@ -1,0 +1,92 @@
+---
+title: "Plotcn Registry"
+description: "Understand the CLI workflow, source code distribution model, and local customization."
+section: "Getting Started"
+---
+
+The Plotcn Registry is a decentralized component distribution network designed for high-performance React visualization components.
+
+## How the Registry Works
+
+The registry operates on a simple, transparent JSON-based schema compatible with the shadcn CLI:
+
+```text
+┌─────────────────────────┐
+│  Developer runs:        │
+│  shadcn add @plotcn/line│
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  CLI fetches:           │
+│  https://plotcn.com/    │
+│  r/@plotcn/line.json    │
+└───────────┬─────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│  CLI writes code into:  │
+│  components/charts/     │
+│  line.tsx               │
+└─────────────────────────┘
+```
+
+When you run the `add` command:
+1. The CLI queries the Plotcn registry index for the component schema.
+2. The schema specifies required npm dependencies (`recharts`, `d3`, etc.) and automatically installs any missing packages.
+3. The raw, fully-typed TypeScript component code is written directly to your project.
+
+## Installing Components
+
+To install a Plotcn component using your preferred package manager:
+
+:::package-manager
+pnpm dlx shadcn@latest add @plotcn/line
+:::
+
+### Installing Specific Variants
+
+Plotcn components are modular. You can install individual chart types or complete dashboard blocks:
+
+```bash
+# Cartesian charts
+pnpm dlx shadcn@latest add @plotcn/area
+pnpm dlx shadcn@latest add @plotcn/bar
+pnpm dlx shadcn@latest add @plotcn/scatter
+
+# D3 precision layouts
+pnpm dlx shadcn@latest add @plotcn/network-graph
+pnpm dlx shadcn@latest add @plotcn/heatmap
+```
+
+> [!NOTE]
+> During active local development or offline environments, you can also copy component source files directly from the Plotcn repository into your `components/charts/` folder.
+
+## File Organization in Your App
+
+Once installed, components land in your project structure according to your `components.json` aliases:
+
+```text
+my-app/
+├── components/
+│   ├── charts/
+│   │   ├── line.tsx         <-- Installed Plotcn chart
+│   │   ├── area.tsx         <-- Installed Plotcn chart
+│   │   └── chart-tooltip.tsx <-- Reusable tooltip primitive
+│   └── ui/
+│       ├── button.tsx
+│       └── tooltip.tsx
+└── app/
+    └── dashboard/
+        └── page.tsx
+```
+
+## Source Code Ownership
+
+Because the code resides directly in your repository:
+
+- **No wrapper bloat**: There are no artificial abstraction layers between React and the underlying SVG/HTML markup.
+- **Customizable types**: You can adapt TypeScript interfaces to match your exact backend API data shapes.
+- **Git tracked**: Every change to your charts is tracked in your project's version control alongside the rest of your UI.
+
+Next, explore how to render and pass data to components in the [Usage](/docs/usage) guide.

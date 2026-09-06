@@ -1,0 +1,125 @@
+---
+title: "Project Setup"
+description: "Configure TypeScript path aliases, Tailwind CSS v4 variables, and chart design tokens."
+section: "Getting Started"
+---
+
+A clean project setup ensures that imported visualization components find their utility functions, styling tokens, and sub-components without broken imports.
+
+## TypeScript Configuration
+
+Plotcn uses root-relative path aliases for clean, portable component code. Ensure your `tsconfig.json` contains the following `compilerOptions`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+```
+
+> [!TIP]
+> If your project places source code inside a `src/` directory, update `"paths": { "@/*": ["./src/*"] }` and match the configuration inside your `components.json`.
+
+## Tailwind CSS v4 Setup
+
+Plotcn is optimized for **Tailwind CSS v4**. In Tailwind v4, theme variables and color palettes are defined directly inside your main CSS file (`app/globals.css`) using `@theme inline`.
+
+Add the chart tokens to your `@theme inline` block:
+
+```css title="app/globals.css"
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Plotcn categorical chart color tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+```
+
+## CSS Variable Tokens
+
+Plotcn charts automatically inherit semantic CSS variables for both light and dark themes. Add these variables to `:root` and `.dark` in your `app/globals.css`:
+
+```css title="app/globals.css"
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --border: oklch(0.922 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  /* Light mode chart palette (Zinc / Titanium scale) */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+
+  /* Dark mode chart palette */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+}
+```
+
+## Utility Helper
+
+Ensure you have the standard `cn` utility function in `lib/utils.ts` to combine Tailwind classes conditionally:
+
+```typescript title="lib/utils.ts"
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+## Verify Setup
+
+Once configured, run TypeScript type-checking to ensure there are no alias resolution issues:
+
+```bash
+npx tsc --noEmit
+```
+
+Next, see [shadcn/ui Setup](/docs/shadcn) to configure component output paths and registries.

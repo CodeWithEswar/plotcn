@@ -1,0 +1,66 @@
+---
+title: "Introduction"
+description: "An overview of Plotcn, its source-ownership philosophy, and modern visualization architecture."
+section: "Getting Started"
+---
+
+Plotcn is an open-source React visualization collection designed for developers who demand full design control, rigorous accessibility, and pristine code quality.
+
+Instead of installing an opaque third-party npm package that locks you into rigid styling abstractions, Plotcn distributes visualizations directly into your codebase through the **shadcn Registry**.
+
+```text
+Browse component  →  Run CLI command  →  Component code copied to your app  →  You own every pixel
+```
+
+## Why Plotcn?
+
+Modern product dashboards require responsive, theme-consistent, and accessible data visualizations. Traditional charting libraries often force compromises:
+
+- **Monolithic bundle sizes**: Importing an entire charting suite for a single sparkline or bar chart adds unnecessary JavaScript weight.
+- **Styling friction**: Overriding black-box canvas or SVG elements requires complex configuration objects rather than straightforward CSS or Tailwind classes.
+- **Opaque accessibility**: Most web charts render unlabelled SVG graphics that screen readers and keyboard users cannot interpret.
+
+Plotcn solves this by treating chart components like UI primitives — just like buttons, dialogs, and dropdowns.
+
+## Three Engine Architecture
+
+Plotcn components are built on top of three battle-tested rendering engines, chosen specifically for what they do best:
+
+### 1. Recharts Engine
+Declarative, responsive SVG visualizations built for standard Cartesian charts — line charts, area charts, bar graphs, and scatter plots. Powered by React components and styled effortlessly using Plotcn theme tokens and CSS variables.
+
+### 2. D3.js Engine
+Mathematical precision visualizations for specialized layouts — force-directed network graphs, Voronoi treemaps, heatmaps, and radial coordinate systems. D3 computes geometry and math while React renders declarative DOM elements.
+
+### 3. Google Charts & GeoChart Engine
+Mature, battle-tested standard charts and statistical choropleth geographic mapping. Plotcn provides a resilient singleton script loader, theme adapters, and high-level React wrappers for world and regional maps without requiring Google Maps SDK or billing.
+
+## Core Principles
+
+### Source Code Ownership
+When you add a chart, the full component source code is placed into your `@/components/charts` directory. There is no runtime wrapper package. You can modify tooltips, reorder layers, tweak curves, or swap legends without waiting for upstream pull requests.
+
+### Design System Harmony
+Plotcn charts inherit your project's semantic theme tokens:
+
+- `--background` and `--foreground` for surfaces and typography
+- `--chart-1` through `--chart-5` for harmonic categorical colors
+- `--border` and `--muted` for gridlines, tick marks, and axes
+
+When your user switches between dark and light modes, every chart adapts automatically without re-rendering or manual color prop juggling.
+
+### Accessibility as a Priority
+Every visualization includes:
+- Semantic SVG `role="graphics-document"` attributes and accessible descriptions
+- Hidden screen-reader data summaries for non-visual consumers
+- Respect for `prefers-reduced-motion` settings with zero motion flicker
+- High-contrast ratio defaults matching WCAG 2.1 AA standards
+
+## Next Steps
+
+Follow the guides below to set up Plotcn in your React or Next.js project:
+
+- [Installation](/docs/installation) — Create a Next.js application and install required dependencies.
+- [Project Setup](/docs/project-setup) — Configure Tailwind CSS v4 and path aliases.
+- [shadcn/ui Setup](/docs/shadcn) — Initialize your `components.json` for registry support.
+- [Plotcn Registry](/docs/registry) — Learn how to add components via the CLI.

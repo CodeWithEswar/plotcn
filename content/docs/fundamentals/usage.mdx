@@ -1,0 +1,114 @@
+---
+title: "Usage"
+description: "General conventions, component imports, data schemas, responsive containers, and styling."
+section: "Fundamentals"
+---
+
+All Plotcn components follow consistent, idiomatic React conventions. This guide explains how data is structured, how charts adapt to container dimensions, and how to customize interactions.
+
+## Component Anatomy
+
+A typical Plotcn visualization is composed of:
+
+1. **A responsive outer wrapper** that observes container width and height.
+2. **The SVG visualization canvas** containing gridlines, axes, data marks (lines, bars, areas), and defs (gradients).
+3. **An interactive overlay layer** providing accessible tooltips, crosshairs, and focus indicators.
+4. **An optional legend and action toolbar** for series toggling and data export.
+
+Here is a simplified example of how a Plotcn chart is imported and rendered:
+
+```tsx title="app/dashboard/analytics-card.tsx"
+import { LineChart } from "@/components/charts/line"
+
+const data = [
+  { timestamp: "2026-01-01", value: 1240, baseline: 1100 },
+  { timestamp: "2026-01-02", value: 1380, baseline: 1150 },
+  { timestamp: "2026-01-03", value: 1520, baseline: 1200 },
+  { timestamp: "2026-01-04", value: 1490, baseline: 1220 },
+  { timestamp: "2026-01-05", value: 1680, baseline: 1250 },
+]
+
+export function AnalyticsCard() {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="mb-4">
+        <h3 className="text-lg font-medium text-foreground">API Throughput</h3>
+        <p className="text-sm text-muted-foreground">Requests processed per second</p>
+      </div>
+
+      <div className="h-[280px] w-full">
+        <LineChart
+          data={data}
+          xKey="timestamp"
+          series={[
+            { key: "value", label: "Current", color: "var(--chart-1)" },
+            { key: "baseline", label: "Baseline", color: "var(--chart-2)", strokeDasharray: "4 4" },
+          ]}
+        />
+      </div>
+    </div>
+  )
+}
+```
+
+## Data Structure Conventions
+
+Plotcn charts expect a standard array-of-objects data shape:
+
+- **xKey**: The property representing the independent axis (e.g., date, category, month, or sequence index).
+- **series**: An array specifying which numeric fields to plot, along with their display labels, colors, and line styles.
+
+```typescript
+interface DataPoint {
+  [key: string]: string | number
+}
+
+interface SeriesConfig {
+  key: string
+  label: string
+  color?: string
+  strokeDasharray?: string
+}
+```
+
+## Responsive Container Sizing
+
+Charts do not force hardcoded pixel dimensions. Instead, they fluidly expand to fill their parent container's dimensions.
+
+Always set an explicit height on the parent container (using Tailwind's `h-[300px]`, `h-64`, or `aspect-video`):
+
+```tsx
+{/* Explicit height parent */}
+<div className="h-72 w-full">
+  <LineChart data={data} xKey="date" series={series} />
+</div>
+```
+
+> [!TIP]
+> Avoid rendering charts inside zero-height containers (e.g., collapsed tabs or unmeasured flex containers) to prevent SVG calculation errors during initial mount.
+
+## Custom Tooltips
+
+Plotcn charts separate data rendering from tooltip presentation. You can supply custom tooltip content to display multiple metrics, currency formatting, or status badges:
+
+```tsx
+<LineChart
+  data={data}
+  xKey="date"
+  series={series}
+  renderTooltip={({ active, payload, label }) => {
+    if (!active || !payload?.length) return null
+
+    return (
+      <div className="rounded-lg border border-border bg-popover p-3 shadow-xl">
+        <p className="text-xs font-mono text-muted-foreground">{label}</p>
+        <p className="text-sm font-semibold text-foreground">
+          ${payload[0].value?.toLocaleString()}
+        </p>
+      </div>
+    )
+  }}
+/>
+```
+
+Next, see how color palettes and dark mode operate in the [Theming](/docs/theming) guide.
