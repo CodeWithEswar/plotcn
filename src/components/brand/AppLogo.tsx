@@ -1,0 +1,17 @@
+import type { SVGProps } from "react"
+
+export type AppLogoProps = SVGProps<SVGSVGElement>
+
+/** Canonical geometry. Run `node scripts/sync-brand.mjs` after editing. */
+export function AppLogo({ className, ...props }: AppLogoProps) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" className={className} aria-hidden="true" focusable="false" {...props}>
+      {/* Rounded canopy opened by an ascending plot curve. */}
+      <path fill="currentColor" d="M3 19V10C3 6.13 6.13 3 10 3H19C24.52 3 29 7.48 29 13C29 18.32 24.85 22.67 19.6 22.98V17.5C22.71 17.81 25 15.73 25 12.8C25 9.93 23.05 8 20.5 8C19.26 8 18.25 8.44 17.1 9.2L6.2 16.4C4.75 17.36 3.65 18.09 3 19Z" />
+      {/* Rising stems share the canopy's diagonal rhythm. */}
+      <path fill="currentColor" d="M3 24.2C3 21.98 4.14 20.06 6 18.85L7.5 17.88C8.58 17.18 9.5 17.8 9.5 19V29H6.5C4.57 29 3 27.43 3 25.5V24.2ZM11.5 17.13C11.5 16.43 11.78 16.02 12.37 15.63L14.9 13.98C16.12 13.18 17.5 13.88 17.5 15.3V28C17.5 28.55 17.05 29 16.5 29H12.5C11.95 29 11.5 28.55 11.5 28V17.13Z" />
+      {/* Two-pixel data point at the smallest supported size. */}
+      <path fill="currentColor" d="M23 12.8A2 2 0 1 1 19 12.8A2 2 0 1 1 23 12.8Z" />
+    </svg>
+  )
+}
