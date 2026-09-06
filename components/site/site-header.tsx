@@ -306,7 +306,21 @@ export function SiteHeader() {
 
       {/* Responsive Command Palette Search Dialog */}
       <Dialog open={search} onOpenChange={setSearch}>
-        <DialogContent className="dark search-dialog" showCloseButton={false}>
+        <DialogContent
+          className="dark search-dialog !fixed !inset-0 !m-auto !h-fit !max-h-[min(85vh,620px)] !max-w-[640px] !w-[min(calc(100vw-32px),640px)] !p-0 !gap-0 !border-white/[0.12] !bg-[#0d0d10f8] !backdrop-blur-2xl !rounded-2xl !shadow-2xl overflow-hidden"
+          style={{
+            position: "fixed",
+            inset: 0,
+            margin: "auto",
+            width: "min(calc(100vw - 32px), 640px)",
+            maxWidth: "640px",
+            height: "fit-content",
+            maxHeight: "min(85vh, 620px)",
+            transform: "none",
+            translate: "none",
+          }}
+          showCloseButton={false}
+        >
           <DialogTitle className="sr-only">Search Plotcn</DialogTitle>
           <DialogDescription className="sr-only">
             Search for charts, blocks, engines, themes, or guides
