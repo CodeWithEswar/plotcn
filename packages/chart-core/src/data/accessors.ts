@@ -1,4 +1,4 @@
-import type { Accessor } from "../types/accessors"
+import type { Accessor, AccessorInput } from "../types/accessors"
 import { isFiniteNumber } from "./predicates"
 
 /**
@@ -21,4 +21,17 @@ export function numericAccessor<TDatum>(
     const val = datum[key]
     return isFiniteNumber(val) ? val : fallback
   }
+}
+
+/**
+ * Resolves an AccessorInput (either a property key or a functional accessor)
+ * into a single normalized Accessor function (section 6.30 - 6.31).
+ */
+export function resolveAccessor<TDatum, TValue>(
+  accessor: AccessorInput<TDatum, TValue>
+): Accessor<TDatum, TValue> {
+  if (typeof accessor === "function") {
+    return accessor
+  }
+  return (datum: TDatum) => datum[accessor as keyof TDatum] as unknown as TValue
 }
