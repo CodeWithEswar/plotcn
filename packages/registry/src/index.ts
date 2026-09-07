@@ -1,7 +1,11 @@
 /**
  * @plotcn/registry
- * Registry generation, validation, and schema utilities.
+ * Plotcn canonical source-distribution architecture, schemas, validators, and command utilities.
  */
 
-export const REGISTRY_SCHEMA = "https://ui.shadcn.com/schema/registry.json"
-export const REGISTRY_ITEM_SCHEMA = "https://ui.shadcn.com/schema/registry-item.json"
+export * from "./schema"
+export * from "./catalog"
+export * from "./generation"
+export * from "./dependencies"
+export * from "./validation"
+export * from "./urls"
