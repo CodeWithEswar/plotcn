@@ -428,5 +428,47 @@ export interface ResolvedMotionPolicy {
   easing: readonly number[]
 }
 
+/**
+ * Factual statistical summary computed from visualization data.
+ * Section 11.8 - 11.10.
+ */
+export interface FactualSummaryStats {
+  count: number
+  min: { value: number; label?: string }
+  max: { value: number; label?: string }
+  first: { value: number; label?: string }
+  last: { value: number; label?: string }
+  range: number
+  netChange: number
+  direction: "increasing" | "decreasing" | "flat"
+}
+
+/**
+ * Strongly typed column descriptor for accessible tabular data disclosures.
+ * Section 11.16, 11.82.
+ */
+export interface AccessibleColumnDefinition<TData = unknown> {
+  key: string
+  label: string
+  format?: (value: unknown, datum: TData) => string
+}
+
+/**
+ * Declarative accessibility configuration for Plotcn charts.
+ * Section 11.3, 11.108.
+ */
+export interface ChartAccessibilityConfig<TData = unknown> {
+  title?: string
+  description?: string
+  summary?: string | ((stats: FactualSummaryStats, data: readonly TData[]) => string)
+  dataTable?: boolean | {
+    visibleDisclosure?: boolean
+    columns?: readonly AccessibleColumnDefinition<TData>[]
+    maxRows?: number
+  }
+  keyboard?: boolean
+}
+
+
 
 

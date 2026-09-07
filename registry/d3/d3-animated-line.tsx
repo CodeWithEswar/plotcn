@@ -105,18 +105,20 @@ export function D3AnimatedLine({
         role="img"
       >
         <g transform={`translate(${margin.left},${margin.top})`}>
-          {/* Grid lines */}
-          {yScale.ticks(5).map((tick) => (
-            <line
-              key={tick}
-              x1={0}
-              x2={innerWidth}
-              y1={yScale(tick)}
-              y2={yScale(tick)}
-              stroke="var(--chart-grid, rgba(255,255,255,0.1))"
-              strokeDasharray="3 3"
-            />
-          ))}
+          {/* Grid lines (decorative - Section 11.41) */}
+          <g aria-hidden="true">
+            {yScale.ticks(5).map((tick) => (
+              <line
+                key={tick}
+                x1={0}
+                x2={innerWidth}
+                y1={yScale(tick)}
+                y2={yScale(tick)}
+                stroke="var(--chart-grid, rgba(255,255,255,0.1))"
+                strokeDasharray="3 3"
+              />
+            ))}
+          </g>
 
           {/* Curve */}
           <path
