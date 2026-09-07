@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-accessibility",
+  "type": "registry:ui",
+  "title": "Accessible Chart Shell",
+  "description": "Screen-reader descriptions, live regions, and accessible data disclosure tables.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/shared/chart-accessibility.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface AccessibleChartProps {\n  title: string\n  description?: string\n  summary?: string\n  data?: Array<Record<string, any>>\n  columns?: Array<{ key: string; label: string; format?: (val: any) => string }>\n  children: React.ReactNode\n  className?: string\n}\n\n/**\n * Accessible Chart Wrapper\n * Wraps visualization in a semantic region with screen-reader summary and accessible data table.\n */\nexport function AccessibleChart({\n  title,\n  description,\n  summary,\n  data,\n  columns,\n  children,\n  className,\n}: AccessibleChartProps) {\n  const [showTable, setShowTable] = React.useState(false)\n  const id = React.useId()\n  const titleId = `chart-title-${id}`\n  const descId = `chart-desc-${id}`\n\n  return (\n    <figure\n      className={cn(\"relative flex flex-col space-y-2\", className)}\n      role=\"region\"\n      aria-labelledby={titleId}\n      aria-describedby={description ? descId : undefined}\n    >\n      <figcaption className=\"sr-only\">\n        <h3 id={titleId}>{title}</h3>\n        {description && <p id={descId}>{description}</p>}\n        {summary && <p>{summary}</p>}\n      </figcaption>\n\n      {children}\n\n      {data && data.length > 0 && (\n        <div className=\"mt-2 text-right\">\n          <button\n            type=\"button\"\n            onClick={() => setShowTable(!showTable)}\n            className=\"text-[10px] font-mono text-zinc-400 hover:text-zinc-200 underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400 rounded px-1\"\n            aria-expanded={showTable}\n          >\n            {showTable ? \"Hide data table\" : \"View accessible data table\"}\n          </button>\n\n          {showTable && (\n            <div className=\"mt-2 max-h-48 overflow-auto rounded-lg border border-white/[0.08] bg-zinc-950 p-2 text-left\">\n              <table className=\"w-full text-xs font-mono text-zinc-300\">\n                <thead>\n                  <tr className=\"border-b border-white/[0.08] text-zinc-500\">\n                    {columns\n                      ? columns.map((col) => <th key={col.key} className=\"p-1 text-left font-medium\">{col.label}</th>)\n                      : Object.keys(data[0] || {}).map((key) => <th key={key} className=\"p-1 text-left font-medium\">{key}</th>)}\n                  </tr>\n                </thead>\n                <tbody>\n                  {data.map((row, idx) => (\n                    <tr key={idx} className=\"border-b border-white/[0.04] last:border-0 hover:bg-zinc-900/50\">\n                      {columns\n                        ? columns.map((col) => (\n                            <td key={col.key} className=\"p-1\">\n                              {col.format ? col.format(row[col.key]) : String(row[col.key] ?? \"\")}\n                            </td>\n                          ))\n                        : Object.keys(row).map((k) => (\n                            <td key={k} className=\"p-1\">\n                              {String(row[k] ?? \"\")}\n                            </td>\n                          ))}\n                    </tr>\n                  ))}\n                </tbody>\n              </table>\n            </div>\n          )}\n        </div>\n      )}\n    </figure>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "components/charts/shared/chart-accessibility.tsx"
+    }
+  ],
+  "categories": [
+    "primitives",
+    "accessibility"
+  ]
+}

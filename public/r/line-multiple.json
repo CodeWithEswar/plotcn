@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "line-multiple",
+  "type": "registry:block",
+  "title": "Multi-Series Line Chart",
+  "description": "Multi-series line chart comparing current vs previous periods.",
+  "dependencies": [
+    "recharts"
+  ],
+  "registryDependencies": [
+    "chart-container"
+  ],
+  "files": [
+    {
+      "path": "components/charts/recharts/line-multiple.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from \"recharts\"\nimport { ChartContainer } from \"@/components/charts/chart-container\"\n\nexport interface MultiSeriesDatum {\n  label: string\n  current: number\n  previous: number\n  [key: string]: any\n}\n\nexport interface LineMultipleProps {\n  data: MultiSeriesDatum[]\n  height?: number | string\n  className?: string\n}\n\nexport function LineMultiple({\n  data,\n  height = 280,\n  className,\n}: LineMultipleProps) {\n  return (\n    <div className={className} style={{ width: \"100%\", height }}>\n      <ChartContainer>\n        <ResponsiveContainer width=\"100%\" height=\"100%\">\n          <LineChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>\n            <CartesianGrid strokeDasharray=\"3 3\" vertical={false} stroke=\"hsl(var(--border) / 0.4)\" />\n            <XAxis dataKey=\"label\" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: \"hsl(var(--muted-foreground))\" }} />\n            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: \"hsl(var(--muted-foreground))\" }} />\n            <Tooltip\n              content={({ active, payload, label }) => {\n                if (!active || !payload?.length) return null\n                return (\n                  <div className=\"rounded-lg border border-white/[0.08] bg-zinc-950/90 p-2.5 shadow-xl backdrop-blur-md\">\n                    <div className=\"text-[11px] font-mono text-zinc-400 mb-1\">{label}</div>\n                    {payload.map((entry) => (\n                      <div key={entry.name} className=\"flex items-center justify-between gap-4 text-xs\">\n                        <span className=\"text-zinc-400\">{entry.name}:</span>\n                        <span className=\"font-semibold text-white\">{entry.value?.toLocaleString()}</span>\n                      </div>\n                    ))}\n                  </div>\n                )\n              }}\n            />\n            <Legend wrapperStyle={{ fontSize: \"11px\", paddingTop: \"8px\" }} />\n            <Line type=\"monotone\" name=\"Current Period\" dataKey=\"current\" stroke=\"hsl(var(--chart-1, 142 71% 45%))\" strokeWidth={2} dot={false} />\n            <Line type=\"monotone\" name=\"Previous Period\" dataKey=\"previous\" stroke=\"hsl(var(--chart-2, 199 89% 48%))\" strokeWidth={2} strokeDasharray=\"4 4\" dot={false} />\n          </LineChart>\n        </ResponsiveContainer>\n      </ChartContainer>\n    </div>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "components/charts/recharts/line-multiple.tsx"
+    }
+  ],
+  "categories": [
+    "charts",
+    "recharts"
+  ]
+}

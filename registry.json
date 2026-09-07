@@ -8,9 +8,7 @@
       "type": "registry:ui",
       "title": "Chart Container Primitive",
       "description": "Shared responsive container, ResizeObserver, and CSS token bridge.",
-      "dependencies": [
-        "recharts"
-      ],
+      "dependencies": ["recharts"],
       "files": [
         {
           "path": "registry/shared/chart-container.tsx",
@@ -18,9 +16,7 @@
           "target": "components/charts/shared/chart-container.tsx"
         }
       ],
-      "categories": [
-        "primitives"
-      ]
+      "categories": ["primitives"]
     },
     {
       "name": "chart-state",
@@ -35,9 +31,7 @@
           "target": "components/charts/shared/chart-state.tsx"
         }
       ],
-      "categories": [
-        "primitives"
-      ]
+      "categories": ["primitives"]
     },
     {
       "name": "chart-accessibility",
@@ -52,10 +46,7 @@
           "target": "components/charts/shared/chart-accessibility.tsx"
         }
       ],
-      "categories": [
-        "primitives",
-        "accessibility"
-      ]
+      "categories": ["primitives", "accessibility"]
     },
     {
       "name": "chart-theme",
@@ -70,22 +61,15 @@
           "target": "components/charts/shared/chart-theme.ts"
         }
       ],
-      "categories": [
-        "primitives",
-        "theming"
-      ]
+      "categories": ["primitives", "theming"]
     },
     {
       "name": "line-basic",
       "type": "registry:block",
       "title": "Basic Line Chart",
       "description": "Approachable Cartesian line chart built with Recharts and theme tokens.",
-      "dependencies": [
-        "recharts"
-      ],
-      "registryDependencies": [
-        "chart-container"
-      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["chart-container"],
       "files": [
         {
           "path": "registry/recharts/line-basic.tsx",
@@ -93,22 +77,15 @@
           "target": "components/charts/recharts/line-basic.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "recharts"
-      ]
+      "categories": ["charts", "recharts"]
     },
     {
       "name": "line-multiple",
       "type": "registry:block",
       "title": "Multi-Series Line Chart",
       "description": "Multi-series line chart comparing current vs previous periods.",
-      "dependencies": [
-        "recharts"
-      ],
-      "registryDependencies": [
-        "chart-container"
-      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["chart-container"],
       "files": [
         {
           "path": "registry/recharts/line-multiple.tsx",
@@ -116,22 +93,15 @@
           "target": "components/charts/recharts/line-multiple.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "recharts"
-      ]
+      "categories": ["charts", "recharts"]
     },
     {
       "name": "area-basic",
       "type": "registry:block",
       "title": "Basic Area Chart",
       "description": "Gradient area chart with smooth monotone interpolation.",
-      "dependencies": [
-        "recharts"
-      ],
-      "registryDependencies": [
-        "chart-container"
-      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["chart-container"],
       "files": [
         {
           "path": "registry/recharts/area-basic.tsx",
@@ -139,22 +109,15 @@
           "target": "components/charts/recharts/area-basic.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "recharts"
-      ]
+      "categories": ["charts", "recharts"]
     },
     {
       "name": "bar-basic",
       "type": "registry:block",
       "title": "Basic Bar Chart",
       "description": "Categorical vertical bar chart with rounded caps and responsive tooltips.",
-      "dependencies": [
-        "recharts"
-      ],
-      "registryDependencies": [
-        "chart-container"
-      ],
+      "dependencies": ["recharts"],
+      "registryDependencies": ["chart-container"],
       "files": [
         {
           "path": "registry/recharts/bar-basic.tsx",
@@ -162,21 +125,14 @@
           "target": "components/charts/recharts/bar-basic.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "recharts"
-      ]
+      "categories": ["charts", "recharts"]
     },
     {
       "name": "d3-animated-line",
       "type": "registry:block",
       "title": "D3 Animated Line",
       "description": "Continuous scales, monotone curves, and data points computed with D3 and rendered via React SVG.",
-      "dependencies": [
-        "d3-scale",
-        "d3-shape",
-        "d3-array"
-      ],
+      "dependencies": ["d3-scale", "d3-shape", "d3-array"],
       "files": [
         {
           "path": "registry/d3/d3-animated-line.tsx",
@@ -184,19 +140,14 @@
           "target": "components/charts/d3/d3-animated-line.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "d3"
-      ]
+      "categories": ["charts", "d3"]
     },
     {
       "name": "d3-force-network",
       "type": "registry:block",
       "title": "D3 Force-Directed Network",
       "description": "Physics-based node simulation with link springs and repulsion forces.",
-      "dependencies": [
-        "d3-force"
-      ],
+      "dependencies": ["d3-force"],
       "files": [
         {
           "path": "registry/d3/d3-force-network.tsx",
@@ -204,10 +155,7 @@
           "target": "components/charts/d3/d3-force-network.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "d3"
-      ]
+      "categories": ["charts", "d3"]
     },
     {
       "name": "google-chart-loader",
@@ -222,10 +170,7 @@
           "target": "components/charts/google/google-chart-loader.ts"
         }
       ],
-      "categories": [
-        "google",
-        "primitives"
-      ]
+      "categories": ["google", "primitives"]
     },
     {
       "name": "google-chart-container",
@@ -233,9 +178,7 @@
       "title": "Google Chart Container",
       "description": "Lifecycle wrapper managing ResizeObserver and fallback states for Google Charts.",
       "dependencies": [],
-      "registryDependencies": [
-        "google-chart-loader"
-      ],
+      "registryDependencies": ["google-chart-loader"],
       "files": [
         {
           "path": "registry/google/google-chart-container.tsx",
@@ -243,10 +186,7 @@
           "target": "components/charts/google/google-chart-container.tsx"
         }
       ],
-      "categories": [
-        "google",
-        "primitives"
-      ]
+      "categories": ["google", "primitives"]
     },
     {
       "name": "google-geochart",
@@ -254,10 +194,7 @@
       "title": "Google GeoChart Choropleth",
       "description": "World, country, and regional statistical choropleths via Google Charts hosted geochart package.",
       "dependencies": [],
-      "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
-      ],
+      "registryDependencies": ["google-chart-container", "google-chart-loader"],
       "files": [
         {
           "path": "registry/google/google-geochart.tsx",
@@ -265,10 +202,7 @@
           "target": "components/charts/google/google-geochart.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "google"
-      ]
+      "categories": ["charts", "google"]
     },
     {
       "name": "google-line",
@@ -276,10 +210,7 @@
       "title": "Google Line Chart",
       "description": "Smooth 2D Cartesian line chart rendered with Google Charts corechart package.",
       "dependencies": [],
-      "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
-      ],
+      "registryDependencies": ["google-chart-container", "google-chart-loader"],
       "files": [
         {
           "path": "registry/google/google-line.tsx",
@@ -287,10 +218,7 @@
           "target": "components/charts/google/google-line.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "google"
-      ]
+      "categories": ["charts", "google"]
     },
     {
       "name": "google-bar",
@@ -298,10 +226,7 @@
       "title": "Google Bar Chart",
       "description": "Categorical column chart rendered with Google Charts corechart package.",
       "dependencies": [],
-      "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
-      ],
+      "registryDependencies": ["google-chart-container", "google-chart-loader"],
       "files": [
         {
           "path": "registry/google/google-bar.tsx",
@@ -309,10 +234,7 @@
           "target": "components/charts/google/google-bar.tsx"
         }
       ],
-      "categories": [
-        "charts",
-        "google"
-      ]
+      "categories": ["charts", "google"]
     }
   ]
 }

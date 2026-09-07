@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-theme",
+  "type": "registry:ui",
+  "title": "Chart Theme Adapter",
+  "description": "Semantic CSS variable token extraction and palette resolution.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/shared/chart-theme.ts",
+      "content": "/**\n * Plotcn Shared Theme Adapter\n * Extracts semantic CSS variables (--chart-1 ... --chart-5) from DOM or fallback defaults.\n */\n\nexport interface ChartThemeTokens {\n  chart1: string\n  chart2: string\n  chart3: string\n  chart4: string\n  chart5: string\n  background: string\n  foreground: string\n  muted: string\n  border: string\n}\n\nexport const defaultChartTokens: ChartThemeTokens = {\n  chart1: \"hsl(142 71% 45%)\", // emerald\n  chart2: \"hsl(199 89% 48%)\", // sky\n  chart3: \"hsl(262 83% 58%)\", // purple\n  chart4: \"hsl(31 97% 55%)\",  // amber\n  chart5: \"hsl(346 87% 43%)\", // rose\n  background: \"hsl(240 10% 3.9%)\",\n  foreground: \"hsl(0 0% 98%)\",\n  muted: \"hsl(240 3.7% 15.9%)\",\n  border: \"hsl(240 3.7% 15.9%)\",\n}\n\n/**\n * Resolves active CSS variables in the browser, falling back to static tokens during SSR.\n */\nexport function getComputedChartTokens(): ChartThemeTokens {\n  if (typeof window === \"undefined\") {\n    return defaultChartTokens\n  }\n\n  const style = getComputedStyle(document.documentElement)\n\n  return {\n    chart1: style.getPropertyValue(\"--chart-1\").trim() || defaultChartTokens.chart1,\n    chart2: style.getPropertyValue(\"--chart-2\").trim() || defaultChartTokens.chart2,\n    chart3: style.getPropertyValue(\"--chart-3\").trim() || defaultChartTokens.chart3,\n    chart4: style.getPropertyValue(\"--chart-4\").trim() || defaultChartTokens.chart4,\n    chart5: style.getPropertyValue(\"--chart-5\").trim() || defaultChartTokens.chart5,\n    background: style.getPropertyValue(\"--background\").trim() || defaultChartTokens.background,\n    foreground: style.getPropertyValue(\"--foreground\").trim() || defaultChartTokens.foreground,\n    muted: style.getPropertyValue(\"--muted\").trim() || defaultChartTokens.muted,\n    border: style.getPropertyValue(\"--border\").trim() || defaultChartTokens.border,\n  }\n}\n",
+      "type": "registry:ui",
+      "target": "components/charts/shared/chart-theme.ts"
+    }
+  ],
+  "categories": [
+    "primitives",
+    "theming"
+  ]
+}

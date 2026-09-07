@@ -152,7 +152,7 @@ export interface GoogleGlobal {
       removeListener: (listener: unknown) => void
       removeAllListeners: (target: unknown) => void
     }
-    [key: string]: unknown
+    [key: string]: any
   }
 }
 

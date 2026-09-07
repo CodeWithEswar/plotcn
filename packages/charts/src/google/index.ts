@@ -1,0 +1,5 @@
+export * from "../../../../registry/google/google-chart-loader"
+export * from "../../../../registry/google/google-chart-container"
+export * from "../../../../registry/google/google-geochart"
+export * from "../../../../registry/google/google-line"
+export * from "../../../../registry/google/google-bar"

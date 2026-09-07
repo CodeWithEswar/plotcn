@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "google-chart-loader",
+  "type": "registry:ui",
+  "title": "Google Charts Singleton Loader",
+  "description": "Resilient loader with promise deduplication and on-demand package loading.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/google/google-chart-loader.ts",
+      "content": "/**\n * Plotcn Shared Google Charts Singleton Loader\n * Handles script injection, concurrent request deduplication, on-demand package loading, and SSR safety.\n */\n\ndeclare global {\n  interface Window {\n    google?: any\n  }\n}\n\nexport type GoogleChartsLoaderState = \"idle\" | \"loading\" | \"ready\" | \"error\"\n\nexport const googleChartPackages = {\n  core: [\"corechart\"],\n  geo: [\"geochart\"],\n  timeline: [\"timeline\"],\n  sankey: [\"sankey\"],\n  org: [\"orgchart\"],\n  table: [\"table\"],\n} as const\n\nexport type GooglePackageKey = keyof typeof googleChartPackages\n\nlet loaderPromise: Promise<void> | null = null\nlet loaderState: GoogleChartsLoaderState = \"idle\"\nconst loadedPackages = new Set<string>()\n\nexport function getLoaderState(): GoogleChartsLoaderState {\n  return loaderState\n}\n\n/**\n * Loads the base Google Charts JavaScript loader tag at most once.\n */\nexport function loadGoogleChartsBase(): Promise<void> {\n  if (typeof window === \"undefined\") {\n    return Promise.resolve()\n  }\n\n  if (window.google?.charts) {\n    loaderState = \"ready\"\n    return Promise.resolve()\n  }\n\n  if (loaderPromise) {\n    return loaderPromise\n  }\n\n  loaderState = \"loading\"\n  loaderPromise = new Promise<void>((resolve, reject) => {\n    // Check if script tag already exists in DOM\n    const existing = document.querySelector('script[src=\"https://www.gstatic.com/charts/loader.js\"]')\n    if (existing) {\n      existing.addEventListener(\"load\", () => {\n        loaderState = \"ready\"\n        resolve()\n      })\n      existing.addEventListener(\"error\", () => {\n        loaderState = \"error\"\n        reject(new Error(\"Failed to load Google Charts base script.\"))\n      })\n      return\n    }\n\n    const script = document.createElement(\"script\")\n    script.src = \"https://www.gstatic.com/charts/loader.js\"\n    script.async = true\n    script.onload = () => {\n      loaderState = \"ready\"\n      resolve()\n    }\n    script.onerror = () => {\n      loaderState = \"error\"\n      loaderPromise = null\n      reject(new Error(\"Failed to load Google Charts script from CDN.\"))\n    }\n    document.head.appendChild(script)\n  })\n\n  return loaderPromise\n}\n\n/**\n * Loads specific packages on demand.\n */\nexport async function loadGoogleChartsPackages(packages: readonly string[]): Promise<void> {\n  await loadGoogleChartsBase()\n\n  const pending = packages.filter((pkg) => !loadedPackages.has(pkg))\n  if (pending.length === 0) {\n    return\n  }\n\n  return new Promise<void>((resolve, reject) => {\n    if (!window.google?.charts) {\n      reject(new Error(\"Google Charts loader is not available.\"))\n      return\n    }\n    window.google.charts.load(\"current\", {\n      packages: pending,\n    })\n    window.google.charts.setOnLoadCallback(() => {\n      pending.forEach((pkg: string) => loadedPackages.add(pkg))\n      resolve()\n    })\n  })\n}\n",
+      "type": "registry:ui",
+      "target": "components/charts/google/google-chart-loader.ts"
+    }
+  ],
+  "categories": [
+    "google",
+    "primitives"
+  ]
+}

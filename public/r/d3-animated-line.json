@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "d3-animated-line",
+  "type": "registry:block",
+  "title": "D3 Animated Line",
+  "description": "Continuous scales, monotone curves, and data points computed with D3 and rendered via React SVG.",
+  "dependencies": [
+    "d3-scale",
+    "d3-shape",
+    "d3-array"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/d3/d3-animated-line.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { scaleLinear } from \"d3-scale\"\nimport { line, curveMonotoneX } from \"d3-shape\"\nimport { max, min } from \"d3-array\"\nimport { cn } from \"@/lib/utils\"\n\nexport interface D3LineDatum {\n  x: number | string\n  y: number\n}\n\nexport interface D3AnimatedLineProps {\n  data: D3LineDatum[]\n  width?: number\n  height?: number\n  color?: string\n  className?: string\n}\n\n/**\n * D3 Animated Line Chart\n * D3 computes continuous scale projections and monotone curves; React renders the SVG elements.\n */\nexport function D3AnimatedLine({\n  data,\n  width = 600,\n  height = 300,\n  color = \"hsl(var(--chart-1, 142 71% 45%))\",\n  className,\n}: D3AnimatedLineProps) {\n  const margin = { top: 20, right: 20, bottom: 30, left: 40 }\n  const innerWidth = width - margin.left - margin.right\n  const innerHeight = height - margin.top - margin.bottom\n\n  const yValues = data.map((d) => d.y)\n  const minY = min(yValues) ?? 0\n  const maxY = max(yValues) ?? 100\n\n  const xScale = React.useMemo(() => {\n    return scaleLinear()\n      .domain([0, Math.max(data.length - 1, 1)])\n      .range([0, innerWidth])\n  }, [data.length, innerWidth])\n\n  const yScale = React.useMemo(() => {\n    return scaleLinear()\n      .domain([Math.min(0, minY), maxY * 1.1])\n      .range([innerHeight, 0])\n  }, [minY, maxY, innerHeight])\n\n  const linePath = React.useMemo(() => {\n    const generator = line<D3LineDatum>()\n      .x((_, i) => xScale(i))\n      .y((d) => yScale(d.y))\n      .curve(curveMonotoneX)\n\n    return generator(data) || \"\"\n  }, [data, xScale, yScale])\n\n  return (\n    <div className={cn(\"w-full overflow-hidden rounded-xl border border-white/[0.08] bg-zinc-950/60 p-4\", className)}>\n      <svg\n        viewBox={`0 0 ${width} ${height}`}\n        className=\"w-full h-auto overflow-visible\"\n        aria-label=\"D3 Animated Line Chart\"\n        role=\"img\"\n      >\n        <g transform={`translate(${margin.left},${margin.top})`}>\n          {/* Grid lines */}\n          {yScale.ticks(5).map((tick) => (\n            <line\n              key={tick}\n              x1={0}\n              x2={innerWidth}\n              y1={yScale(tick)}\n              y2={yScale(tick)}\n              stroke=\"hsl(var(--border) / 0.3)\"\n              strokeDasharray=\"3 3\"\n            />\n          ))}\n\n          {/* Curve */}\n          <path\n            d={linePath}\n            fill=\"none\"\n            stroke={color}\n            strokeWidth={2.5}\n            strokeLinecap=\"round\"\n            className=\"transition-all duration-500 ease-out\"\n          />\n\n          {/* Coordinate points */}\n          {data.map((d, i) => (\n            <circle\n              key={i}\n              cx={xScale(i)}\n              cy={yScale(d.y)}\n              r={3.5}\n              fill=\"hsl(var(--background, 240 10% 3.9%))\"\n              stroke={color}\n              strokeWidth={2}\n              className=\"hover:r-5 transition-all\"\n            />\n          ))}\n        </g>\n      </svg>\n    </div>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "components/charts/d3/d3-animated-line.tsx"
+    }
+  ],
+  "categories": [
+    "charts",
+    "d3"
+  ]
+}

@@ -2,7 +2,7 @@ import type { GoogleChartPackage, GoogleGlobal } from "./types"
 
 declare global {
   interface Window {
-    google?: GoogleGlobal
+    google?: any
   }
 }
 
