@@ -142,7 +142,7 @@ export function ComponentHeader({ chart }: ComponentHeaderProps) {
       </div>
 
       {/* 3. Sleek, Low-Profile Install Command Bar */}
-      <div className="flex items-center justify-between gap-2.5 rounded-lg border border-white/[0.08] bg-zinc-950/70 p-2 sm:px-3 text-xs font-mono shadow-xs max-w-2xl">
+      <div className="flex items-center justify-between gap-2.5 rounded-lg border border-white/[0.08] bg-zinc-950/70 p-2 sm:px-3 text-xs font-mono shadow-xs w-full max-w-2xl">
         <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
           <HugeiconsIcon
             icon={ComputerTerminal01Icon}

@@ -1169,9 +1169,10 @@
    Responsive — Mobile
    ========================================================================== */
 @media (max-width: 767px) {
-  .lens-shell {
+  .lens-shell,
+  .site-container-wide {
     padding: 36px 0 22px;
-    width: calc(100% - 40px);
+    width: calc(100% - 32px);
   }
   .lens-heading {
     flex-direction: column;
@@ -1608,7 +1609,7 @@
 @media (max-width: 600px) {
   .lens-shell,
   .site-container-wide {
-    width: calc(100% - 40px);
+    width: calc(100% - 32px);
   }
   .lens-copy > button,
   .lens-module-actions > a {
