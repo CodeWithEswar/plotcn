@@ -27,6 +27,12 @@ export const docsConfig: DocsConfig = {
           section: "Guide",
         },
         {
+          title: "System Design",
+          href: "/docs/architecture",
+          description: "Three-engine architecture, runtime boundaries, shared visualization layer, and registry distribution.",
+          section: "Guide",
+        },
+        {
           title: "Installation",
           href: "/docs/installation",
           description: "Step-by-step installation guide for Next.js, dependencies, and Plotcn.",

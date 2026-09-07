@@ -30,6 +30,23 @@ import {
   InstalledFilesCard,
 } from "./intro-components"
 import {
+  ArchitectureHero,
+  HighLevelArchitectureDiagram,
+  ProductEquationCard,
+  ArchitecturalDomainsCard,
+  EnginePipelinesCard,
+  GoogleLoaderArchitectureCard,
+  RenderingModelsComparison,
+  SharedLayerScopeCard,
+  ArchitecturalBoundaryRulesCard,
+  ClientServerBoundaryCard,
+  ResponsiveArchitectureFlow,
+  ThemeAndA11yArchitectureCard,
+  RegistryAndDependencyFlow,
+  ArchitecturalInvariantsCard,
+  FinalSystemMentalModelDiagram,
+} from "./architecture-components"
+import {
   InstallationProvider,
   InstallationHero,
   FrameworkSelector,
@@ -136,6 +153,7 @@ interface MDXRendererProps {
 export async function MDXRenderer({ content, slug, rawContent }: MDXRendererProps) {
   const elements = await parseMarkdownToReact(content, { slug, rawContent })
   if (
+    slug === "architecture" ||
     slug === "installation" ||
     slug === "project-setup" ||
     slug === "shadcn" ||
@@ -483,6 +501,141 @@ async function parseMarkdownToReact(
       }
       i++
       elements.push(<InstalledFilesCard key={`inst-files-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ArchitectureHero")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ArchitectureHero>")) {
+        i++
+      }
+      i++
+      elements.push(<ArchitectureHero key={`arch-hero-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<HighLevelArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</HighLevelArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<HighLevelArchitectureDiagram key={`hl-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ProductEquationCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ProductEquationCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ProductEquationCard key={`prod-eq-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ArchitecturalDomainsCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ArchitecturalDomainsCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ArchitecturalDomainsCard key={`arch-dom-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EnginePipelinesCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EnginePipelinesCard>")) {
+        i++
+      }
+      i++
+      elements.push(<EnginePipelinesCard key={`eng-pipe-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleLoaderArchitectureCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleLoaderArchitectureCard>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleLoaderArchitectureCard key={`gc-load-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RenderingModelsComparison")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RenderingModelsComparison>")) {
+        i++
+      }
+      i++
+      elements.push(<RenderingModelsComparison key={`rend-mod-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SharedLayerScopeCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SharedLayerScopeCard>")) {
+        i++
+      }
+      i++
+      elements.push(<SharedLayerScopeCard key={`sh-scope-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ArchitecturalBoundaryRulesCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ArchitecturalBoundaryRulesCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ArchitecturalBoundaryRulesCard key={`bound-rules-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ClientServerBoundaryCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ClientServerBoundaryCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ClientServerBoundaryCard key={`cs-bound-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ResponsiveArchitectureFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ResponsiveArchitectureFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ResponsiveArchitectureFlow key={`resp-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ThemeAndA11yArchitectureCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ThemeAndA11yArchitectureCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ThemeAndA11yArchitectureCard key={`theme-a11y-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RegistryAndDependencyFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RegistryAndDependencyFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<RegistryAndDependencyFlow key={`reg-dep-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ArchitecturalInvariantsCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ArchitecturalInvariantsCard>")) {
+        i++
+      }
+      i++
+      elements.push(<ArchitecturalInvariantsCard key={`arch-inv-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FinalSystemMentalModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FinalSystemMentalModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<FinalSystemMentalModelDiagram key={`fin-ment-${i}`} />)
       continue
     }
 

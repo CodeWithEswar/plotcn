@@ -1,0 +1,255 @@
+---
+title: "System Design"
+description: "Detailed architecture of Plotcn: three-engine strategy, runtime boundaries, shared visualization layer, and registry distribution."
+section: "Guide"
+---
+
+<ArchitectureHero
+  eyebrow="System Design"
+  title="System Architecture"
+  description="A source-first visualization system composed of three visualization engines, a shared chart-experience layer, and a shadcn-compatible registry."
+/>
+
+Plotcn is an open-source, source-first visualization architecture for React.
+
+The architecture preserves engine independence while delivering a unified developer and product experience. Recharts, D3.js, and Google Charts remain distinct engines, while Plotcn provides the shared visual tokens, responsive measurement, accessibility shell, and registry distribution layer.
+
+<DocsDivider />
+
+## High-Level Architecture
+
+Plotcn organizes visualization delivery around two primary branches: the public website application and the shadcn-compatible registry distribution layer.
+
+<HighLevelArchitectureDiagram />
+
+The Plotcn product model solves the problem of rigid third-party visualization libraries by separating engine capability, shared standards, and source ownership:
+
+<ProductEquationCard />
+
+Plotcn does **not** attempt to replace the underlying visualization engines. Instead, it provides the production-ready product layer surrounding them.
+
+<DocsDivider />
+
+## Architectural Domains
+
+The system is partitioned into five major architectural domains with strict unidirectional boundaries:
+
+<ArchitecturalDomainsCard />
+
+These five domains remain intentionally separated to prevent coupling product UI code to low-level visualization primitives.
+
+<DocsDivider />
+
+## Engine Architecture
+
+Plotcn features three distinct rendering engines. Each engine is chosen for what it does best, maintaining clean architectural pipelines from typed application data to rendered pixels.
+
+<EnginePipelinesCard />
+
+### Recharts Architecture
+
+Recharts is the primary engine for conventional React application charts:
+
+- **Line & Area**: Continuous time-series metrics, trends, and filled volume distributions
+- **Bar & Column**: Categorical comparisons, grouped bars, and stacked financial metrics
+- **Pie & Donut**: Proportional breakdowns, category shares, and center-stat KPI cards
+- **Scatter & Bubble**: Two-dimensional correlation plots and distribution clusters
+- **Radar & Radial**: Multi-axis capability scoring and circular progress metrics
+- **Composed Charts**: Combined line and bar charts sharing a unified time axis
+
+Plotcn preserves Recharts' declarative React model without wrapping every primitive behind proprietary abstractions.
+
+### D3.js Architecture
+
+D3 is used for custom mathematical geometries, continuous coordinate systems, and physics simulations:
+
+- **Mathematical Scales**: Continuous linear, logarithmic, power, time, and band scales
+- **Geometric Paths**: Area generators, curved lines, Voronoi tessellations, and contour paths
+- **Hierarchy & Trees**: Treemaps, circle packing, sunbursts, and dendrograms
+- **Physics Layouts**: Force-directed simulation nodes and spring networks
+- **Interaction Transforms**: Dynamic brush selections and smooth coordinate zoom/pan
+
+Plotcn enforces a strict separation: **D3 computes the math; React manages the DOM**. Imperative mutations (`d3.select(...)`) are avoided in favor of declarative JSX SVG elements.
+
+### Google Charts Architecture
+
+Google Charts requires a dedicated architecture because it uses a browser-loaded, externally hosted visualization runtime:
+
+- **Typed Application Data**: Passed as standard JavaScript object arrays
+- **Plotcn Google Component**: Handles data transformation, CSS variable theme translation, accessible screen-reader shell, and container lifecycle
+- **Shared Google Loader**: Coordinates script deduplication, on-demand package fetching, and promise caching
+- **Google Runtime**: Executes `chart.draw(dataTable, options)` inside an isolated rendering container
+
+> [!IMPORTANT]
+> **Hosted Runtime Boundary**: Google Charts must remain behind a narrow client-side runtime boundary. Never load Google Charts from the root layout, documentation shell, component gallery, or application shell. Load it only when a Google visualization is actually mounted.
+
+<DocsDivider />
+
+## Shared Google Loader
+
+All Google Charts components share a resilient, singleton loader located at `@/lib/google-charts/loader.ts`.
+
+<GoogleLoaderArchitectureCard />
+
+The loader guarantees:
+
+- **Single Script Injection**: The external loader script (`https://www.gstatic.com/charts/loader.js`) is injected at most once across the entire application lifecycle.
+- **Request Deduplication**: Concurrent requests await the same pending initialization Promise.
+- **On-Demand Package Loading**: Only the packages required by active visualizations (`corechart`, `geochart`, `timeline`, `sankey`, `orgchart`, `table`) are fetched.
+- **Explicit State Machine**: Transitions through strongly typed states (`idle` → `loading` → `ready` | `error`).
+- **SSR Safety**: Guards against accessing `window` or `document` during server-side pre-rendering.
+
+```ts
+export type GoogleChartsLoaderState =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "error"
+```
+
+Packages are mapped dynamically:
+
+```ts
+export const googleChartPackages = {
+  core: ["corechart"],
+  geo: ["geochart"],
+  timeline: ["timeline"],
+  sankey: ["sankey"],
+  org: ["orgchart"],
+  table: ["table"],
+} as const
+```
+
+<DocsDivider />
+
+## Rendering Architecture
+
+Plotcn implements three distinct rendering models, each reflecting the underlying engine's technical paradigm:
+
+<RenderingModelsComparison />
+
+This distinction remains explicit throughout the codebase. No engine is forced to mimic another engine's internal execution model.
+
+<DocsDivider />
+
+## Shared Chart Layer
+
+The shared chart layer encapsulates **engine-independent product concerns** while keeping engine-specific visualization mechanics native:
+
+<SharedLayerScopeCard />
+
+### Shared Experience vs. Shared Implementation
+
+The guiding rule of Plotcn is:
+
+> **Share the experience when possible. Keep engine mechanics native.**
+
+Plotcn standardizes visual language, state transitions, accessibility requirements, and responsive conventions across all three engines without forcing an artificial, leaky universal chart abstraction.
+
+<DocsDivider />
+
+## Architectural Boundary Rules
+
+Twelve architectural invariants govern every component in Plotcn:
+
+<ArchitecturalBoundaryRulesCard />
+
+<DocsDivider />
+
+## Client / Server Boundaries
+
+The Plotcn website and consumer implementations follow Next.js server-first principles:
+
+<ClientServerBoundaryCard />
+
+Documentation prose, syntax highlighting, and registry manifests render statically on the server. Interactive chart interactions, hover tooltips, gesture zooms, and the Google Charts runtime initialize exclusively on the client behind explicit boundaries.
+
+<DocsDivider />
+
+## Responsive Architecture
+
+Responsiveness in Plotcn is driven by the **chart container**, not merely the viewport window:
+
+<ResponsiveArchitectureFlow />
+
+Using `ResizeObserver`, charts respond fluidly whether placed inside full-width pages, responsive dashboard grids, narrow sidebar cards, or mobile modal drawers. Google Charts uses a 150ms debounced redraw schedule to prevent layout thrashing during continuous resize events.
+
+<DocsDivider />
+
+## Theme & Accessibility Architecture
+
+Visual theming and screen-reader accessibility exist outside individual engine assumptions:
+
+<ThemeAndA11yArchitectureCard />
+
+- **Theme Flow**: Inherits semantic application CSS variables (`--chart-1` through `--chart-5`, `--background`, `--foreground`) and adapts them for Recharts SVG fills, D3 color scales, or Google Charts options objects.
+- **Accessibility Flow**: Every visualization implements `role="region"`, `aria-label`, hidden natural-language screen-reader summaries, and accessible data disclosure tables.
+
+<DocsDivider />
+
+## Registry & Dependency Distribution
+
+The Plotcn Registry is a **distribution system**, not an immutable runtime package.
+
+<RegistryAndDependencyFlow />
+
+Visualizations are distributed as static JSON item manifests from the production registry origin (`https://plotcn.vercel.app/r/{name}.json`) and installed directly into your repository via the shadcn CLI:
+
+```bash
+npx shadcn@latest add @plotcn/line-basic
+```
+
+Installed components are regular TypeScript and React files in your project. You own every line, with zero opaque node_modules lock-in.
+
+<DocsDivider />
+
+## Technology Stack
+
+The Plotcn system leverages modern, production-hardened web standards:
+
+| Layer | Technology | Primary Responsibility |
+| --- | --- | --- |
+| **Application** | Next.js App Router, React 19, TypeScript | Documentation, gallery, registry hosting, SEO, playground shell |
+| **Styling** | Tailwind CSS v4, CSS Variables, shadcn/ui | Design tokens, glassmorphism, responsive utilities, surrounding controls |
+| **Icons** | Hugeicons React | Navigation, action buttons, technical badges, status indicators |
+| **Motion** | Motion for React + D3 transitions | State transitions, data updates, reduced-motion-aware animations |
+| **Standard Charts** | Recharts | Conventional Cartesian dashboard charts, analytics, and business metrics |
+| **Advanced Geometry** | Modular D3 (`d3-shape`, `d3-scale`, `d3-force`) | Custom math, continuous scales, hierarchies, Voronoi, and physics layouts |
+| **Enterprise & Geo** | Google Charts & GeoChart | Statistical choropleth mapping, Gantt timelines, Sankey flows, and data grids |
+| **Google Runtime** | Shared Plotcn Google Loader | Script deduplication, on-demand package loading, readiness lifecycle |
+| **Primary Rendering** | Vector SVG | Default renderer for Plotcn-owned Recharts and D3 visualizations |
+| **High-Density** | Canvas API | High-throughput D3 visualizations where data density justifies it |
+| **Distribution** | shadcn Registry Schema | Source-available component delivery and dependency resolution |
+| **Documentation** | MDX + Server-Side Shiki | Rich technical guides, live interactive examples, and syntax highlighting |
+
+<DocsDivider />
+
+## Testing Boundaries
+
+Quality assurance in Plotcn is organized across clear boundaries:
+
+- **Shared Layer Tests**: Validates ResizeObserver policies, theme token translation, screen-reader data table disclosure, and truthful state fallbacks.
+- **Recharts Tests**: Verifies component composition, tooltip rendering, reduced-motion overrides, and responsive breakpoints.
+- **D3.js Tests**: Tests mathematical coordinate projections, scale ranges, and geometric path generators independently of DOM rendering.
+- **Google Charts Tests**: Isolates local React wrapper unit tests from live external Google CDN integration tests.
+- **Registry Installation Tests**: Verifies that installed component source builds cleanly inside empty, fresh consumer projects.
+
+<DocsDivider />
+
+## Core Architectural Invariants
+
+Eighteen immutable principles maintain Plotcn's architectural integrity as the catalog grows:
+
+<ArchitecturalInvariantsCard />
+
+<DocsDivider />
+
+## Final System Mental Model
+
+Plotcn brings Recharts, D3.js, and Google Charts into one coherent developer ecosystem:
+
+<FinalSystemMentalModelDiagram />
+
+> **Three visualization engines. One shared product experience. Complete source ownership.**
+
+Recharts remains Recharts. D3 remains idiomatic React + D3. Google Charts retains its enterprise runtime and option model. Plotcn provides the unifying layer that makes all three feel intentional, consistent, responsive, accessible, and source-available for modern React applications.

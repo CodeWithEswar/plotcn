@@ -34,9 +34,7 @@ Plotcn is an open-source React visualization collection designed for developers 
 
 Instead of installing an opaque third-party npm package that locks you into rigid styling abstractions, Plotcn distributes visualizations directly into your codebase through the **shadcn Registry**.
 
-```text
-Browse component  →  Run CLI command  →  Component code copied to your app  →  You own every line
-```
+> **Browse component** → **Run CLI command** → **Component copied to your repo** → **You own every line**
 
 ---
 
@@ -44,14 +42,11 @@ Browse component  →  Run CLI command  →  Component code copied to your app  
 
 Plotcn components are built on top of three battle-tested rendering engines, chosen specifically for what they do best:
 
-```text
-Plotcn Visualization Ecosystem
-├── Recharts         (Composable React SVG Cartesian charts)
-├── D3.js            (Mathematical & custom geometric layouts)
-└── Google Charts    (Mature standard charts & statistical choropleths)
-    ├── Core Charts  (Line, Bar, Column, Area, Pie)
-    └── Geo          (GeoChart world, country, and regional choropleths)
-```
+| Engine | Primary Scope | Rendering Model |
+| --- | --- | --- |
+| **Recharts** | Conventional dashboard, business analytics, Cartesian charts (Line, Bar, Area, Pie) | Declarative React SVG |
+| **D3.js** | Custom mathematical geometry, scales, force-directed networks, hierarchical Voronoi | React DOM + SVG / Canvas |
+| **Google Charts** | Core enterprise charts, timelines, Sankey flows, and statistical GeoChart choropleths | Client-side hosted runtime |
 
 1. **Recharts Engine**: Declarative, responsive SVG visualizations built for standard Cartesian charts — line charts, area charts, bar graphs, and scatter plots.
 2. **D3.js Engine**: Mathematical precision visualizations for specialized layouts — force-directed network graphs, Voronoi treemaps, heatmaps, and radial coordinate systems.
@@ -136,26 +131,18 @@ export function GlobalDistribution() {
 
 ## Project Structure
 
-```text
-d:/plotcn
-├── app/                  # Next.js 16 App Router (Landing & Documentation routes)
-│   ├── docs/             # Documentation shell, layout, and [slug] pages
-│   └── globals.css       # Design tokens, Shiki code styles, and dark tooltip CSS
-├── components/
-│   ├── charts/
-│   │   ├── google/       # Google Charts primitive, GeoChart, Line, Bar, & Container
-│   │   ├── d3-plot.tsx   # D3 visualization implementations
-│   │   └── ...           # Recharts components & Plotcn containers
-│   ├── docs/             # Documentation sidebar, TOC, MDX renderer, code blocks
-│   ├── landing/          # Hero, engine comparison, catalog, & interactive explorer
-│   └── site/             # Header, command palette search, navigation
-├── config/               # Documentation routes and navigation configuration
-├── content/docs/         # MDX documentation articles
-└── lib/
-    ├── google-charts/    # Singleton script loader, packages, theme, and data adapters
-    ├── docs.ts           # Cached document parser & TOC generator
-    └── shiki.ts          # Singleton Shiki syntax highlighter
-```
+| Directory | Description |
+| --- | --- |
+| `app/` | Next.js 16 App Router (Landing, Documentation routes, layout shells) |
+| `components/charts/` | Visualization source (`google/`, `recharts/`, `d3/`, and `shared/` containers) |
+| `components/docs/` | SVG flow diagrams, interactive explorers, TOC, MDX renderer |
+| `components/landing/` | Hero, engine showcase, catalog grid, and interactive explorer |
+| `components/site/` | Site header, command palette search, navigation, mobile drawer |
+| `config/` | Documentation routes and navigation configuration |
+| `content/docs/` | MDX documentation articles with zero ASCII diagrams |
+| `lib/google-charts/` | Singleton script loader, package map, theme, and data adapters |
+| `lib/docs.ts` | Cached document parser & TOC generator |
+| `lib/shiki.ts` | Singleton Shiki syntax highlighter |
 
 ---
 
