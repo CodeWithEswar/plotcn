@@ -27,9 +27,9 @@ export function LineMultiple({
       <ChartContainer>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.4)" />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
+            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
             <Tooltip
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null
@@ -46,9 +46,9 @@ export function LineMultiple({
                 )
               }}
             />
-            <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
-            <Line type="monotone" name="Current Period" dataKey="current" stroke="hsl(var(--chart-1, 142 71% 45%))" strokeWidth={2} dot={false} />
-            <Line type="monotone" name="Previous Period" dataKey="previous" stroke="hsl(var(--chart-2, 199 89% 48%))" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+            <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px", color: "var(--chart-foreground, #fafafa)" }} />
+            <Line type="monotone" name="Current Period" dataKey="current" stroke="var(--chart-1, #10b981)" strokeWidth={2} dot={false} />
+            <Line type="monotone" name="Previous Period" dataKey="previous" stroke="var(--chart-2, #0ea5e9)" strokeWidth={2} strokeDasharray="4 4" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </ChartContainer>

@@ -27,7 +27,7 @@ export function D3AnimatedLine({
   data,
   width = 600,
   height = 300,
-  color = "hsl(var(--chart-1, 142 71% 45%))",
+  color = "var(--chart-1, #10b981)",
   className,
 }: D3AnimatedLineProps) {
   const margin = { top: 20, right: 20, bottom: 30, left: 40 }
@@ -76,7 +76,7 @@ export function D3AnimatedLine({
               x2={innerWidth}
               y1={yScale(tick)}
               y2={yScale(tick)}
-              stroke="hsl(var(--border) / 0.3)"
+              stroke="var(--chart-grid, rgba(255,255,255,0.1))"
               strokeDasharray="3 3"
             />
           ))}
@@ -98,7 +98,7 @@ export function D3AnimatedLine({
               cx={xScale(i)}
               cy={yScale(d.y)}
               r={3.5}
-              fill="hsl(var(--background, 240 10% 3.9%))"
+              fill="var(--background, #09090b)"
               stroke={color}
               strokeWidth={2}
               className="hover:r-5 transition-all"

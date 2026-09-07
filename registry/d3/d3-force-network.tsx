@@ -75,7 +75,7 @@ export function D3ForceNetwork({
               y1={link.source.y}
               x2={link.target.x}
               y2={link.target.y}
-              stroke="hsl(var(--border) / 0.6)"
+              stroke="var(--chart-grid, rgba(255,255,255,0.15))"
               strokeWidth={1.5}
             />
           ))}
@@ -85,14 +85,15 @@ export function D3ForceNetwork({
             <g key={node.id} transform={`translate(${node.x || 0},${node.y || 0})`}>
               <circle
                 r={8}
-                fill="hsl(var(--chart-1, 142 71% 45%))"
-                stroke="hsl(var(--background))"
+                fill="var(--chart-1, #10b981)"
+                stroke="var(--background, #09090b)"
                 strokeWidth={2}
               />
               <text
                 dy={16}
                 textAnchor="middle"
-                className="fill-zinc-400 text-[10px] font-mono select-none"
+                fill="var(--chart-axis, #a1a1aa)"
+                className="text-[10px] font-mono select-none"
               >
                 {node.label}
               </text>

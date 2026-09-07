@@ -16,7 +16,7 @@ export const charts: readonly ChartMetadata[] = [
     registryDependencies: ["chart-container"],
     features: ["ResponsiveContainer", "Curved Spline", "Glassmorphic Tooltip", "Accessible Axis"],
     dataShape: `interface LineBasicDatum {\n  label: string\n  value: number\n}`,
-    snippet: `<LineBasic data={data} color="hsl(var(--chart-1))" />`,
+    snippet: `<LineBasic data={data} color="var(--chart-1)" />`,
   },
   {
     id: "recharts-line-multiple",
@@ -32,7 +32,7 @@ export const charts: readonly ChartMetadata[] = [
     registryDependencies: ["chart-container"],
     features: ["Dual Series", "Interactive Legend", "Custom Dots", "Synchronized Tooltips"],
     dataShape: `interface MultiSeriesDatum {\n  label: string\n  primary: number\n  secondary: number\n}`,
-    snippet: `<LineMultiple data={data} series={[{ key: "primary", color: "#10b981" }, { key: "secondary", color: "#3b82f6" }]} />`,
+    snippet: `<LineMultiple data={data} series={[{ key: "primary", color: "var(--chart-1)" }, { key: "secondary", color: "var(--chart-2)" }]} />`,
   },
   {
     id: "recharts-area-basic",
@@ -48,7 +48,7 @@ export const charts: readonly ChartMetadata[] = [
     registryDependencies: ["chart-container"],
     features: ["Vertical Gradient Fill", "Stroke Glow", "Minimal Cartesian Grid", "Responsive"],
     dataShape: `interface AreaBasicDatum {\n  label: string\n  value: number\n}`,
-    snippet: `<AreaBasic data={data} color="#10b981" />`,
+    snippet: `<AreaBasic data={data} color="var(--chart-1)" />`,
   },
   {
     id: "recharts-bar-basic",
@@ -64,7 +64,7 @@ export const charts: readonly ChartMetadata[] = [
     registryDependencies: ["chart-container"],
     features: ["Rounded Bar Caps", "Category Tick Formatter", "Dynamic Hover Tint", "Dark Theme"],
     dataShape: `interface BarBasicDatum {\n  label: string\n  value: number\n}`,
-    snippet: `<BarBasic data={data} color="hsl(var(--chart-1))" />`,
+    snippet: `<BarBasic data={data} color="var(--chart-1)" />`,
   },
 
   // D3.js Family

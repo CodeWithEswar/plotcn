@@ -199,5 +199,30 @@ describe("Section 9: Theme & Visual Design System", () => {
       const monochromeSnapshot = resolveThemeSnapshot({ palette: "monochrome" })
       assert.deepEqual(monochromeSnapshot.series, monochromePalette.series)
     })
+
+    it("should ensure chart components consume valid CSS variables and avoid invalid hsl() wrappers", async () => {
+      const fs = await import("node:fs/promises")
+      const files = [
+        "registry/recharts/line-basic.tsx",
+        "registry/recharts/line-multiple.tsx",
+        "registry/recharts/area-basic.tsx",
+        "registry/recharts/bar-basic.tsx",
+        "registry/d3/d3-animated-line.tsx",
+        "registry/d3/d3-force-network.tsx",
+      ]
+
+      for (const file of files) {
+        const content = await fs.readFile(file, "utf-8")
+        assert.ok(
+          !content.includes("hsl(var("),
+          `File ${file} should not contain invalid hsl(var(...) syntax which breaks oklch color spaces`
+        )
+        assert.ok(
+          content.includes("var(--chart-"),
+          `File ${file} should directly reference semantic chart variables var(--chart-*)`
+        )
+      }
+    })
   })
 })
+

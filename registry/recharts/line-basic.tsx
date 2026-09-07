@@ -27,7 +27,7 @@ export function LineBasic({
   data,
   valueKey = "value",
   labelKey = "label",
-  color = "hsl(var(--chart-1, 142 71% 45%))",
+  color = "var(--chart-1, #10b981)",
   height = 280,
   className,
 }: LineBasicProps) {
@@ -36,17 +36,17 @@ export function LineBasic({
       <ChartContainer>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.4)" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
             <XAxis
               dataKey={labelKey}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
             />
             <YAxis
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
             />
             <Tooltip
               content={({ active, payload, label }) => {
@@ -67,7 +67,7 @@ export function LineBasic({
               stroke={color}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: color, stroke: "#000", strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: color, stroke: "var(--background, #09090b)", strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>

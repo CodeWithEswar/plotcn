@@ -23,7 +23,7 @@ export function AreaBasic({
   data,
   valueKey = "value",
   labelKey = "label",
-  color = "hsl(var(--chart-1, 142 71% 45%))",
+  color = "var(--chart-1, #10b981)",
   height = 280,
   className,
 }: AreaBasicProps) {
@@ -40,9 +40,9 @@ export function AreaBasic({
                 <stop offset="95%" stopColor={color} stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.4)" />
-            <XAxis dataKey={labelKey} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
-            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
+            <XAxis dataKey={labelKey} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
             <Tooltip
               content={({ active, payload, label }) => {
                 if (!active || !payload?.length) return null

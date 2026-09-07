@@ -13,7 +13,7 @@ export interface ChartApiProps {
 
 const defaultProps: PropItem[] = [
   { name: "data", type: "Array<Record<string, any>>", default: "required", description: "Array of data records to bind to chart series and axes." },
-  { name: "color", type: "string", default: '"hsl(var(--chart-1))"', description: "Primary theme stroke or fill color." },
+  { name: "color", type: "string", default: '"var(--chart-1)"', description: "Primary theme stroke or fill color." },
   { name: "height", type: "number | string", default: "300", description: "Explicit height for the chart container." },
   { name: "valueKey", type: "string", default: '"value"', description: "Key name in data records to read numeric values from." },
   { name: "labelKey", type: "string", default: '"label"', description: "Key name in data records to read category labels from." },
