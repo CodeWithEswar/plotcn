@@ -17,11 +17,17 @@ export interface LineBasicProps {
   color?: string
   height?: number | string
   className?: string
+  /**
+   * Optional motion configuration or toggle.
+   * Section 10.46, 10.47, 10.60.
+   */
+  motion?: boolean | { duration?: number }
 }
 
 /**
  * Recharts LineBasic
- * Fast, approachable Cartesian line chart with dark glassmorphic tooltip.
+ * Fast, approachable Cartesian line chart with dark glassmorphic tooltip and normalized animation.
+ * Section 10.46, 10.47.
  */
 export function LineBasic({
   data,
@@ -30,7 +36,20 @@ export function LineBasic({
   color = "var(--chart-1, #10b981)",
   height = 280,
   className,
+  motion = true,
 }: LineBasicProps) {
+  const [reducedMotion, setReducedMotion] = React.useState(false)
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    }
+  }, [])
+
+  const isAnimated = motion !== false && !reducedMotion
+  const animationDuration =
+    typeof motion === "object" && motion?.duration !== undefined ? motion.duration * 1000 : 300
+
   return (
     <div className={className} style={{ width: "100%", height }}>
       <ChartContainer>
@@ -68,6 +87,9 @@ export function LineBasic({
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4, fill: color, stroke: "var(--background, #09090b)", strokeWidth: 2 }}
+              isAnimationActive={isAnimated}
+              animationDuration={animationDuration}
+              animationEasing="ease-out"
             />
           </LineChart>
         </ResponsiveContainer>

@@ -344,4 +344,89 @@ export interface ChartThemePreset {
   neutral?: string
 }
 
+/**
+ * Supported semantic motion presets.
+ * Section 10.6, 10.90.
+ */
+export type MotionPreset =
+  | "none"
+  | "fade"
+  | "grow"
+  | "draw"
+  | "reveal"
+  | "sweep"
+  | "morph"
+
+/**
+ * Public chart motion configuration model.
+ * Section 10.5, 10.6.
+ */
+export interface ChartMotionConfig {
+  enter?: MotionPreset
+  update?: MotionPreset
+  exit?: MotionPreset
+  duration?: number
+}
+
+/**
+ * Distinct lifecycle and interaction motion phases.
+ * Section 10.9.
+ */
+export type MotionPhase = "enter" | "update" | "exit" | "interaction" | "layout"
+
+/**
+ * Curated timing tokens (in seconds) for visualization transitions.
+ * Section 10.13, 10.93.
+ */
+export const chartMotionDuration = {
+  micro: 0.14,    // 140ms - micro interactions, selection feedback
+  tooltip: 0.16,  // 160ms - tooltip appearance & subtle highlight
+  fast: 0.18,     // 180ms - fast UI transitions, small transforms
+  normal: 0.3,    // 300ms - standard chart geometry update
+  slow: 0.45,     // 450ms - complex multi-series geometry transition
+  complex: 0.5,   // 500ms - maximum cap for coordinated transitions
+} as const
+
+export type MotionTimingScale = typeof chartMotionDuration
+
+/**
+ * Restrained easing tokens avoiding bouncy overshoot on quantitative metrics.
+ * Section 10.15, 10.94.
+ */
+export const chartMotionEasing = {
+  enter: [0.16, 1, 0.3, 1] as const,      // ease-out curve
+  update: [0.4, 0, 0.2, 1] as const,     // ease-in-out curve
+  exit: [0.4, 0, 1, 1] as const,         // ease-in curve
+  linear: [0, 0, 1, 1] as const,         // linear scrub
+} as const
+
+export type MotionEasingTokens = typeof chartMotionEasing
+
+/**
+ * Semantic preset definition containing timing, easing, and reduced-motion fallback.
+ * Section 10.91.
+ */
+export interface MotionPresetDefinition {
+  name: MotionPreset
+  duration: number
+  easing: readonly number[]
+  reducedMotionFallback: "none" | "fade"
+  description: string
+}
+
+/**
+ * Fully resolved motion policy governing execution across engines.
+ * Section 10.1, 10.52.
+ */
+export interface ResolvedMotionPolicy {
+  enabled: boolean
+  reducedMotion: boolean
+  enter: MotionPreset
+  update: MotionPreset
+  exit: MotionPreset
+  duration: number
+  easing: readonly number[]
+}
+
+
 

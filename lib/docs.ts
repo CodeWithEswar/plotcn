@@ -36,6 +36,7 @@ const SLUG_TO_FILE: Record<string, string> = {
   usage: "fundamentals/usage.mdx",
   theming: "fundamentals/theming.mdx",
   accessibility: "fundamentals/accessibility.mdx",
+  motion: "fundamentals/motion.mdx",
   "google-charts": "google-charts/overview.mdx",
   "google-geochart": "google-charts/geochart.mdx",
 }

@@ -1,0 +1,124 @@
+---
+title: "Motion & Animation"
+description: "Learn how Plotcn treats motion as a visual communication layer to explain state change, data continuity, and interaction without competing with data."
+section: "Fundamentals"
+---
+
+## Motion philosophy
+
+Plotcn treats animation as a **visual communication layer**, not as decoration and not as part of the chart engine itself.
+
+The governing principle is:
+
+> **"Motion should explain change, not compete with the data."**
+
+When properly designed, motion improves:
+- **State continuity**: tracking categories or series during sort and filter operations.
+- **Data change comprehension**: visual continuity from old values to new values.
+- **Selection feedback**: immediate tactile response for active elements.
+- **Interaction feedback**: tooltips and crosshairs staying glued to pointer positions.
+- **Layout transitions**: smooth repositioning of legends or annotations without jarring layout shifts.
+
+All of this must happen without making charts slower, harder to read, or inaccessible.
+
+---
+
+## Motion architecture
+
+Plotcn divides animations across three execution channels depending on what is actually changing:
+
+```text
+                   DATA / STATE CHANGE
+                          │
+                          ▼
+                    Motion Policy
+                          │
+             ┌────────────┼─────────────┐
+             ▼            ▼             ▼
+
+        UI Motion     Geometry       Engine-Native
+     Motion React   Interpolation      Behavior
+             │            │             │
+             ▼            ▼             ▼
+
+       Tooltip /      Path / Arc       Recharts /
+       Legend /       Coordinates       Google
+       Presence
+```
+
+1. **UI / Layout / Presence**: Driven by Motion for React (`motion/react`) for tooltips, legend toggles, and popover surfaces.
+2. **Numeric & Path Geometry**: Handled by mathematical interpolation and coordinate helpers for D3 paths, monotone curves, and radial arcs.
+3. **Engine-Owned Rendering**: Delegated to native Recharts and Google Charts animations with normalized timing and reduced-motion enforcement.
+
+---
+
+## Semantic presets
+
+Rather than arbitrary spring parameters, Plotcn standardizes motion through semantic presets that describe what the visualization mark is doing:
+
+| Preset | Purpose | Primary Chart Family | Timing |
+| :--- | :--- | :--- | :--- |
+| `draw` | Stroke dash progressive line reveal | Line, Sparkline | 300ms |
+| `grow` | Expansion from semantic zero baseline | Bar, Column, Histogram | 300ms |
+| `sweep` | Radial angular progression | Pie, Donut, Gauge | 450ms |
+| `reveal` | Directional clip-path masking | Area, Timeline | 300ms |
+| `morph` | Coordinate interpolation across updates | Line, Area | 300ms |
+| `stagger` | Controlled item-by-item delay (capped) | Bar groups, Legends | ≤ 150ms total |
+| `fade` | Universal fallback for large data | Scatter, Heatmap, Fallbacks | 180ms |
+| `none` | Instant rendering without transition | Heavy data, Reduced motion | 0ms |
+
+---
+
+## Restrained timing & easing
+
+Visualization motion requires restrained easing. **Plotcn never applies bouncy or elastic springs to primary quantitative geometry.** A bar representing financial revenue or server throughput should never overshoot its real value.
+
+```ts
+// Curated duration tokens (in seconds)
+export const chartMotionDuration = {
+  micro: 0.14,    // 140ms - selection feedback
+  tooltip: 0.16,  // 160ms - tooltip presence
+  fast: 0.18,     // 180ms - fast UI transitions
+  normal: 0.3,    // 300ms - standard chart geometry update
+  slow: 0.45,     // 450ms - multi-series transitions
+  complex: 0.5,   // 500ms - maximum coordination cap
+} as const
+```
+
+---
+
+## Reduced motion
+
+Plotcn enforces an uncompromising reduced-motion policy across all chart engines:
+
+> **"Reduced motion changes how state is presented, not whether state is presented."**
+
+When `prefers-reduced-motion: reduce` is active:
+- `draw` resolves immediately to the final path.
+- `grow` displays final bar geometry instantly.
+- `sweep` presents final arc positions without rotation.
+- `stagger` is disabled (zero delay).
+- Direct manipulation (pan, zoom, scrub) remains direct and responsive.
+
+```tsx
+import { useChartMotion } from "@plotcn/chart-motion"
+
+export function MyChart({ data }: { data: Datum[] }) {
+  // Automatically detects prefers-reduced-motion and resolves fallbacks
+  const policy = useChartMotion({ enter: "draw", update: "morph" }, "line")
+
+  return <svg>...</svg>
+}
+```
+
+---
+
+## Interruption & latest state wins
+
+Animations in live dashboards or real-time streaming must be interruptible. If new data arrives while an animation is playing:
+
+```text
+Current interpolated state ──► Becomes starting state ──► Transitions to latest target
+```
+
+Plotcn never queues animation backlogs. Stale transitions are immediately superseded by the latest state.

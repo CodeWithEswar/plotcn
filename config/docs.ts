@@ -85,6 +85,12 @@ export const docsConfig: DocsConfig = {
           description: "WCAG standards, keyboard interaction, screen-reader layers, and reduced motion.",
           section: "Fundamentals",
         },
+        {
+          title: "Motion & Animation",
+          href: "/docs/motion",
+          description: "Visual communication layer, semantic presets, coordinate interpolation, and reduced motion.",
+          section: "Fundamentals",
+        },
       ],
     },
     {

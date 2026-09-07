@@ -17,8 +17,18 @@ export interface BarBasicProps {
   color?: string
   height?: number | string
   className?: string
+  /**
+   * Optional motion configuration or toggle.
+   * Section 10.26, 10.46, 10.60.
+   */
+  motion?: boolean | { duration?: number }
 }
 
+/**
+ * Recharts BarBasic
+ * Categorical vertical bar chart with rounded caps, baseline grow animation, and reduced-motion awareness.
+ * Section 10.26, 10.46, 10.60.
+ */
 export function BarBasic({
   data,
   valueKey = "value",
@@ -26,7 +36,20 @@ export function BarBasic({
   color = "var(--chart-1, #10b981)",
   height = 280,
   className,
+  motion = true,
 }: BarBasicProps) {
+  const [reducedMotion, setReducedMotion] = React.useState(false)
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    }
+  }, [])
+
+  const isAnimated = motion !== false && !reducedMotion
+  const animationDuration =
+    typeof motion === "object" && motion?.duration !== undefined ? motion.duration * 1000 : 300
+
   return (
     <div className={className} style={{ width: "100%", height }}>
       <ChartContainer>
@@ -48,7 +71,14 @@ export function BarBasic({
                 )
               }}
             />
-            <Bar dataKey={valueKey} fill={color} radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey={valueKey}
+              fill={color}
+              radius={[4, 4, 0, 0]}
+              isAnimationActive={isAnimated}
+              animationDuration={animationDuration}
+              animationEasing="ease-out"
+            />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
