@@ -1,0 +1,27 @@
+{
+  "name": "@plotcn/chart-react",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Small, reusable React primitives for Plotcn-owned visualization composition",
+  "author": "CodeWithEswar",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./root": "./src/root/index.ts",
+    "./cartesian": "./src/cartesian/index.ts",
+    "./polar": "./src/polar/index.ts",
+    "./interaction": "./src/interaction/index.ts",
+    "./legend": "./src/legend/index.ts",
+    "./annotations": "./src/annotations/index.ts",
+    "./accessibility": "./src/accessibility/index.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
