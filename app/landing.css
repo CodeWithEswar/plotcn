@@ -4,7 +4,7 @@ html { scroll-behavior:smooth; scroll-padding-top:100px; }
 .landing { background:#080809; color:#fafafa; overflow:clip; }
 .site-container { width:min(100% - 96px,1320px); margin-inline:auto; }
 .site-container-wide { width:min(100% - 96px,1520px); margin-inline:auto; }
-.site-header { position:sticky; top:0; z-index:40; height:80px; border-bottom:1px solid #ffffff0a; background:#08080980; transition:background .25s,border-color .25s; }
+.site-header { position:sticky; top:0; z-index:40; width:100%; height:80px; border-bottom:1px solid #ffffff0a; background:#08080980; transition:background .25s,border-color .25s; }
 .site-header.is-scrolled { background:#080809dc; backdrop-filter:blur(20px); border-color:#ffffff14; }
 .header-inner { height:100%; display:flex; align-items:center; justify-content:space-between; gap:32px; }
 .brand-link { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:23px; font-weight:600; letter-spacing:-1px; flex-shrink:0; }

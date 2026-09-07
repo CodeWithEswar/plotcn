@@ -217,27 +217,14 @@ export function SiteHeader() {
     }
   }
 
-  const isDocs = pathname?.startsWith("/docs")
-  const isWide =
-    pathname?.startsWith("/charts") ||
-    pathname?.startsWith("/blocks") ||
-    pathname?.startsWith("/playground")
 
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
-      <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
-        <div
-          className={`${
-            isDocs
-              ? "w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8"
-              : isWide
-              ? "site-container-wide"
-              : "site-container"
-          } header-inner`}
-        >
+      <header className={`site-header w-full ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 header-inner">
           <Link href="/" className="brand-link" aria-label="Plotcn home">
             <AppLogo className="size-8" />
             <span>Plotcn</span>
