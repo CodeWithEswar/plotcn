@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { DocsSidebar } from "./docs-sidebar"
 import { type TocItem } from "@/lib/docs"
@@ -10,6 +10,7 @@ import {
   Menu01Icon,
   MenuSquareIcon,
   ArrowDown01Icon,
+  Cancel01Icon,
 } from "@hugeicons/core-free-icons"
 
 interface DocsMobileNavProps {
@@ -47,14 +48,37 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
             <HugeiconsIcon icon={Menu01Icon} size={15} strokeWidth={1.8} />
             <span className="font-medium">Docs Menu</span>
           </SheetTrigger>
-          <SheetContent side="left" className="dark w-[280px] bg-zinc-950 border-zinc-800 p-6 overflow-y-auto">
-            <SheetHeader className="text-left mb-4">
-              <SheetTitle className="text-base text-zinc-100">Documentation</SheetTitle>
-              <SheetDescription className="text-xs text-zinc-400">
-                Browse installation and guides
-              </SheetDescription>
-            </SheetHeader>
-            <DocsSidebar onSelect={() => setOpenSidebar(false)} />
+          <SheetContent
+            side="left"
+            showCloseButton={false}
+            className="dark docs-sheet !w-[245px] !max-w-[80vw] !p-0 !gap-0 !bg-[#0c0c0e] !border-r !border-white/[0.08] shadow-2xl flex flex-col overflow-hidden"
+            style={{ width: "245px", maxWidth: "80vw" }}
+          >
+            <div className="flex items-center justify-between p-4 pb-3 border-b border-white/[0.08] shrink-0">
+              <div className="flex flex-col gap-0.5 min-w-0 text-left">
+                <SheetTitle className="!text-[15px] !font-semibold !leading-tight tracking-tight text-white m-0">
+                  Documentation
+                </SheetTitle>
+                <SheetDescription className="!text-[11px] !leading-normal text-zinc-400 m-0">
+                  Browse installation and guides
+                </SheetDescription>
+              </div>
+              <SheetClose
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="size-7 shrink-0 text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-md cursor-pointer -mr-1"
+                  />
+                }
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={15} strokeWidth={2} />
+                <span className="sr-only">Close</span>
+              </SheetClose>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin">
+              <DocsSidebar onSelect={() => setOpenSidebar(false)} />
+            </div>
           </SheetContent>
         </Sheet>
 

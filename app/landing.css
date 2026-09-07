@@ -23,6 +23,9 @@ html { scroll-behavior:smooth; scroll-padding-top:100px; }
 .mobile-sheet, [data-slot=sheet-content].mobile-sheet { width:270px !important; max-width:85vw !important; background:#0c0c0e !important; border-left:1px solid rgba(255,255,255,0.08) !important; padding:0 !important; gap:0 !important; }
 .mobile-sheet h2, .mobile-sheet [data-slot=sheet-title] { font-size:15px !important; line-height:1.2 !important; font-weight:600 !important; letter-spacing:-0.02em !important; margin:0 !important; color:#ffffff !important; }
 .mobile-sheet [data-slot=sheet-description] { font-size:11px !important; line-height:1.4 !important; color:#a1a1aa !important; margin:0 !important; }
+.docs-sheet, [data-slot=sheet-content].docs-sheet { width:245px !important; max-width:80vw !important; background:#0c0c0e !important; border-right:1px solid rgba(255,255,255,0.08) !important; padding:0 !important; gap:0 !important; }
+.docs-sheet h2, .docs-sheet [data-slot=sheet-title] { font-size:15px !important; line-height:1.2 !important; font-weight:600 !important; letter-spacing:-0.02em !important; margin:0 !important; color:#ffffff !important; }
+.docs-sheet [data-slot=sheet-description] { font-size:11px !important; line-height:1.4 !important; color:#a1a1aa !important; margin:0 !important; }
 .mobile-sheet nav { display:flex !important; flex-direction:column !important; padding:12px !important; gap:3px !important; overflow-y:auto !important; flex:1 1 0% !important; }
 .mobile-sheet nav a { display:flex !important; align-items:center !important; justify-content:space-between !important; width:100% !important; padding:8px 12px !important; border-radius:8px !important; font-size:12px !important; color:#a1a1aa !important; transition:all .15s ease !important; text-decoration:none !important; }
 .mobile-sheet nav a:hover { color:#fafafa !important; background:rgba(255,255,255,0.05) !important; }
