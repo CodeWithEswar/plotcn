@@ -26,7 +26,7 @@ export function ChartContainer({
     <div
       data-chart={chartId}
       className={cn(
-        "flex aspect-video justify-center text-xs text-zinc-100",
+        "flex w-full h-full min-w-0 min-h-0 justify-center text-xs text-zinc-100",
         "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--chart-axis,var(--color-muted-foreground,#a1a1aa))]",
         "[&_.recharts-cartesian-grid_line]:stroke-[var(--chart-grid,var(--color-border,rgba(255,255,255,0.1)))]",
         "[&_.recharts-curve.recharts-tooltip-cursor]:stroke-[var(--chart-crosshair,var(--color-border,#52525b))]",

@@ -25,7 +25,7 @@ export function LineMultiple({
   return (
     <div className={className} style={{ width: "100%", height }}>
       <ChartContainer>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <LineChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
             <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />

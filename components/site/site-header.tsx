@@ -229,7 +229,7 @@ export function SiteHeader() {
                   : pathname === item.href
               return (
                 <Link
-                  key={item.label}
+                  key={item.href}
                   href={item.href}
                   className={isActive ? "!text-white font-medium" : undefined}
                 >
@@ -273,11 +273,11 @@ export function SiteHeader() {
             <Sheet open={menu} onOpenChange={setMenu}>
               <SheetTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="mobile-menu" aria-label="Open navigation" />
+                  <Button variant="ghost" size="icon" className="mobile-menu" aria-label="Open navigation">
+                    <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={1.8} />
+                  </Button>
                 }
-              >
-                <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={1.8} />
-              </SheetTrigger>
+              />
               <SheetContent className="dark mobile-sheet">
                 <SheetHeader>
                   <SheetTitle>Plotcn</SheetTitle>
@@ -285,7 +285,7 @@ export function SiteHeader() {
                 </SheetHeader>
                 <nav aria-label="Mobile navigation">
                   {navigation.map((item) => (
-                    <Link key={item.label} href={item.href} onClick={() => setMenu(false)}>
+                    <Link key={item.href} href={item.href} onClick={() => setMenu(false)}>
                       {item.label}
                       <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={1.8} />
                     </Link>
