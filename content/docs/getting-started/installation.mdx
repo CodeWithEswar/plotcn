@@ -1,102 +1,62 @@
 ---
 title: "Installation"
-description: "Step-by-step installation guide for Next.js, core dependencies, and Plotcn registry configuration."
+description: "Set up Plotcn for your stack. Choose your framework and package manager to get technically verified, framework-specific commands."
 section: "Getting Started"
 ---
 
-This guide walks you through setting up a modern Next.js project with Plotcn and its visualization dependencies.
+<InstallationHero />
 
-## System Requirements
+## Choose your framework
 
-Before starting, ensure your development environment meets the following specifications:
+Select your application framework to configure tailored scaffolding and setup commands.
 
-- **Node.js**: 18.18.0 or newer (Node 20+ LTS recommended)
-- **Framework**: Next.js 14, 15, or 16 (App Router recommended)
-- **Styling**: Tailwind CSS v4 or v3
-- **Package Manager**: pnpm (recommended), npm, yarn, or bun
+<FrameworkSelector />
 
-## Create Next.js Application
+<PackageManagerSelector />
 
-If you don't have an existing Next.js project, create one using `create-next-app` with TypeScript and Tailwind CSS enabled:
+<SetupSummary />
 
-:::package-manager
-pnpm create next-app@latest my-app --typescript --tailwind --eslint --app
-:::
+## Requirements
 
-Navigate into your new project directory:
+Ensure your environment satisfies the requirements for your selected framework before proceeding:
 
-```bash
-cd my-app
-```
+<FrameworkRequirements />
 
-## Install Dependencies
+## Create your project
 
-Plotcn components rely on **Recharts** for Cartesian charts, **D3** for algorithmic layouts, and **Hugeicons** for icons:
+Scaffold a clean project configured with your framework, TypeScript, Tailwind CSS, and shadcn/ui:
 
-:::package-manager
-pnpm add recharts d3 @hugeicons/react @hugeicons/core-free-icons
-pnpm add -D @types/d3
-:::
-
-> [!NOTE]
-> Recharts and D3 are modular dependencies. If your application only requires Recharts-based Cartesian charts, you can install `recharts` alone.
+<CreateProjectCommand />
 
 ## Initialize shadcn/ui
 
-Plotcn integrates seamlessly with shadcn/ui. If your project hasn't initialized shadcn yet, run the initialization command:
+Plotcn visualizations are native React components designed around the shadcn/ui architecture. Initialize shadcn in your project:
 
-:::package-manager
-pnpm dlx shadcn@latest init
-:::
+<InitializeShadcnCommand />
 
-During setup, configure your preferences:
-- **Style**: Default or Nova
-- **Base Color**: Neutral or Zinc
-- **CSS Variables**: Yes (required for theme tokens)
+## Configure Plotcn
 
-This generates a `components.json` file in your project root with path aliases and styling configurations.
+Plotcn distributes copy-paste visualizations through the open shadcn registry specification. Add the Plotcn registry to your project configuration:
 
-## Configure Plotcn Registry
+<ConfigurePlotcnSection />
 
-Open your `components.json` file and register Plotcn under the `registries` field:
+## Install your first visualization
 
-```json title="components.json"
-{
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
-  "rsc": true,
-  "tsx": true,
-  "tailwind": {
-    "css": "app/globals.css",
-    "baseColor": "neutral",
-    "cssVariables": true
-  },
-  "iconLibrary": "hugeicons",
-  "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui"
-  },
-  "registries": {
-    "@plotcn": "https://plotcn.com/r"
-  }
-}
-```
+Add your first visualization component directly into your project's `components/charts` directory:
 
-## Verify Installation
+<FirstVisualizationCommand />
 
-Once configured, verify that your project can resolve Plotcn components. During initial development or preview, you can test adding your first component:
+## Verify your setup
 
-:::package-manager
-pnpm dlx shadcn@latest add @plotcn/line
-:::
+Ensure your project resolves Plotcn components, dependencies, and theme CSS variables properly:
 
-This copies the component directly to your `components/charts/line.tsx` file where you have 100% code ownership.
+<VerificationSection />
 
-## Next Steps
+## Next steps
 
-Now that your project dependencies are in place, explore the setup details:
+Explore the core concepts and customize Plotcn visualizations for your product:
 
-- [Project Setup](/docs/project-setup) — Verify path aliases and Tailwind CSS v4 tokens.
-- [shadcn Setup](/docs/shadcn) — Deep-dive into `components.json` configuration options.
+- [Project Setup](/docs/project-setup) — Verify path aliases and Tailwind CSS configuration.
+- [shadcn Setup](/docs/shadcn) — Deep-dive into `components.json` options.
+- [Theming](/docs/theming) — Customize Cartesian and geometric chart color tokens.
 - [Usage Guide](/docs/usage) — Learn the standard component API and props pattern.

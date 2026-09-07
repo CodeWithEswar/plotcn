@@ -10,19 +10,26 @@ import {
   CheckmarkCircle01Icon,
   ComputerTerminal01Icon,
 } from "@hugeicons/core-free-icons"
+import { PackageManagerIcon } from "./installation/package-manager-icons"
+import { useInstallation } from "./installation/installation-context"
+import { type PackageManager, formatCommand } from "./package-manager-utils"
+export type { PackageManager }
+export { formatCommand }
 
-type PackageManager = "pnpm" | "npm" | "yarn" | "bun"
-
-interface PackageManagerTabsProps {
+export interface PackageManagerTabsProps {
   command?: string
   commands?: Partial<Record<PackageManager, string>>
+  highlightedCommands?: Partial<Record<PackageManager, string>>
 }
 
 export function PackageManagerTabs({
   command = "",
   commands,
+  highlightedCommands,
 }: PackageManagerTabsProps) {
-  const [activeTab, setActiveTab] = useState<PackageManager>("pnpm")
+  // Synchronize with global installation context if available
+  const installation = useInstallation()
+  const [localTab, setLocalTab] = useState<PackageManager>("pnpm")
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -30,14 +37,26 @@ export function PackageManagerTabs({
     setMounted(true)
     const stored = localStorage.getItem("plotcn_pkg_mgr") as PackageManager | null
     if (stored && ["pnpm", "npm", "yarn", "bun"].includes(stored)) {
-      setActiveTab(stored)
+      setLocalTab(stored)
     }
   }, [])
 
+  // Priority: global context packageManager if mounted, otherwise localTab
+  const activeTab: PackageManager = mounted && installation?.packageManager
+    ? installation.packageManager
+    : localTab
+
   const handleTabChange = (val: string) => {
     const pkg = val as PackageManager
-    setActiveTab(pkg)
-    localStorage.setItem("plotcn_pkg_mgr", pkg)
+    setLocalTab(pkg)
+    if (installation?.setPackageManager) {
+      installation.setPackageManager(pkg)
+    }
+    try {
+      localStorage.setItem("plotcn_pkg_mgr", pkg)
+    } catch {
+      // Ignore in sandbox
+    }
   }
 
   // Derive commands for each package manager from base command
@@ -60,9 +79,10 @@ export function PackageManagerTabs({
   return (
     <div className="my-6 rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-sm">
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-white/[0.08] px-3 py-1.5 bg-zinc-900/40">
           <div className="flex items-center gap-2">
-            <span className="text-zinc-500 pl-1">
+            <span className="text-zinc-500 pl-1" aria-hidden="true">
               <HugeiconsIcon icon={ComputerTerminal01Icon} size={15} strokeWidth={1.8} />
             </span>
             <TabsList className="bg-transparent h-8 p-0 gap-1">
@@ -70,14 +90,16 @@ export function PackageManagerTabs({
                 <TabsTrigger
                   key={pkg}
                   value={pkg}
-                  className="text-xs px-2.5 py-1 h-7 rounded-md font-mono text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:bg-zinc-800/90 data-[state=active]:shadow-none transition-colors"
+                  className="flex items-center gap-1.5 text-xs px-2.5 py-1 h-7 rounded-md font-mono text-zinc-400 data-[state=active]:text-zinc-100 data-[state=active]:bg-zinc-800/90 data-[state=active]:shadow-none transition-colors"
                 >
-                  {pkg}
+                  <PackageManagerIcon pkg={pkg} size={13} className="shrink-0" />
+                  <span>{pkg}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
 
+          {/* Copy Button */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger
@@ -95,8 +117,11 @@ export function PackageManagerTabs({
                   icon={copied ? CheckmarkCircle01Icon : Copy01Icon}
                   size={14}
                   strokeWidth={1.8}
+                  className={copied ? "text-emerald-400" : "text-zinc-400"}
                 />
-                <span className="text-[11px] font-mono">{copied ? "Copied" : "Copy"}</span>
+                <span className={`text-[11px] font-mono ${copied ? "text-emerald-400 font-medium" : ""}`}>
+                  {copied ? "Copied" : "Copy"}
+                </span>
               </TooltipTrigger>
               <TooltipContent side="left" className="text-xs font-mono bg-zinc-900 border-zinc-800 text-zinc-200">
                 {copied ? "Copied to clipboard!" : "Copy command"}
@@ -105,13 +130,29 @@ export function PackageManagerTabs({
           </TooltipProvider>
         </div>
 
+        {/* Code Content Tabs */}
         {(["pnpm", "npm", "yarn", "bun"] as const).map((pkg) => (
           <TabsContent
             key={pkg}
             value={pkg}
-            className="m-0 p-4 font-mono text-[13px] leading-relaxed text-zinc-200 overflow-x-auto selection:bg-zinc-800 whitespace-pre"
+            className="m-0 p-4 font-mono text-[13px] leading-relaxed text-zinc-200 overflow-x-auto selection:bg-zinc-800"
           >
-            <code>{resolvedCommands[pkg]}</code>
+            {highlightedCommands?.[pkg] ? (
+              <div
+                className="plotcn-code-content"
+                dangerouslySetInnerHTML={{ __html: highlightedCommands[pkg]! }}
+              />
+            ) : (
+              <div className="plotcn-code-content">
+                <pre className="shiki vesper !bg-transparent !m-0 !p-0 font-mono text-[13px] leading-relaxed">
+                  <code>
+                    <span className="line">
+                      {renderShellHighlight(resolvedCommands[pkg])}
+                    </span>
+                  </code>
+                </pre>
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
@@ -119,60 +160,113 @@ export function PackageManagerTabs({
   )
 }
 
-function formatCommand(cmd: string, pkg: PackageManager): string {
-  const trimmed = cmd.trim()
+/**
+ * Client-side shell syntax tokenizer that matches Shiki's Vesper dark theme.
+ * Used as an instant fallback when server-side Shiki pre-highlighted HTML is not provided.
+ */
+function renderShellHighlight(command: string): React.ReactNode {
+  const words = command.split(/(\s+)/)
+  const keywords = new Set(["pnpm", "npm", "npx", "yarn", "bun", "bunx", "dlx"])
+  const subcommands = new Set([
+    "add",
+    "install",
+    "i",
+    "create",
+    "registry",
+    "init",
+    "view",
+    "list",
+    "search",
+    "run",
+    "build",
+    "dev",
+  ])
 
-  if (trimmed.startsWith("pnpm create next-app")) {
-    switch (pkg) {
-      case "npm":
-        return trimmed.replace("pnpm create next-app", "npx create-next-app")
-      case "yarn":
-        return trimmed.replace("pnpm create next-app", "yarn create next-app")
-      case "bun":
-        return trimmed.replace("pnpm create next-app", "bun create next-app")
-      default:
-        return trimmed
+  return words.map((token, index) => {
+    // Preserve whitespace
+    if (/^\s+$/.test(token)) {
+      return <React.Fragment key={index}>{token}</React.Fragment>
     }
-  }
 
-  if (trimmed.startsWith("pnpm dlx shadcn@latest")) {
-    switch (pkg) {
-      case "npm":
-        return trimmed.replace("pnpm dlx shadcn@latest", "npx shadcn@latest")
-      case "yarn":
-        return trimmed.replace("pnpm dlx shadcn@latest", "yarn dlx shadcn@latest")
-      case "bun":
-        return trimmed.replace("pnpm dlx shadcn@latest", "bunx --bun shadcn@latest")
-      default:
-        return trimmed
+    // Executables / Keywords (Vesper peach/amber #FFC799)
+    if (keywords.has(token)) {
+      return (
+        <span key={index} style={{ color: "#FFC799" }} className="font-semibold">
+          {token}
+        </span>
+      )
     }
-  }
 
-  if (trimmed.startsWith("pnpm add -D")) {
-    switch (pkg) {
-      case "npm":
-        return trimmed.replace("pnpm add -D", "npm install -D")
-      case "yarn":
-        return trimmed.replace("pnpm add -D", "yarn add -D")
-      case "bun":
-        return trimmed.replace("pnpm add -D", "bun add -d")
-      default:
-        return trimmed
+    // Subcommands (Vesper cyan/aqua #99FFE4)
+    if (subcommands.has(token)) {
+      return (
+        <span key={index} style={{ color: "#99FFE4" }}>
+          {token}
+        </span>
+      )
     }
-  }
 
-  if (trimmed.startsWith("pnpm add")) {
-    switch (pkg) {
-      case "npm":
-        return trimmed.replace("pnpm add", "npm install")
-      case "yarn":
-        return trimmed.replace("pnpm add", "yarn add")
-      case "bun":
-        return trimmed.replace("pnpm add", "bun add")
-      default:
-        return trimmed
+    // CLI Flags (Vesper pink/rose #F472B6)
+    if (token.startsWith("-")) {
+      return (
+        <span key={index} style={{ color: "#F472B6" }}>
+          {token}
+        </span>
+      )
     }
-  }
 
-  return trimmed
+    // Key=Value args (e.g. @plotcn=https://plotcn.com/r/{name}.json)
+    if (token.includes("=")) {
+      const eqIdx = token.indexOf("=")
+      const left = token.slice(0, eqIdx)
+      const right = token.slice(eqIdx + 1)
+      return (
+        <span key={index}>
+          <span style={{ color: "#A1A1AA" }}>{left}</span>
+          <span style={{ color: "#71717A" }}>=</span>
+          <span style={{ color: "#6EE7B7" }}>{right}</span>
+        </span>
+      )
+    }
+
+    // Namespaces & Scoped Packages (e.g. @plotcn/line-basic)
+    if (token.startsWith("@")) {
+      return (
+        <span key={index} style={{ color: "#6EE7B7" }}>
+          {token}
+        </span>
+      )
+    }
+
+    // URLs
+    if (token.startsWith("http://") || token.startsWith("https://")) {
+      return (
+        <span key={index} style={{ color: "#2DD4BF" }}>
+          {token}
+        </span>
+      )
+    }
+
+    // Package with version tag (e.g. shadcn@latest)
+    if (token.includes("@")) {
+      const atIdx = token.indexOf("@")
+      const pkgName = token.slice(0, atIdx)
+      const ver = token.slice(atIdx)
+      return (
+        <span key={index}>
+          <span style={{ color: "#FFFFFF" }}>{pkgName}</span>
+          <span style={{ color: "#F472B6" }}>{ver}</span>
+        </span>
+      )
+    }
+
+    // Default arguments
+    return (
+      <span key={index} style={{ color: "#E4E4E7" }}>
+        {token}
+      </span>
+    )
+  })
 }
+
+

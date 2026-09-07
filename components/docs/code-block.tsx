@@ -55,7 +55,7 @@ export async function CodeBlock({
       {/* Syntax-Highlighted HTML Rendered Directly on the Server */}
       <div
         id={elementId}
-        className={`plotcn-code-content p-4 text-[13px] font-mono leading-relaxed selection:bg-zinc-800 whitespace-pre overflow-x-auto ${
+        className={`plotcn-code-content p-4 text-[13px] font-mono selection:bg-zinc-800 overflow-x-auto ${
           shouldShowLineNumbers ? "has-line-numbers" : ""
         }`}
         dangerouslySetInnerHTML={{ __html: highlightedHtml }}

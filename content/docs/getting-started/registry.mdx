@@ -1,92 +1,386 @@
 ---
 title: "Plotcn Registry"
-description: "Understand the CLI workflow, source code distribution model, and local customization."
+description: "Source distribution for visualization components. Package charts, shared primitives, utilities, and dependencies into installable source items resolved by the shadcn CLI."
 section: "Getting Started"
 ---
 
-The Plotcn Registry is a decentralized component distribution network designed for high-performance React visualization components.
+<RegistryHero />
 
-## How the Registry Works
+<PlotcnRegistryFlow />
 
-The registry operates on a simple, transparent JSON-based schema compatible with the shadcn CLI:
+## What is the Plotcn Registry?
 
-```text
-┌─────────────────────────┐
-│  Developer runs:        │
-│  shadcn add @plotcn/line│
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  CLI fetches:           │
-│  https://plotcn.com/    │
-│  r/@plotcn/line.json    │
-└───────────┬─────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  CLI writes code into:  │
-│  components/charts/     │
-│  line.tsx               │
-└─────────────────────────┘
-```
+The **Plotcn Registry** is the source-distribution layer for Plotcn visualizations. Instead of forcing every chart into a monolithic npm runtime package, registry items describe the source files, npm packages, shared primitives, and metadata required to install one focused piece of the visualization system.
 
-When you run the `add` command:
-1. The CLI queries the Plotcn registry index for the component schema.
-2. The schema specifies required npm dependencies (`recharts`, `d3`, etc.) and automatically installs any missing packages.
-3. The raw, fully-typed TypeScript component code is written directly to your project.
+When you install a component, the shadcn CLI fetches the JSON manifest from the registry, resolves any nested dependencies, and writes pristine, fully-typed TypeScript source files directly into your project repository.
 
-## Installing Components
+<DocsCallout title="Registry ≠ runtime" type="warning">
+**The Plotcn Registry delivers source code.** It is not involved when your application renders the chart at runtime. Once installed, your charts compile locally as native code with zero ongoing connection or telemetry to Plotcn servers.
+</DocsCallout>
 
-To install a Plotcn component using your preferred package manager:
+#### Why source distribution over an npm library?
 
-:::package-manager
-pnpm dlx shadcn@latest add @plotcn/line
-:::
+Traditional chart libraries ship pre-bundled JavaScript with opaque internal styles, rigid markup wrappers, and heavy peer dependencies. If you need to tweak an SVG attribute, customize an axis label, or adapt an internal hook, you are blocked by the package boundary.
 
-### Installing Specific Variants
+With the Plotcn Registry:
+- **Zero wrapper abstraction**: You receive raw React and SVG elements you can directly inspect and modify.
+- **Selective installation**: Installing a basic line chart pulls only `recharts` and the shared container primitive—never D3, Google Charts, or unrelated visual engines.
+- **Seamless design integration**: Components immediately adopt your Tailwind CSS tokens, CSS variables, and font configurations.
 
-Plotcn components are modular. You can install individual chart types or complete dashboard blocks:
+---
+
+## Registry mental model
+
+Understanding the registry requires shifting from a "package dependency" mindset to a "source adoption" lifecycle:
+
+<RegistryMentalModel />
+
+#### The 4-step mental flow
+
+1. **Discovery & Catalog**: You browse available chart primitives or search the registry index for specific layout needs (Cartesian line, bar, D3 force simulation, Google GeoChart).
+2. **Item Resolution**: The shadcn CLI parses the item address (e.g. `@plotcn/line-basic`), resolves the registry endpoint from your `components.json`, and downloads the static JSON manifest.
+3. **Local Source Materialization**: The CLI verifies required npm dependencies, resolves shared registry primitives (`chart-container.tsx`), and writes the code into your designated `@/components/charts` directory.
+4. **Independent Application Compilation**: From this point onward, your bundler (Turbopack, Vite, Webpack) compiles the code like any other component in your project.
+
+#### A critical distinction for Google Charts
+
+While Recharts and D3.js components compile and execute entirely from local code and npm dependencies, **Google Charts components** rely on Google's hosted `google.visualization` runtime. The registry item for a Google chart provides the local React wrapper, lifecycle hook, and container styling, while the underlying chart rendering engine is loaded on-demand in the client browser from Google's secure CDN.
+
+---
+
+## Registry namespace
+
+Modern shadcn CLI supports namespaced registries using the `@namespace/item` convention configured in `components.json`.
+
+For Plotcn, the intended public namespace format is:
 
 ```bash
-# Cartesian charts
-pnpm dlx shadcn@latest add @plotcn/area
-pnpm dlx shadcn@latest add @plotcn/bar
-pnpm dlx shadcn@latest add @plotcn/scatter
-
-# D3 precision layouts
-pnpm dlx shadcn@latest add @plotcn/network-graph
-pnpm dlx shadcn@latest add @plotcn/heatmap
+@plotcn/<item>
 ```
 
-> [!NOTE]
-> During active local development or offline environments, you can also copy component source files directly from the Plotcn repository into your `components/charts/` folder.
+For example, `@plotcn/line-basic` resolves to the basic Cartesian line chart manifest.
 
-## File Organization in Your App
+<NamespaceResolver />
 
-Once installed, components land in your project structure according to your `components.json` aliases:
+#### Configuring the namespace in `components.json`
 
-```text
-my-app/
-├── components/
-│   ├── charts/
-│   │   ├── line.tsx         <-- Installed Plotcn chart
-│   │   ├── area.tsx         <-- Installed Plotcn chart
-│   │   └── chart-tooltip.tsx <-- Reusable tooltip primitive
-│   └── ui/
-│       ├── button.tsx
-│       └── tooltip.tsx
-└── app/
-    └── dashboard/
-        └── page.tsx
+To enable the `@plotcn` namespace in your project, declare it under the `registries` dictionary in your `components.json`:
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "app/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@plotcn": "https://plotcn.vercel.app/r/{name}.json"
+  }
+}
 ```
 
-## Source Code Ownership
+The `{name}` parameter acts as a URL template. When you request `@plotcn/line-basic`, the CLI substitutes `{name}` with `line-basic` and requests `https://plotcn.vercel.app/r/line-basic.json`.
 
-Because the code resides directly in your repository:
+<DocsCallout title="Strict Truthfulness & Registry Status" type="note">
+The `@plotcn` namespace is currently in **active preview / beta development**. While the infrastructure is built and tested against the shadcn specification, we also document direct local development endpoints and public GitHub fallback paths below so you can install and test components today.
+</DocsCallout>
 
-- **No wrapper bloat**: There are no artificial abstraction layers between React and the underlying SVG/HTML markup.
-- **Customizable types**: You can adapt TypeScript interfaces to match your exact backend API data shapes.
-- **Git tracked**: Every change to your charts is tracked in your project's version control alongside the rest of your UI.
+---
 
-Next, explore how to render and pass data to components in the [Usage](/docs/usage) guide.
+## Browse and inspect items
+
+The shadcn CLI provides built-in discovery and auditing tools for configured registries:
+
+<RegistryCliExplorer />
+
+#### Inspecting before installation with `view`
+
+Transparency is central to Plotcn's philosophy. Before writing any files to your project or installing npm packages, you can inspect the exact manifest payload:
+
+:::package-manager
+pnpm dlx shadcn@latest view @plotcn/line-basic
+:::
+
+This outputs the complete JSON manifest, allowing you to audit:
+- All required npm packages (`dependencies`)
+- All required shared Plotcn primitives (`registryDependencies`)
+- Every source file and target destination (`files`)
+
+---
+
+## Anatomy of a registry item
+
+Every installable Plotcn visualization is described by a single static JSON manifest following the official shadcn Registry specification.
+
+<RegistryItemExplorer />
+
+#### Core schema fields
+
+- **`name`**: The kebab-case identifier for the item (e.g. `line-basic`, `d3-force-network`).
+- **`type`**: The resource type, typically `"registry:block"` for standalone charts or `"registry:ui"` for shared primitives like `chart-container`.
+- **`description`**: A concise technical summary used by CLI search and developer tooling.
+- **`dependencies`**: Array of npm package dependencies that must be present or installed in `package.json`.
+- **`registryDependencies`**: Array of other registry item names required by this component.
+- **`files`**: Array of file objects specifying local content or remote source URLs and target installation paths.
+
+#### Catalog metadata separation
+
+Plotcn maintains rich catalog metadata (engine category, accessibility tags, complexity tier) in our internal documentation catalog. However, in strict adherence to shadcn standards, we **never** inject non-standard fields into the published registry JSON manifests. This guarantees 100% compatibility with standard shadcn tooling.
+
+---
+
+## Files
+
+A well-architected registry item declares **only the source files actually required** for that visualization. Plotcn avoids bundling massive monolithic utilities when installing a single chart.
+
+<RegistryFileDiff />
+
+#### File destination mapping
+
+The CLI maps registry source paths to your application structure based on your `components.json` alias settings:
+
+<RegistryPathMapping />
+
+Files are written with standard UTF-8 encoding and immediately formatted according to your project's TypeScript and linting rules.
+
+---
+
+## Package dependencies
+
+Plotcn distinguishes between **ordinary npm dependencies** (`dependencies`) and **registry source dependencies** (`registryDependencies`).
+
+<DependencyGraph mode="packages" />
+
+#### Modular D3 packaging
+
+Plotcn never installs the monolithic `d3` package. Instead, D3 components declare only the granular micro-modules they actually invoke:
+- Scale calculations: `d3-scale`
+- SVG path generation: `d3-shape`
+- Data array transformations: `d3-array`
+- Force simulation algorithms: `d3-force`
+
+This ensures your client bundle remains lean and avoids pulling unused layout algorithms or obsolete DOM manipulation code.
+
+---
+
+## Registry dependencies
+
+Registry dependencies enable shared source code reuse without duplicating identical utility files across multiple chart installations.
+
+<DependencyGraph mode="registry" />
+
+#### Shared primitives in Plotcn
+
+Plotcn maintains a focused set of reusable registry primitives:
+- `chart-container`: Provides responsive SVG sizing, CSS variable bridge, and dark/light theme observer.
+- `chart-state`: Standardized loading skeleton, error boundary, and empty state wrapper.
+- `chart-accessibility`: Off-screen ARIA tables, summary captions, and keyboard navigation helpers.
+
+#### Preventing dependency explosions
+
+We adhere to a strict rule: **No deep dependency graphs**. A chart item may depend on 1 or 2 shared base primitives, but we never create multi-tier cascades (`chart` → `wrapper` → `sub-wrapper` → `helper` → `util`) that obscure code ownership.
+
+---
+
+## Engine isolation
+
+One of Plotcn's foundational architectural rules is **strict engine isolation**.
+
+<DocsCallout title="Hard Architecture Rule" type="danger">
+**Engine-specific registry items must stay engine-specific.** Installing a Recharts component must never pull D3 modules. Installing a D3 component must never pull Recharts. Installing a Google chart must never pull Recharts or D3.
+</DocsCallout>
+
+<EngineIsolationDiagram />
+
+Shared primitives (container, theme, loading states) are completely agnostic of the underlying visualization engine. They interact solely with standard React DOM elements and CSS variables.
+
+---
+
+## Installation lifecycle
+
+When you run an install command, the shadcn CLI executes a deterministic, multi-phase installation lifecycle:
+
+<RegistryInstallLifecycle />
+
+#### Step-by-step CLI execution
+
+1. **Parse Item Address**: Evaluates the input string (e.g. `@plotcn/line-basic` or direct URL).
+2. **Resolve Registry**: Looks up `@plotcn` in `components.json` under `registries` to determine the manifest URL template.
+3. **Fetch Manifest**: Performs an HTTP GET request to retrieve `line-basic.json`.
+4. **Resolve Registry Dependencies**: Recursively resolves any referenced registry items (e.g. `chart-container`) to assemble the complete list of files.
+5. **Resolve Package Dependencies**: Reads `dependencies` and compares them against your local `package.json`.
+6. **Determine Target Paths**: Calculates destination filesystem paths using your configured aliases (`@/components/...`).
+7. **Write Source Files**: Emits clean TypeScript files into your codebase.
+8. **Install Packages**: Uses your detected package manager (`pnpm`, `npm`, `yarn`, `bun`) to install any missing npm dependencies.
+
+---
+
+## What gets added
+
+Here is a concrete example of the exact modifications made to your project when installing a typical Plotcn visualization (`@plotcn/line-basic`):
+
+<RegistryModificationSummary />
+
+#### No hidden side-effects
+
+- No background telemetry scripts.
+- No global stylesheet modifications (Plotcn uses your existing `--chart-1` through `--chart-5` variables).
+- No unrequested npm dependencies.
+
+---
+
+## Source ownership
+
+Once a Plotcn component is written into your repository, **the source code belongs entirely to you**.
+
+<SourceOwnershipFlow />
+
+- **Direct Editing**: You can change colors, modify TypeScript interfaces, adjust SVG responsive viewBoxes, or add custom annotations directly in the code.
+- **Zero Lock-In**: You never need to wait for an upstream pull request or library release to fix an edge case or adjust chart behavior.
+- **Git Versioned**: Changes to your charts are committed directly to your application's Git repository, giving your team complete review control.
+
+#### Underlying library ownership
+
+While Plotcn source files belong to your project:
+- Recharts and D3 dependencies remain governed by their respective open-source licenses (MIT/BSD).
+- Google Charts components execute Google's hosted visualization library subject to Google's terms of service.
+
+---
+
+## Updates and upgrades
+
+Because installed components live as source code in your repository, **Plotcn never silently overwrites your local files**.
+
+#### The update philosophy: Intentional adoption
+
+<UpdatePhilosophyFlow />
+
+When Plotcn publishes updates to a component (such as performance optimizations or new accessibility features), your local implementation is protected:
+
+1. **Inspect upstream changes**: Run `shadcn view @plotcn/<item>` to see the current published manifest and code.
+2. **Compare with local code**: Diff upstream changes against your customized local implementation.
+3. **Cherry-pick improvements**: Manually or semi-automatically merge improvements that benefit your project.
+4. **Run typecheck & tests**: Validate that your updated chart continues to compile cleanly.
+
+Plotcn does not provide opaque `upgrade` or `migrate` CLI scripts that risk breaking customized production code.
+
+---
+
+## Local development
+
+For contributors, teams building custom internal registries, or developers testing in offline environments, the shadcn CLI supports testing against local HTTP endpoints.
+
+<RegistryContributorFlow />
+
+#### Serving registry items locally
+
+1. Run the local Plotcn development server:
+   ```bash
+   pnpm dev
+   ```
+2. In a separate test application, add the component using the local endpoint URL:
+   ```bash
+   pnpm dlx shadcn@latest add http://localhost:3000/r/line-basic.json
+   ```
+
+#### Local namespace testing
+
+You can also temporarily map the `@plotcn` namespace to your local server in your test application's `components.json`:
+
+```json
+{
+  "registries": {
+    "@plotcn": "http://localhost:3000/r/{name}.json"
+  }
+}
+```
+
+This lets you test the exact production command `shadcn add @plotcn/line-basic` against your locally running dev server.
+
+---
+
+## Publishing
+
+Plotcn's registry is compiled from modular source files into static JSON artifacts during the build process:
+
+<RegistryPublishingFlow />
+
+#### Build validation pipeline
+
+Before any registry manifest is published, our automated CI pipeline enforces strict quality checks:
+- **Schema Validation**: Ensures all JSON files conform to the official shadcn Registry specification.
+- **Dependency Audit**: Verifies that every imported package is declared in `dependencies` and that no circular `registryDependencies` exist.
+- **Type Checking**: Compiles all component source with TypeScript in strict mode.
+- **Target Integrity**: Verifies that file target paths map to valid directory structures without colliding with user code.
+
+<DocsCallout title="Registry Integrity Invariant" type="note">
+A component is not considered published until it installs, compiles, and passes rendering tests in a completely clean, isolated consumer project.
+</DocsCallout>
+
+---
+
+## GitHub installation
+
+In addition to HTTP registry endpoints, the shadcn CLI supports installing components directly from public GitHub repositories without requiring namespace configuration in `components.json`.
+
+#### Comparison: Namespaced Registry vs. GitHub Direct
+
+| Feature | Configured Namespace (`@plotcn/...`) | GitHub Direct Address |
+| :--- | :--- | :--- |
+| **Command Syntax** | `shadcn add @plotcn/line-basic` | `shadcn add https://github.com/.../line-basic.json` |
+| **Branding** | Clean, branded developer experience | Repository URL path |
+| **Configuration** | Requires entry in `components.json` | Zero configuration required |
+| **Best Used For** | Production apps, teams, long-term DX | Fast prototyping, branch previews, testing PRs |
+
+#### Plotcn recommendation
+
+For standard projects, configure the `@plotcn` namespace in `components.json` for concise, memorable install commands. Use direct GitHub or local URLs when testing unpublished branches or preview builds.
+
+---
+
+## Security
+
+Installing source code from external registries requires the same diligence as adding any third-party dependency to your project.
+
+#### Core security principles
+
+- **Audit Before Installing**: Always run `shadcn view @plotcn/<item>` before running `add` on unfamiliar registry items.
+- **Enforce HTTPS**: Production registry endpoints must always use encrypted HTTPS to prevent man-in-the-middle tampering.
+- **Zero Secrets Rule**: Plotcn registry manifests **never** include API keys, access tokens, or private credentials.
+- **Engine Verification**: Inspect package dependencies to ensure no extraneous or suspicious packages are being installed.
+
+---
+
+## Troubleshooting
+
+Common registry resolution issues and their immediate solutions:
+
+<RegistryTroubleshooting />
+
+---
+
+## Verify the registry
+
+Plotcn enforces a comprehensive quality matrix across all visualization engines before items are eligible for public release:
+
+<RegistryVerificationMatrix />
+
+---
+
+## Next steps
+
+Now that you understand the registry architecture and distribution pipeline, explore how to use and customize your installed components:
+
+<DocsNextSteps />

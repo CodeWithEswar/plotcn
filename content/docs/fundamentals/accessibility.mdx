@@ -1,89 +1,359 @@
 ---
 title: "Accessibility"
-description: "WCAG contrast standards, screen-reader data layers, keyboard navigation, and reduced-motion compliance."
+description: "Visualizations that communicate beyond the visual through semantic structure, deterministic summaries, keyboard interaction, non-color encoding, and accessible data fallbacks."
 section: "Fundamentals"
 ---
 
-Data visualizations often present significant barriers to users relying on screen readers, keyboard navigation, or high-contrast settings. Plotcn treats accessibility as an architectural requirement rather than an afterthought.
+<AccessibilityHero />
 
-## WCAG 2.1 AA Standards
+<AccessibilityModel />
 
-All default themes and components adhere to **WCAG 2.1 Level AA** visualization criteria:
+## Accessibility model
 
-- **Contrast ratio**: At least 3:1 contrast for graphical objects and graphical components against adjacent backgrounds.
-- **Text contrast**: At least 4.5:1 contrast for axis labels, legends, and tooltip metric values.
-- **Non-color cues**: Information is never conveyed solely through color hue.
+A data visualization is not accessible merely because its root `<svg>` element has an `aria-label` attribute. Graphical paths, bezier curves, and canvas pixels are fundamentally invisible to screen readers, while hover-triggered overlays exclude keyboard and mobile touch users.
 
-## Non-Color Data Differentiation
+Plotcn treats accessibility as an architectural contract composed of layered representations:
 
-Users with color vision deficiencies must be able to distinguish multiple data series. Plotcn supports multiple non-color differentiators:
+1. **Accessible Name**: A concise, visible title communicating what the chart represents.
+2. **Accessible Description**: Contextual metadata specifying units of measure, time horizons, and coordinate dimensions.
+3. **Structured Text Summary**: Deterministic, natural-language sentences surfacing the key insight, trend direction, period peak, and minimum.
+4. **Accessible Interaction**: Full keyboard traversal, visible focus rings, roving tab indices, and touch inspection gestures.
+5. **Structured Data Alternative**: A semantic data table sharing the identical underlying data source.
 
-### 1. Line Dash Patterns
-Configure dashed or dotted patterns for secondary or baseline series:
+> [!IMPORTANT]
+> **The visualization is not the only way to access the data.**
+> A chart may be the most efficient visual representation for sighted users, but essential business insights must remain accessible through text, semantics, keyboard interaction, or a structured tabular alternative.
+
+---
+
+## Give every chart a meaningful name
+
+Every chart must have a concise, human-readable name that answers *"what am I looking at?"* in less than five seconds.
+
+#### Meaningful vs. generic names
+
+- **Good**: `Monthly revenue, January through June 2026`
+- **Good**: `Server latency distribution by region (p99)`
+- **Bad**: `Chart`
+- **Bad**: `Graph 1`
+- **Bad**: `Visualization`
+
+#### Native heading relationships
+
+Prefer visible headings connected via `aria-labelledby` over hidden label attributes. Visible labels ground the visualization for all users, including sighted users navigating with screen magnifiers:
 
 ```tsx
-series={[
-  { key: "revenue", label: "Actual", color: "var(--chart-1)" },
-  { key: "target", label: "Target", color: "var(--chart-2)", strokeDasharray: "5 5" },
-  { key: "forecast", label: "Forecast", color: "var(--chart-3)", strokeDasharray: "2 2" },
-]}
+<section
+  aria-labelledby="revenue-chart-title"
+  aria-describedby="revenue-chart-desc"
+  className="rounded-xl border border-border p-6"
+>
+  <header className="space-y-1 mb-4">
+    <h3 id="revenue-chart-title" className="text-base font-semibold text-foreground">
+      Monthly Revenue (H1 2026)
+    </h3>
+    <p id="revenue-chart-desc" className="text-xs text-muted-foreground">
+      Total gross revenue across all sales channels, measured in thousands of USD.
+    </p>
+  </header>
+
+  {/* Visualization Container */}
+  <div role="img" aria-labelledby="revenue-chart-title">
+    <PlotLineChart data={monthlyRevenue} />
+  </div>
+</section>
 ```
 
-### 2. Geometric Point Markers
-Use distinct point shapes (circles, squares, triangles) to distinguish series independent of color.
+> [!NOTE]
+> **Use stable, server-safe identifiers.** Avoid generating random IDs with `Math.random()` or timestamps during render. Use React 19's `useId()` or explicit, deterministic string keys to prevent React hydration mismatches.
 
-## Screen-Reader Data Layers
+---
 
-SVG paths and canvas pixels are invisible to screen readers by default. Plotcn addresses this through a multi-tier screen reader strategy:
+## Add a useful description
 
-### 1. Semantic SVG Roles
-The root SVG element includes `role="graphics-document"` and an `aria-roledescription="chart"` attribute, accompanied by a descriptive `title` and `desc`.
+While the accessible name provides a title, the accessible description provides operational context. A good description answers:
 
-### 2. Visually-Hidden Data Summaries
-For complex charts, Plotcn renders a visually-hidden (`sr-only`) summary table immediately adjacent to the chart. Screen-reader users can navigate data points sequentially using familiar table reading keys:
+- What primary metrics are tracked
+- What units of measurement apply (e.g. US dollars, milliseconds, percentage points)
+- What time boundary or categorical domain is represented
+- What interactive mechanisms are available (e.g. *"Use arrow keys to step between monthly data points"*)
+
+#### Avoid redundant geometry narrations
+
+Do not narrate the physical graphics. Screen-reader users need domain information, not a commentary on SVG shapes:
+
+- **Helpful**: *"Line chart showing gross monthly revenue from January through June 2026, measured in thousands of US dollars. Values range from a low of $42K in January to a peak of $67.4K in May."*
+- **Unhelpful**: *"This is a chart. The chart contains a curved green path with six circular nodes and horizontal dashed grid lines."*
+
+---
+
+## Provide a text summary
+
+For many analytical charts, a concise text summary is significantly more useful to screen-reader users than forcing them to navigate through dozens of individual data points.
+
+<ChartSummaryPreview />
+
+#### Communicate the insight, not every pixel
+
+A high-quality summary surfaces the core analytical takeaway:
+
+- **Direction & Trend**: Upward growth, downward contraction, or stable baseline
+- **Extremes**: Maximum peak and minimum floor with corresponding dates/categories
+- **Total Delta**: Net change across the represented period
+- **Selected State**: Currently highlighted or pinned record
 
 ```tsx
-{/* Accessible screen-reader fallback */}
-<div className="sr-only">
-  <table>
-    <caption>Quarterly Revenue Summary</caption>
-    <thead>
-      <tr><th>Quarter</th><th>Revenue</th><th>Growth</th></tr>
-    </thead>
-    <tbody>
-      {data.map((row) => (
-        <tr key={row.quarter}>
-          <td>{row.quarter}</td>
-          <td>${row.revenue.toLocaleString()}</td>
-          <td>{row.growth}%</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+// Deterministic summary calculation
+function generateRevenueSummary(data: RevenueDatum[]): string {
+  if (data.length === 0) return "No revenue data available."
+
+  const min = data.reduce((a, b) => (a.revenue < b.revenue ? a : b))
+  const max = data.reduce((a, b) => (a.revenue > b.revenue ? a : b))
+  const start = data[0].revenue
+  const end = data[data.length - 1].revenue
+  const delta = Math.round(((end - start) / start) * 100)
+
+  return `Revenue grew by ${delta}% overall from January to June. Period peak was $${max.revenue.toLocaleString()} in ${max.month}, with a low of $${min.revenue.toLocaleString()} in ${min.month}.`
+}
 ```
 
-## Keyboard Interaction
+> [!WARNING]
+> **Avoid subjective AI conclusions in generic charts.**
+> Only generate deterministic, mathematically verifiable summaries. State *"Revenue increased by 45%"* rather than subjective claims like *"Revenue showed outstanding performance"*.
 
-Users navigating with keyboards can tab directly into interactive visualization canvases:
+---
 
-- **Tab**: Focus the chart container or individual active markers.
-- **Arrow keys (← / →)**: Step forward and backward through chronological data points.
-- **Escape**: Dismiss active tooltips or popovers.
+## Provide a structured data alternative
 
-Every interactive element includes explicit `:focus-visible` styling (`outline: 2px solid var(--ring)` with offset) to maintain clear visual focus indicator visibility.
+Data-dense visualizations—such as multi-series line charts, financial candlestick charts, and heatmaps—should offer an accessible tabular alternative.
 
-## Reduced Motion Compliance
+<AccessibleDataDisclosure />
 
-Plotcn components strictly observe the user's OS-level `prefers-reduced-motion` settings.
+#### Single source of truth rule
 
-When reduced motion is enabled:
-- Entry transitions and line sweep animations are instantly completed.
-- Hover pulse and glow effects are replaced with instantaneous opacity state changes.
-- Force-directed physics simulations settle immediately without prolonged bouncing.
+The data table must consume the identical JavaScript data array passed to the visualization component. Never construct independent, static copies of data for assistive technology:
+
+```tsx
+export function AccessibleChartCard({ data }: { data: MonthlyData[] }) {
+  const [showTable, setShowTable] = useState(false)
+
+  return (
+    <section aria-labelledby="sales-metric-title">
+      <div className="flex items-center justify-between mb-4">
+        <h3 id="sales-metric-title" className="text-base font-semibold">
+          Sales Performance
+        </h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowTable(!showTable)}
+          aria-expanded={showTable}
+          aria-controls="sales-data-table"
+        >
+          {showTable ? "Hide data table" : "View data table"}
+        </Button>
+      </div>
+
+      {/* Visual Chart */}
+      <PlotLineChart data={data} />
+
+      {/* Semantic Table Alternative */}
+      {showTable && (
+        <div id="sales-data-table" className="mt-4">
+          <table className="w-full text-left font-mono text-xs">
+            <caption className="sr-only">Monthly sales revenue data</caption>
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Revenue</th>
+                <th scope="col">Variance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row) => (
+                <tr key={row.month}>
+                  <th scope="row">{row.month}</th>
+                  <td>${row.revenue.toLocaleString()}</td>
+                  <td>{row.variance}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  )
+}
+```
+
+#### Visible disclosure vs. visually-hidden tables
+
+- **Visible Disclosure (`[View data table]`)**: Strongly recommended for analytical and enterprise dashboards. Benefits keyboard users, cognitive accessibility users, and executives who wish to copy numbers into spreadsheets.
+- **Visually-Hidden Table (`sr-only`)**: Appropriate when page layout constraints strictly forbid expanding controls, ensuring screen readers still have structured table navigation keys (`T`, `Ctrl+Alt+Arrows`).
+
+---
+
+## Use meaningful semantic structure
+
+Prefer semantic HTML wrapper elements (`<section>`, `<header>`, `<h3>`, `<figure>`, `<figcaption>`) over generic unsemantic `<div>` containers:
+
+```tsx
+<figure
+  role="region"
+  aria-labelledby="figure-caption"
+  className="rounded-xl border border-border p-5"
+>
+  <PlotLineChart data={chartData} />
+
+  <figcaption id="figure-caption" className="text-xs text-muted-foreground mt-3">
+    Figure 1.1: Gross quarterly sales across North American regions from Q1 2024 to Q2 2026.
+  </figcaption>
+</figure>
+```
+
+#### Marking decorative SVG elements
+
+Non-informational graphical artifacts must be explicitly hidden from screen readers so they do not interrupt reading flow:
+
+```tsx
+{/* Decorative Cartesian Gridlines */}
+<line
+  x1="0"
+  y1={y}
+  x2={width}
+  y2={y}
+  stroke="var(--border)"
+  aria-hidden="true"
+/>
+
+{/* Decorative Drop Shadow / Glow Filters */}
+<filter id="decorativeGlow" aria-hidden="true">
+  <feGaussianBlur stdDeviation="3" />
+</filter>
+```
+
+---
+
+## Keyboard interaction
+
+Any interactive visualization capability offered to mouse cursor users must also be fully operable via keyboard.
+
+<KeyboardInteractionGuide />
+
+#### The roving tabindex pattern
+
+When a chart renders 30 or 60 data points, **do not make every point a separate tab stop** (`tabIndex={0}`). That forces keyboard users to press Tab 60 times just to bypass the chart.
+
+Instead, implement a roving tabindex:
+
+1. The outer chart container receives `tabIndex={0}` as a single tab stop.
+2. Once focused, arrow keys (`←` and `→`) step between data points internally.
+3. `Enter` or `Space` selects or pins the active point.
+4. `Escape` dismisses any open tooltip card or returns focus to the parent widget.
+
+```tsx
+function handleChartKeyDown(e: React.KeyboardEvent) {
+  switch (e.key) {
+    case "ArrowRight":
+      e.preventDefault()
+      setActiveIndex((prev) => Math.min(prev + 1, data.length - 1))
+      break
+    case "ArrowLeft":
+      e.preventDefault()
+      setActiveIndex((prev) => Math.max(prev - 1, 0))
+      break
+    case "Enter":
+    case " ":
+      e.preventDefault()
+      setIsPinned((prev) => !prev)
+      break
+    case "Escape":
+      e.preventDefault()
+      setIsPinned(false)
+      break
+  }
+}
+```
+
+---
+
+## Focus management
+
+Interactive chart controls must feature prominent, unambiguous visual focus indicators.
+
+#### Focus ring standards
+
+Plotcn charts inherit your application's focus styling:
+
+```css
+/* Inherited accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+```
+
+#### Contextual announcements on focus
+
+When keyboard focus moves between data points, provide rich auditory feedback via a live region or accessible text string:
+
+- **Helpful**: *"March 2026, revenue $51,000, 3 of 6."*
+- **Unhelpful**: *"Point."*
+
+#### Focus persistence across redraws
+
+Theme changes, responsive window resizes, and live-data updates must not arbitrarily reset keyboard focus back to the `<body>` element. Preserve logical focus on the active data index across component renders.
+
+---
+
+## Tooltips and hover
+
+A tooltip must never be the exclusive mechanism for accessing metric values.
+
+#### The hover-only anti-pattern
+
+- **Flawed Workflow**: Sighted mouse hover reveals exact values; keyboard users and mobile touch users see nothing.
+- **Accessible Workflow**: Values are revealed upon hover, upon keyboard `:focus-visible`, upon mobile touch tap, and are duplicated inside the accessible data summary or table.
+
+#### Non-interfering tooltip timing
+
+- Tooltips should not dismiss prematurely when users move the cursor toward them.
+- If a tooltip contains interactive actions (e.g. *"Drill into May sales"*), implement it as an accessible Popover or Dialog component with keyboard focus trap, rather than a transient hover tooltip.
+
+---
+
+## Do not rely on color alone
+
+Up to 8% of male users and 0.5% of female users experience color vision deficiencies. When distinguishing multiple series, color hue must always be accompanied by a secondary, non-color encoding.
+
+<NonColorEncodingPreview />
+
+#### Secondary encoding strategies
+
+1. **Distinct Stroke Dash Patterns**:
+   - Primary: Solid line (`stroke="solid"`)
+   - Secondary: Dashed line (`strokeDasharray="6 4"`)
+   - Tertiary: Dotted line (`strokeDasharray="2 3"`)
+2. **Geometric Vertex Markers**:
+   - Series A: Solid circle (`●`)
+   - Series B: Solid square (`■`)
+   - Series C: Upward triangle (`▲`)
+3. **Signed Numbers & Directional Glyphs**:
+   - Positive Gain: `+$14,200` accompanied by an upward green indicator (`▲`)
+   - Negative Loss: `-$8,500` accompanied by a downward red indicator (`▼`)
+4. **Direct Line Labels**: Place text labels at the terminal end of lines rather than relying exclusively on a detached legend box.
+
+---
+
+## Motion and reduced motion
+
+Vestibular disorders can make animations—such as sweeping line entries, pulsing glows, and bouncing physics simulations—disorienting or nauseating.
+
+Plotcn strictly honors the OS-level `prefers-reduced-motion` media query:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
+  /* Immediately resolve transitions and line sweeps */
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -92,9 +362,153 @@ When reduced motion is enabled:
 }
 ```
 
-## Touch & Mobile Gestures
+#### Engine-specific reduced motion implementations
 
-On touch devices:
-- Minimum hit target sizes for data points and toolbar buttons are sized to at least 44x44px.
-- Tooltips activate on touch-drag without requiring pinch-to-zoom interference.
-- Multi-column legends gracefully collapse into horizontal scrolling bars.
+- **Recharts**: Pass `isAnimationActive={false}` when `prefers-reduced-motion` is detected.
+- **D3.js**: Render directly into the final coordinate scales. Never architect a visualization such that the animated transition is the only code path computing geometric attributes.
+- **Google Charts**: Map `animation.duration: 0` inside the chart configuration options object.
+
+---
+
+## Dynamic data updates
+
+Real-time streaming dashboards, polling intervals, and user filters trigger frequent visual updates.
+
+#### Discrete live announcements
+
+Do not wrap the entire visualization inside `aria-live="assertive"`. Announcing every coordinate redraw spams screen readers and overwhelms users.
+
+Instead, announce only discrete, meaningful state changes:
+
+```tsx
+<div aria-live="polite" className="sr-only">
+  {filterStatusText}
+</div>
+```
+
+- **Good**: *"Filtered by North America: 14 regional nodes displayed."*
+- **Bad**: *"Chart redraw complete."* (repeated every 2 seconds on polling).
+
+---
+
+## Loading, empty, and error states
+
+All non-ready visualization states must provide semantic clarity to assistive technologies.
+
+#### Truthful loading states
+
+- Mark the chart container with `aria-busy="true"` and `aria-label="Loading revenue data..."`.
+- **Never render synthetic placeholder numbers** during loading. Screen-reader users may interpret placeholder digits as factual business data.
+
+#### Contextual empty states
+
+Explain what criteria produced the empty state:
+
+- **Good**: *"No transactions recorded between March 1 and March 15, 2026."*
+- **Bad**: *"No data."*
+
+#### Actionable error states
+
+Provide the failure reason and an accessible button to retry the fetch:
+
+```tsx
+<div role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 p-6 text-center">
+  <p className="text-sm font-semibold text-destructive">Failed to load revenue metrics</p>
+  <p className="text-xs text-muted-foreground mt-1">Unable to connect to the analytics cluster.</p>
+  <Button variant="outline" size="sm" onClick={retryFetch} className="mt-3">
+    Retry connection
+  </Button>
+</div>
+```
+
+---
+
+## Recharts accessibility
+
+Recharts generates standard SVG DOM nodes, but does not provide an accessible experience out of the box.
+
+#### Plotcn wrapping pattern for Recharts
+
+When using Recharts:
+
+1. Wrap the `<ResponsiveContainer>` in a semantic `<section>` with `aria-labelledby` and `aria-describedby`.
+2. Connect a deterministic `<ChartSummary />` component adjacent to the chart.
+3. Provide an `<AccessibleDataDisclosure />` table.
+4. Disable entrance animations via `isAnimationActive={!prefersReducedMotion}`.
+
+---
+
+## D3.js accessibility
+
+D3 provides total control over DOM and SVG generation, which gives developers greater responsibility.
+
+#### The D3 architectural rule
+
+> **Use D3 for mathematics and layout scales; use React for semantic DOM and SVG rendering.**
+
+By allowing React to render the SVG elements, you maintain standard React JSX props (`aria-label`, `tabIndex`, `onKeyDown`, `:focus-visible`) rather than mutating imperative DOM trees with D3 selections.
+
+For dense charts with over 1,000 nodes, **do not render 1,000 focusable elements**. Use binning, aggregated cluster summaries, and an accessible data table alternative.
+
+---
+
+## Google Charts accessibility
+
+Google Charts renders inside an internal sandboxed DOM or `<iframe>`, placing its internal structure outside of direct React prop control.
+
+#### The external accessible shell strategy
+
+Because Google Charts manages its own internal SVG tags, Plotcn provides an **external accessible shell**:
+
+1. Render a clean semantic wrapper with `aria-labelledby`, `aria-describedby`, and the text summary outside the Google container `<div>`.
+2. Intercept Google Charts `select` events and mirror the selected datum into standard React state.
+3. Provide a structured data table disclosure so assistive technologies can read data points directly from your original JavaScript array without touching Google's internal SVG.
+4. On Google GeoChart, never rely on choropleth color intensity alone; provide region name labels and numerical tables.
+
+---
+
+## Responsive layout and zoom
+
+Accessible visualizations must accommodate users who view dashboards on mobile devices or utilize **400% browser zoom**.
+
+- **Avoid Fixed Pixel Widths**: Always use fluid responsive containers (`100%` width).
+- **Graceful Decluttering**: On small viewports or at high zoom levels, automatically reduce tick counts (e.g. display every second month rather than all twelve) to prevent label overlapping.
+- **No Two-Dimensional Scrolling**: Ensure charts scale vertically or provide internal card horizontal scrolling without forcing the global browser window to scroll horizontally.
+
+---
+
+## Test accessibility
+
+Accessibility verification requires both automated scanning and manual assistive-technology testing.
+
+<AccessibilityTestMatrix />
+
+#### Practical QA testing protocol
+
+1. **Keyboard-Only Audit**: Unplug or disable the mouse. Can you reach the chart, step between points with arrow keys, inspect metrics, and dismiss popovers with Escape?
+2. **Screen Reader Verification**: Test using **NVDA** (Windows), **VoiceOver** (macOS/iOS), or **TalkBack** (Android). Does the synthesizer announce the title, description, and natural-language summary clearly?
+3. **Monochrome Audit**: View the chart in grayscale or with Windows High Contrast Mode. Are all series still distinct?
+4. **Reduced Motion Emulation**: Open DevTools, emulate `prefers-reduced-motion: reduce`, and confirm animations immediately settle into final positions.
+5. **Edge Case Datasets**: Test with empty arrays, single-item arrays, negative values, and zero baselines.
+
+---
+
+## Common accessibility mistakes
+
+<AccessibilityTroubleshooting />
+
+---
+
+## Recommended accessibility workflow
+
+Follow this repeatable 12-step engineering protocol whenever you install or build a Plotcn visualization:
+
+<AccessibilityWorkflow />
+
+---
+
+## Next steps
+
+Now that your visualizations communicate accessibly across all sensory and input modes, explore specific engine guides and pre-built components:
+
+<DocsNextSteps />

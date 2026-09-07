@@ -213,6 +213,12 @@
    Documentation Code Blocks & Syntax Highlighting
    ========================================================================== */
 
+.plotcn-code-content {
+  position: relative;
+  tab-size: 2;
+  -moz-tab-size: 2;
+}
+
 .plotcn-code-content pre.shiki {
   background-color: transparent !important;
   margin: 0 !important;
@@ -220,39 +226,102 @@
   border: none !important;
   font-family: inherit !important;
   font-size: inherit !important;
-  line-height: inherit !important;
+  line-height: 1.6 !important;
   overflow: visible !important;
 }
 
 .plotcn-code-content code {
+  display: grid;
   font-family: inherit !important;
   font-size: inherit !important;
+  line-height: 1.6 !important;
+  min-width: 100%;
 }
 
+.plotcn-code-content .line {
+  display: inline-block;
+  min-height: 1.6em;
+  line-height: 1.6;
+}
+
+/* Line Numbers with Dedicated Protected Gutter */
 .plotcn-code-content.has-line-numbers code {
   counter-reset: line;
+}
+
+.plotcn-code-content.has-line-numbers .line {
+  position: relative;
+  padding-left: 3.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.plotcn-code-content.has-line-numbers .line:hover {
+  background-color: rgba(255, 255, 255, 0.025);
 }
 
 .plotcn-code-content.has-line-numbers .line::before {
   counter-increment: line;
   content: counter(line);
-  display: inline-block;
-  width: 1.8rem;
-  margin-right: 1.2rem;
-  color: #52525b;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.25rem;
   text-align: right;
+  color: #71717a;
+  font-size: 12px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
   user-select: none;
+  pointer-events: none;
+  text-indent: 0 !important;
+  transition: color 0.15s ease;
 }
 
+.plotcn-code-content.has-line-numbers .line:hover::before {
+  color: #d4d4d8;
+}
+
+/* Subtle gutter border dividing line numbers from code */
+.plotcn-code-content.has-line-numbers .line::after {
+  content: "";
+  position: absolute;
+  left: 2.85rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+
+/* Professional Line Wrapping Logic */
 .plotcn-code-content.plotcn-code-wrapped {
   white-space: pre-wrap !important;
-  word-break: break-word !important;
   overflow-x: hidden !important;
 }
 
-.plotcn-code-content.plotcn-code-wrapped pre.shiki {
+.plotcn-code-content.plotcn-code-wrapped pre.shiki,
+.plotcn-code-content.plotcn-code-wrapped code {
   white-space: pre-wrap !important;
-  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+.plotcn-code-content.plotcn-code-wrapped .line {
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+}
+
+/* Wrapped lines in line-numbered blocks: stay cleanly on the code side of the gutter with continuation indent */
+.plotcn-code-content.has-line-numbers.plotcn-code-wrapped .line {
+  padding-left: 4.25rem;
+  text-indent: -0.75rem;
+}
+
+/* Wrapped lines in plain blocks (no line numbers): subtle continuation indent */
+.plotcn-code-content:not(.has-line-numbers).plotcn-code-wrapped .line {
+  padding-left: 1.25rem;
+  text-indent: -1.25rem;
 }
 
 /* ==========================================================================

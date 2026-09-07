@@ -1,68 +1,371 @@
 ---
 title: "Theming"
-description: "CSS variables, OKLCH and HSL chart tokens, dark mode switching, and custom palette overrides."
+description: "Learn how Plotcn uses semantic CSS variables and engine adapters to keep visualizations consistent across Recharts, D3.js, and Google Charts."
 section: "Fundamentals"
 ---
 
-Plotcn uses a clean, CSS-variable-first theming system. Charts never hardcode hex colors in their component logic; instead, they reference CSS tokens that adapt automatically across themes.
+<ThemingHero />
 
-## Chart Color Tokens
+<ThemeSystemPreview />
 
-Plotcn defines 5 primary categorical chart tokens in `app/globals.css`, mapped to the modern OKLCH color space for uniform perceptual luminance:
+## Theming model
 
-| Token | Light Mode | Dark Mode | Usage |
-| :--- | :--- | :--- | :--- |
-| `--chart-1` | `oklch(0.87 0 0)` | `oklch(0.87 0 0)` | Primary line / leading metric |
-| `--chart-2` | `oklch(0.556 0 0)` | `oklch(0.556 0 0)` | Secondary series / comparison |
-| `--chart-3` | `oklch(0.439 0 0)` | `oklch(0.439 0 0)` | Tertiary metric / target line |
-| `--chart-4` | `oklch(0.371 0 0)` | `oklch(0.371 0 0)` | Supporting data series |
-| `--chart-5` | `oklch(0.269 0 0)` | `oklch(0.269 0 0)` | Dim / baseline series |
+Plotcn does not carry an isolated, proprietary theme engine alongside your application. Instead, it forms a cohesive pipeline that translates your application's design system into chart surfaces, gridlines, axis typography, and series marks.
+
+<ThemingPipelineFlow />
+
+<DocsCallout title="One visual language" type="note">
+**Theme the visualization system, not every chart independently.** One-off hardcoded hex values in component files cause visual drift between charts, break dark mode transitions, and make future rebranding painful. Plotcn unifies visual roles across all engines using semantic CSS variables.
+</DocsCallout>
+
+---
+
+## Inherit the application theme
+
+Plotcn visualizations reuse existing application tokens defined by shadcn/ui and Tailwind CSS. Before creating a chart-specific token, the component inherits standard application variables:
+
+- **Background & Card surfaces**: `var(--background)`, `var(--card)`
+- **Text & Foreground**: `var(--foreground)`, `var(--card-foreground)`
+- **Muted text & Subtitle labels**: `var(--muted-foreground)`
+- **Borders & Separators**: `var(--border)`
+- **Popover overlays**: `var(--popover)`, `var(--popover-foreground)`
+
+#### The "Reuse Before Extend" Rule
+
+<ReuseRuleGrid />
+
+By anchoring charts to your existing tokens, installing Plotcn never overwrites or clashes with your established design system.
+
+---
+
+## Chart-specific tokens
+
+For concerns specific to data visualization—such as distinct series colors and calibrated opacity scales—Plotcn defines a standard set of chart tokens in `app/globals.css`.
+
+<ChartTokenExplorer />
+
+#### Standard series tokens in OKLCH
+
+Plotcn defines 5 categorical series tokens calibrated in the perceptual OKLCH color space to ensure uniform lightness and contrast:
 
 ```css title="app/globals.css"
 :root {
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-}
+  --chart-1: oklch(0.87 0 0);    /* Primary leading metric */
+  --chart-2: oklch(0.556 0 0);   /* Secondary comparison */
+  --chart-3: oklch(0.439 0 0);   /* Tertiary series */
+  --chart-4: oklch(0.371 0 0);   /* Supporting category */
+  --chart-5: oklch(0.269 0 0);   /* Baseline context */
 
-.dark {
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --chart-positive: oklch(0.75 0.18 155); /* Semantic gain */
+  --chart-negative: oklch(0.65 0.22 25);  /* Semantic loss */
 }
 ```
 
-## Structural & Surface Tokens
+#### Distinguishing series identity from semantic status
 
-In addition to categorical chart colors, charts inherit your application's global design tokens:
+Never confuse series identity colors (`--chart-1` through `--chart-5`) with semantic indicators (`--chart-positive`, `--chart-negative`). If a chart displays three different product tiers, use neutral categorical tones. Reserve green and red exclusively for metrics that carry true positive or negative meaning (e.g. Profit vs. Loss).
 
-- **Grid lines & Axes**: Drawn with `var(--border)` or `oklch(1 0 0 / 10%)`.
-- **Axis text & Tick labels**: Styled with `var(--muted-foreground)` in monospace or sans-serif font.
-- **Tooltip popovers**: Rendered on `var(--popover)` with `var(--popover-foreground)` text and subtle backdrop blur.
-- **Crosshairs**: Rendered with subtle dashes using `var(--muted-foreground)`.
+---
 
-## Customizing Palettes
+## Series colors
 
-You can override chart tokens globally in `app/globals.css` or scope custom palettes to specific dashboard cards:
+Different data structures demand different color models. Do not treat all visual data as a categorical list of `--chart-1` through `--chart-5`.
 
-```tsx title="app/dashboard/custom-card.tsx"
-{/* Scoped palette override on a single card */}
+<SeriesColorGuide />
+
+#### 1. Categorical data
+
+Use for independent, qualitative categories where order does not imply value (e.g. Desktop vs. Mobile vs. Tablet traffic). Each series receives a distinct, distinguishable tone from `--chart-1` to `--chart-5`.
+
+#### 2. Sequential data
+
+Use when data encodes a continuous numeric progression from low to high magnitude (e.g. population density choropleths, heatmap intensities). Use a single color scale with graduating lightness or saturation rather than multiple unrelated hues.
+
+#### 3. Diverging data
+
+Use when data measures deviation from a meaningful central baseline or target (e.g. budget variance, quarterly net profit/loss). Two contrasting hues diverge from a neutral midpoint.
+
+---
+
+## Grid, axes, and labels
+
+Visual hierarchy is essential for readable charts. The data marks must always command visual attention; supporting structure must remain secondary.
+
+<VisualContrastHierarchy />
+
+<DocsCallout title="Gridline Design Rule" type="tip">
+**If the grid is one of the first things you notice, it is too strong.** Grid lines should assist the eye when scanning values, not compete with the data. In Plotcn, gridlines are rendered with subtle borders (`var(--border)`) or a quiet 6–10% white/black opacity.
+</DocsCallout>
+
+#### Axis typography conventions
+
+- **Typography**: Axis labels inherit your application's font stack (`var(--font-sans)` or `var(--font-mono)`).
+- **Color**: Rendered in `var(--muted-foreground)` so timestamps and unit labels never overpower chart peaks.
+- **Borders**: Avoid harsh, solid axis baseline rules unless separating stacked facets.
+
+---
+
+## Tooltips and legends
+
+Engine default tooltips frequently look disjointed from the rest of an application. Plotcn standardizes the visual language of overlays and legends regardless of the underlying chart library.
+
+<TooltipLegendPreview />
+
+#### Tooltip visual language
+
+- **Container**: Rendered on `var(--popover)` with hairline border (`var(--border)`) and soft ambient shadow.
+- **Typography**: Compact 11–12px font matching your application theme.
+- **Alignment**: Tabular numbers (`font-variant-numeric: tabular-nums`) ensure clean column alignment when comparing multi-series metrics.
+- **Indicators**: Small, circular color pills matching the series stroke or fill.
+
+#### Accessible legends
+
+Legend items mirror application badge and pill components. If clicking a legend item toggles series visibility, that item must provide keyboard focus indicators (`outline: var(--ring)`) and accessible ARIA pressed states.
+
+---
+
+## State theming
+
+Visualization shells must handle intermediate states (`loading`, `empty`, `error`) without breaking visual harmony.
+
+#### Loading states
+
+Render a neutral skeleton shell or subtle pulsing container on `var(--muted)`. Never render fake metrics or randomized placeholder curves during loading.
+
+#### Empty states
+
+When an array contains zero records, display a quiet container with an icon and clear message: *"No activity recorded for this period."* Never render empty axes floating in a void.
+
+#### Error states
+
+If data fetching or geometry compilation fails, contain the failure within the chart card using `ChartBoundary`. Display a respectful alert without painting the entire card bright red.
+
+---
+
+## Dark and light modes
+
+Plotcn visualizations adapt automatically when toggling between light, dark, and system themes.
+
+<ThemeModePreview />
+
+#### Single application theme toggle
+
+There is no separate "chart theme toggle". Because Plotcn charts bind to CSS variables under `:root` and `.dark`, they re-render or restyle instantly alongside the rest of the application.
+
+```css title="app/globals.css"
+/* Light Mode */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --border: oklch(0.922 0 0);
+  --chart-1: oklch(0.205 0 0);  /* Deep contrast titanium in light mode */
+}
+
+/* Dark Mode */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --chart-1: oklch(0.87 0 0);   /* Crisp high-luminance white in dark mode */
+}
+```
+
+---
+
+## Recharts theming
+
+Recharts components in Plotcn consume CSS variables directly on SVG presentation attributes, eliminating the need for massive JavaScript configuration objects.
+
+```tsx title="components/charts/plot-line-chart.tsx"
+import { Area, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
+
+<CartesianGrid
+  vertical={false}
+  stroke="var(--border)"
+  strokeDasharray="3 5"
+/>
+
+<XAxis
+  dataKey="label"
+  tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+  axisLine={false}
+  tickLine={false}
+/>
+
+<Area
+  type="monotone"
+  dataKey="value"
+  stroke="var(--chart-1)"
+  fill="url(#gradient)"
+  strokeWidth={2}
+/>
+```
+
+When the user toggles dark mode, the browser updates CSS variable values instantly without requiring component re-renders or canvas repaints.
+
+---
+
+## D3.js theming
+
+React-rendered D3 visualizations bind CSS variables directly to JSX elements, preserving seamless theme synchronization:
+
+```tsx title="components/charts/d3-plot.tsx"
+// Direct CSS variable binding on SVG marks
+<path
+  d={pathGenerator(data) ?? ""}
+  stroke="var(--chart-1)"
+  strokeWidth={2}
+  fill="none"
+/>
+
+<line
+  x1={0}
+  x2={width}
+  y1={yPos}
+  y2={yPos}
+  stroke="var(--border)"
+  strokeDasharray="4 4"
+/>
+```
+
+#### Calculated color scales in D3
+
+When D3 mathematical scales require concrete color values (e.g. `scaleLinear().range(["#27272a", "#f4f4f5"])` for continuous heatmaps), avoid scattering `getComputedStyle()` calls throughout your render loop. Centralize color resolution or use static perceptual token arrays.
+
+---
+
+## Google Charts theming
+
+Google Charts renders inside isolated containers that do not inherit application CSS variables automatically. Plotcn bridges this difference using a dedicated theme adapter.
+
+<GoogleThemeAdapterFlow />
+
+#### The Google theme adapter (`lib/google-charts/theme.ts`)
+
+```typescript title="lib/google-charts/theme.ts"
+export function getGoogleChartTheme(userOptions = {}) {
+  const baseTheme = {
+    backgroundColor: "transparent",
+    colors: ["#f4f4f5", "#a1a1aa", "#71717a", "#52525b", "#3f3f46"],
+    legend: {
+      textStyle: { color: "#a1a1aa", fontSize: 11 }
+    },
+    hAxis: {
+      textStyle: { color: "#71717a", fontSize: 11 },
+      gridlines: { color: "rgba(255, 255, 255, 0.06)", count: 5 }
+    },
+    vAxis: {
+      textStyle: { color: "#71717a", fontSize: 11 },
+      gridlines: { color: "rgba(255, 255, 255, 0.06)", count: 5 }
+    }
+  }
+
+  return deepMerge(baseTheme, userOptions)
+}
+```
+
+#### Redraw on theme change
+
+When the user toggles dark mode, the Google Charts wrapper detects the theme change via `MutationObserver` or `useTheme` and triggers `chart.draw()` with newly resolved options. The external Google script is **never** reloaded.
+
+---
+
+## Customize the theme
+
+You can customize chart themes globally in your stylesheet or scope specific palettes to individual dashboard cards.
+
+#### 1. Global palette customization
+
+To change your application's default chart palette, update the tokens in `app/globals.css`:
+
+```css title="app/globals.css"
+:root {
+  /* Custom Emerald / Teal palette */
+  --chart-1: oklch(0.7 0.15 155);
+  --chart-2: oklch(0.6 0.14 175);
+  --chart-3: oklch(0.5 0.12 195);
+}
+```
+
+#### 2. Scoped card overrides
+
+To apply a custom palette to a single chart (e.g. a financial report card), set scoped CSS variables directly on the container:
+
+```tsx title="app/dashboard/financial-card.tsx"
 <div
   className="rounded-xl border border-border p-6"
   style={{
-    "--chart-1": "oklch(0.7 0.15 145)", // Emerald
-    "--chart-2": "oklch(0.65 0.18 45)",  // Amber
+    "--chart-1": "oklch(0.75 0.18 155)", // Positive gain
+    "--chart-2": "oklch(0.65 0.22 25)",  // Negative loss
   } as React.CSSProperties}
 >
-  <LineChart data={data} xKey="date" series={series} />
+  <PlotLineChart data={financialData} />
 </div>
 ```
 
-> [!NOTE]
-> Plotcn's signature brand aesthetic is grounded in refined Zinc, Titanium, and Black/White monochrome tones. If you introduce chromatic colors (blues, greens, purples), maintain sufficient contrast against `--background` for accessibility.
+#### Customization Escalation Hierarchy
 
-Next, learn how Plotcn adheres to accessible visualization guidelines in the [Accessibility](/docs/accessibility) guide.
+<CustomizationHierarchy />
+
+---
+
+## Semantic color
+
+Color in data visualization is an informational encoding, not mere decoration.
+
+- **Category**: Identifies distinct series without implying hierarchy.
+- **Magnitude**: Darker or more saturated hues convey higher intensity.
+- **Direction**: Diverging scales measure deviation from a target or zero line.
+- **Status**: Positive, negative, or warning thresholds.
+
+<DocsCallout title="Never Rely on Color Alone" type="danger">
+**Color must never be the sole indicator of critical data.** Up to 8% of male users experience color vision deficiency. Always pair color with text labels, signs (+/-), stroke patterns (solid vs. dashed), or distinct geometric markers.
+</DocsCallout>
+
+---
+
+## Contrast and accessibility
+
+All Plotcn theme tokens adhere strictly to WCAG visualization accessibility guidelines.
+
+<ThemeAccessibilityChecklist />
+
+#### Key contrast rules
+
+- **Text contrast**: All axis labels, tick marks, and tooltip text must meet at least **4.5:1** contrast against `--background` or `--popover`.
+- **Adjacent marks**: Adjacent bars or stacked slices must maintain discernible lightness differences or thin separating borders (`--border`).
+- **Focus rings**: Interactive data elements must display visible outlines using `var(--ring)` on keyboard focus.
+
+---
+
+## Motion and emphasis
+
+Plotcn emphasizes visual hierarchy through typography, opacity, and stroke weight rather than excessive bright neon colors or distracting animations.
+
+- **Stroke Weight**: Primary metric lines use `strokeWidth={2}`; comparison benchmarks use `strokeWidth={1.5}` with dash patterns (`strokeDasharray="4 5"`).
+- **Soft Fills**: Area gradients use soft alpha stops (`stopOpacity={0.16}` tapering to `0`) to ground charts without obscuring gridlines.
+- **Reduced Motion**: All transitions respect the `prefers-reduced-motion` media query by disabling entry animations during theme switches.
+
+---
+
+## Common mistakes
+
+Diagnostic guidance for common visualization theming pitfalls:
+
+<ThemingTroubleshooting />
+
+---
+
+## Recommended workflow
+
+Follow this 10-step sequence when establishing or customizing your visualization theme:
+
+<ThemingWorkflow />
+
+---
+
+## Next steps
+
+Now that you understand Plotcn's theming system and token architecture, explore accessible visualization practices:
+
+<DocsNextSteps />

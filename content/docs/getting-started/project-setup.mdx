@@ -1,49 +1,124 @@
 ---
 title: "Project Setup"
-description: "Configure TypeScript path aliases, Tailwind CSS v4 variables, and chart design tokens."
+description: "Prepare your codebase for Plotcn. Configure aliases, project structure, theme tokens, and shared chart infrastructure before installing visualization components."
 section: "Getting Started"
 ---
 
-A clean project setup ensures that imported visualization components find their utility functions, styling tokens, and sub-components without broken imports.
+<ProjectSetupHero />
 
-## TypeScript Configuration
+<SetupContextHeader />
 
-Plotcn uses root-relative path aliases for clean, portable component code. Ensure your `tsconfig.json` contains the following `compilerOptions`:
+<ProjectSetupOverview />
 
-```json title="tsconfig.json"
-{
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [{ "name": "next" }],
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
-}
+## Before you begin
+
+Project setup is the technical blueprint that connects your initial installation to building charts. It ensures your codebase has the directory structure, path aliases, theme variables, and architecture boundaries needed before adding visualization components.
+
+> [!NOTE]
+> Project setup assumes shadcn/ui is already initialized. If you have not created your project or run the shadcn init command yet, refer to [Installation](/docs/installation) or [shadcn/ui Setup](/docs/shadcn).
+
+Plotcn does not require you to reorganize your entire project. It is designed to integrate seamlessly into standard React and Next.js applications, matching your existing conventions for components, utilities, and styling tokens.
+
+## Project structure
+
+Plotcn organizes chart code around **engine isolation**. Primitives for Recharts, D3, and Google Charts reside in dedicated directories, while cross-engine infrastructure stays strictly engine-independent.
+
+<FileTree />
+
+#### Highlighted directories
+
+- **`components/charts/`**: The destination directory for all Plotcn visualization components. Components installed from the registry are copied directly here as editable source code.
+- **`components/ui/`**: Base shadcn/ui primitives (`Button`, `Tooltip`, `Card`, `Dialog`) utilized by chart headers, interactive legends, and filter controls.
+- **`lib/charts/`**: Engine-neutral math utilities, coordinate transforms, and theme option adapters (such as Google Charts palette generators).
+- **`globals.css`**: Defines CSS variables (`--chart-1` through `--chart-5`, gridlines, axes) that power both light and dark visualization modes.
+- **`components.json`**: The shadcn configuration file instructing the CLI where to place imported components and how to resolve aliases.
+
+## Path aliases
+
+Registry-installed source files require predictable import paths to find helper functions, theme tokens, and UI primitives without fragile relative imports like `../../../lib/utils`.
+
+Stabilizing your path aliases early is essential: changing aliases after installing components requires manually updating import statements across your chart files.
+
+<FrameworkAwareAliasConfig />
+
+#### Import conventions
+
+When components are imported into your pages or dashboards, use the root alias:
+
+```typescript title="app/dashboard/page.tsx"
+// Recommended: Clean root-relative imports
+import { LineChartBasic } from "@/components/charts/recharts/line-chart-basic"
+import { ChartContainer } from "@/components/charts/shared/chart-container"
 ```
 
-> [!TIP]
-> If your project places source code inside a `src/` directory, update `"paths": { "@/*": ["./src/*"] }` and match the configuration inside your `components.json`.
+## components.json
 
-## Tailwind CSS v4 Setup
+The `components.json` file is the registry manifest used by the shadcn CLI to determine styles, Tailwind CSS paths, import aliases, and target directories for new components.
 
-Plotcn is optimized for **Tailwind CSS v4**. In Tailwind v4, theme variables and color palettes are defined directly inside your main CSS file (`app/globals.css`) using `@theme inline`.
+<FrameworkComponentsJson />
 
-Add the chart tokens to your `@theme inline` block:
+> [!IMPORTANT]
+> If shadcn/ui is already configured in your project, keep your existing `components.json` file and simply verify that your `aliases` point to valid directories. Do not overwrite a working configuration.
+
+#### Key configuration fields
+
+- **`rsc`**: Set to `true` in Next.js App Router and full-stack SSR environments. Set to `false` in client-only Vite or SPA setups.
+- **`tailwind.css`**: Points to your primary CSS entrypoint containing the `@theme` inline definitions and CSS variables (`app/globals.css` or `src/index.css`).
+- **`aliases.components`**: Maps `@/components` so registry components install into your component hierarchy without manual path entry.
+- **`aliases.utils`**: Resolves `@/lib/utils` where the `cn()` class merge utility is located.
+
+## Chart directories
+
+Plotcn enforces strict separation between visualization engines. Each engine has unique rendering models, runtime lifecycles, and dependency requirements.
+
+<ChartDirectoryOverview />
+
+#### Engine isolation principles
+
+> [!IMPORTANT]
+> **Shared means engine-independent.** If a utility references `recharts`, `d3-*`, or `google.visualization`, it does not belong in `components/charts/shared/`.
+
+Cross-engine dependencies are strictly prohibited:
+
+```typescript
+// ❌ WRONG: Cross-engine coupling
+// In components/charts/google/geo-chart.tsx:
+import { Tooltip } from "@/components/charts/recharts/tooltip"
+
+// ✅ CORRECT: Engine-independent shared layer
+// In components/charts/google/geo-chart.tsx:
+import { ChartContainer } from "@/components/charts/shared/chart-container"
+import { getGoogleChartTheme } from "@/lib/google-charts/theme"
+```
+
+## Shared chart infrastructure
+
+Plotcn shares common product concerns across all chart engines without forcing them into a rigid, monolithic wrapper.
+
+<SharedChartArchitecture />
+
+> [!WARNING]
+> Do not normalize every chart engine into one giant prop API. Shared infrastructure handles cross-engine concerns (responsive shells, loading states, accessibility, theme tokens), leaving engine-specific rendering declarative and idiomatic.
+
+#### Shared vs engine-specific concerns
+
+| Concern | Shared Layer | Engine-Specific Layer |
+| :--- | :--- | :--- |
+| Responsive shell & aspect ratio | Yes (`ChartContainer`) | No |
+| Loading, empty & error states | Yes (`ChartState`) | No |
+| Theme color tokens | Yes (CSS variables) | Adapter only |
+| Accessibility summary & table | Yes (`ChartAccessibility`) | No |
+| Recharts primitives & SVG | No | Recharts (`Line`, `Bar`, `XAxis`) |
+| D3 geometry, curves & force math | No | D3 (`d3-shape`, `d3-scale`) |
+| Google Charts script & runtime | No | Google (`google-chart-loader.ts`) |
+
+## Theme tokens
+
+Plotcn charts adapt directly to your design system using CSS variables rather than hardcoded hex colors. This ensures charts automatically match your light and dark themes.
+
+#### Tailwind CSS v4 variables
+
+Add chart tokens to your `@theme inline` block in `app/globals.css`:
 
 ```css title="app/globals.css"
 @import "tailwindcss";
@@ -65,9 +140,9 @@ Add the chart tokens to your `@theme inline` block:
 }
 ```
 
-## CSS Variable Tokens
+#### Semantic palette values
 
-Plotcn charts automatically inherit semantic CSS variables for both light and dark themes. Add these variables to `:root` and `.dark` in your `app/globals.css`:
+Plotcn uses a restrained Zinc / Titanium palette for crisp contrast in both light and dark modes:
 
 ```css title="app/globals.css"
 :root {
@@ -101,25 +176,58 @@ Plotcn charts automatically inherit semantic CSS variables for both light and da
 }
 ```
 
-## Utility Helper
+#### Google Charts theme adapter
 
-Ensure you have the standard `cn` utility function in `lib/utils.ts` to combine Tailwind classes conditionally:
+Unlike React SVG charts that read CSS variables directly, Google Charts renders inside an isolated iframe/canvas managed by an external script. Plotcn provides theme adapter functions in `lib/google-charts/theme.ts` that resolve your CSS variables into Google options at runtime.
 
-```typescript title="lib/utils.ts"
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+## Server and client boundaries
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+In Next.js App Router and modern SSR frameworks, maintaining strict server and client boundaries is essential for performance and bundle size.
+
+<ClientBoundaryGuide />
+
+#### Best practices for Next.js
+
+1. **Keep pages server-first**: Never place `"use client"` at `app/layout.tsx`, docs layouts, or entire page routes. Fetch data and construct layout on the server.
+2. **Isolate interactive charts**: Add `"use client"` only at the leaf component boundary where DOM measurements (`ResizeObserver`), SVG animations, or user hover events take place.
+3. **D3 math utilities**: D3 calculation functions (scales, shapes, pie layouts) are pure functions and can run on both server and client without `"use client"`.
+4. **Google Charts runtime**: Google Charts requires the browser `window` object. Keep the loader and chart wrapper behind a strict client component boundary to prevent SSR hydration errors.
+
+## Registry output
+
+When you install a component using the shadcn CLI, Plotcn copies the component source code directly into your repository.
+
+<RegistryOutputFlow />
+
+#### Source ownership
+
+- **No opaque packages**: Installed components are regular TypeScript and React files in your project. You have complete freedom to tweak SVG markup, add custom animations, or adjust styling.
+- **Dependency isolation**: Installing a Recharts component installs `recharts` only. Installing a D3 component installs modular micro-packages like `d3-shape`. No single chart forces you to install an all-in-one bundle.
+
+Example file placement after installing a line chart and a Google GeoChart:
+
+```text
+components/
+└── charts/
+    ├── recharts/
+    │   └── line-chart-basic.tsx
+    ├── google/
+    │   ├── google-geochart.tsx
+    │   └── google-chart-container.tsx
+    └── shared/
+        └── chart-container.tsx
 ```
 
-## Verify Setup
+## Verify setup
 
-Once configured, run TypeScript type-checking to ensure there are no alias resolution issues:
+Before installing components, confirm your project configuration using this readiness checklist and run verification commands:
 
-```bash
-npx tsc --noEmit
-```
+<ProjectSetupChecklist />
 
-Next, see [shadcn/ui Setup](/docs/shadcn) to configure component output paths and registries.
+## Next steps
+
+With your codebase structured and verified, explore component installation and theming:
+
+- [shadcn/ui Setup](/docs/shadcn): Learn how `components.json` and registry namespaces work.
+- [Plotcn Registry](/docs/registry): Explore the full catalog of source-available visualization components.
+- [Installation Guide](/docs/installation): Revisit package manager commands and framework setup.

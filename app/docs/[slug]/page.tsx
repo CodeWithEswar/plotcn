@@ -14,6 +14,8 @@ interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+export const dynamic = "force-dynamic"
+
 export async function generateStaticParams() {
   const slugs = getAllDocSlugs()
   return slugs.map((slug) => ({ slug }))
@@ -69,9 +71,9 @@ export default async function DocPage({ params }: PageProps) {
 
       {/* Main Content & Right Sticky TOC */}
       <div className="flex items-start justify-center gap-8 xl:gap-14 px-0 lg:px-8 min-w-0 min-h-full">
-        <main id="main" className="w-full max-w-3xl min-w-0 mx-auto py-8 lg:py-10 pb-20 sm:pb-32">
-          {/* Article Header (Custom hero used on introduction) */}
-          {doc.slug !== "introduction" ? (
+        <main id="main" className="w-full max-w-3xl min-w-0 mx-auto px-4 sm:px-6 lg:px-0 py-8 lg:py-10 pb-20 sm:pb-32">
+          {/* Article Header (Custom heroes used on introduction, installation, project-setup, shadcn, registry, usage, theming) */}
+          {!["introduction", "installation", "project-setup", "shadcn", "registry", "usage", "theming", "accessibility"].includes(doc.slug) ? (
             <div className="mb-6">
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2.5">
                 {doc.title}

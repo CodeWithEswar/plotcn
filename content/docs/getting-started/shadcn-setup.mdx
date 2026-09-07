@@ -1,81 +1,201 @@
 ---
 title: "shadcn/ui Setup"
-description: "How to configure components.json to consume Plotcn charts through the shadcn Registry."
+description: "Configure shadcn/ui, components.json, aliases, and the registry workflow used to install Plotcn source."
 section: "Getting Started"
 ---
 
-Plotcn builds directly upon the **shadcn Registry specification**. This enables you to install charts with the official `shadcn` CLI without any proprietary CLI tools or bespoke package managers.
+<ShadcnSetupHero />
 
-## Why the shadcn Registry?
+<ShadcnSetupFlow />
 
-The shadcn distribution model provides significant advantages over traditional npm package distributions:
+## How Plotcn uses shadcn/ui
 
-1. **Zero Runtime Dependency Lock-in**: You are not beholden to an external package maintainer's release schedule for a small bugfix or styling adjustment.
-2. **Cohesive Design System**: Plotcn charts share the exact same CSS variables, border radii, and typography tokens as your existing shadcn buttons, cards, and tooltips.
-3. **Full Customization**: You can rewrite any portion of a chart's JSX markup or event handlers because the code lives in your repository.
+Plotcn uses the shadcn Registry model as its installation and distribution layer. Instead of importing every visualization from a single opaque, monolithic npm package, you install individual chart source files directly into your own codebase.
 
-## The components.json File
+The official `shadcn` CLI resolves the registry item, installs its specific dependencies, writes the TypeScript source files to your configured aliases, and rewrites imports to match your project structure.
 
-The `components.json` configuration file at your project root tells the CLI where to install files, what icon library to use, and which registries to resolve.
+> [!IMPORTANT]
+> **shadcn/ui is the delivery mechanism, not the visualization engine.**
+> Recharts, D3.js, and Google Charts remain the underlying visualization engines. The shadcn Registry only handles distribution, dependency management, and source code placement.
 
-Here is the recommended configuration for Plotcn:
+#### Why registry distribution matters
 
-```json title="components.json"
+- **100% Source Ownership**: The code lives in your repository. You can customize SVG paths, alter animations, or tweak layout logic without waiting for upstream package releases.
+- **Dependency Isolation**: Installing a Recharts line chart installs `recharts` only. It does not force you to install D3 or Google Charts dependencies.
+- **Unified Design Tokens**: Charts inherit your project's existing shadcn CSS variables, typography, and border radii automatically.
+
+## components.json
+
+The `components.json` file at the root of your project is the manifest read by the shadcn CLI. It instructs the CLI where to install files, how to rewrite import statements, what CSS entrypoint to update, and which remote registries to query.
+
+<ComponentsJsonExplorer />
+
+> [!IMPORTANT]
+> **Do not overwrite existing configuration.** If `components.json` already exists in your project, keep your existing file and simply verify your `aliases`, `tailwind.css` path, and add the Plotcn registry namespace.
+
+## Core configuration
+
+The following properties in `components.json` define the CLI environment and file generation rules:
+
+| Property | Purpose | Plotcn Recommendation |
+| :--- | :--- | :--- |
+| `$schema` | Enables schema validation & IDE autocomplete | `https://ui.shadcn.com/schema.json` |
+| `style` | Controls shadcn component style (`base-nova` or `default`) | Keep existing host project style |
+| `rsc` | Controls React Server Component directives | `true` for Next.js; `false` for Vite / SPA |
+| `tsx` | Controls TypeScript (`.tsx`) vs JavaScript output | `true` (strongly recommended) |
+| `tailwind` | Configures CSS entrypoint and theme variable mode | `cssVariables: true` pointing to active CSS |
+| `aliases` | Maps import prefixes to physical project directories | Standard `@/*` root mapping |
+| `registries` | Configures external namespaced registries | Maps `@plotcn` remote namespace |
+
+#### Style immutability
+
+In shadcn/ui, the selected `style` cannot simply be changed after project initialization without breaking existing component primitives. Plotcn is designed to adapt to whatever style your project uses. We do not require a specific shadcn style, base color, or border radius.
+
+## Path aliases
+
+The shadcn CLI uses aliases to determine where files are written and how imports are rewritten inside generated components.
+
+<AliasMap />
+
+#### Import stability rule
+
+Registry items should resolve through stable path aliases, not fragile relative import chains:
+
+```typescript
+// ✅ RECOMMENDED: Stable root-relative alias
+import { cn } from "@/lib/utils"
+import { ChartContainer } from "@/components/charts/shared/chart-container"
+
+// ❌ FRAGILE: Brittle relative path
+import { cn } from "../../../lib/utils"
+```
+
+#### Modern package imports
+
+Current shadcn versions also support Node.js subpath imports configured in `package.json#imports` alongside TypeScript path mappings. Standard path aliases (`@/*`) remain the recommended default for most React projects.
+
+## React Server Components
+
+The `rsc` field in `components.json` informs the CLI whether your application environment supports React Server Components.
+
+<RscBoundaryGuide />
+
+#### Framework-specific RSC behavior
+
+- **Next.js App Router (`rsc: true`)**: Plotcn keeps data math, layout shells, and static utilities server-safe, while isolating interactive charts behind `"use client"` leaf boundaries.
+- **Vite & Client SPAs (`rsc: false`)**: The CLI omits redundant `"use client"` directives from generated component files.
+
+## TypeScript output
+
+Plotcn is architected TypeScript-first with strict interfaces for chart props, datum schemas, and layout configurations:
+
+```json
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
-  "rsc": true,
-  "tsx": true,
+  "tsx": true
+}
+```
+
+> [!NOTE]
+> **Recommended: tsx: true**
+> Visualization components rely on accurate coordinate math and strongly-typed data structures. Strict typing prevents common runtime rendering errors such as `NaN` values in SVG path definitions and missing axis fields.
+
+## Tailwind and CSS variables
+
+Plotcn charts inherit colors directly from your existing design system using CSS variables:
+
+```json
+{
   "tailwind": {
     "config": "",
     "css": "app/globals.css",
     "baseColor": "neutral",
-    "cssVariables": true,
-    "prefix": ""
-  },
-  "iconLibrary": "hugeicons",
-  "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "registries": {
-    "@plotcn": "https://plotcn.com/r"
+    "cssVariables": true
   }
 }
 ```
 
-## Key Configuration Fields
+#### Inherit, do not repaint
 
-### iconLibrary
-Set to `"hugeicons"`. Plotcn visualization controls, toolbars, and legends use **Hugeicons** for crisp rendering, uniform stroke widths, and accessibility.
+Plotcn adapts to your existing application palette (`background`, `foreground`, `muted`, `border`, `card`, `primary`). Visualization components reference categorical variables (`--chart-1` through `--chart-5`) defined in your stylesheet, ensuring charts automatically transition between light and dark modes.
 
-```json
-"iconLibrary": "hugeicons"
-```
+## Configure the Plotcn registry
 
-### aliases
-Defines path aliases matching your `tsconfig.json`. Ensure `@/components`, `@/lib/utils`, and `@/components/ui` point to your actual project directories.
+Modern versions of shadcn support external namespaced registries directly in `components.json`.
 
-### registries
-Registers the Plotcn remote registry under the `@plotcn` namespace:
-
-```json
-"registries": {
-  "@plotcn": "https://plotcn.com/r"
+```json title="components.json"
+{
+  "registries": {
+    "@plotcn": "https://plotcn.vercel.app/r/{name}.json"
+  }
 }
 ```
 
-With this entry, commands like `npx shadcn@latest add @plotcn/line` will automatically fetch the component schema, dependencies, and styles from the Plotcn registry.
+<RegistryNamespaceFlow />
 
-## Adding shadcn Primitives
+#### Registering via CLI
 
-Many Plotcn charts and dashboard blocks use standard shadcn UI primitives for toolbars, dropdown filters, and tooltips. You can install them with:
+You can also add the Plotcn registry namespace using the shadcn CLI:
 
 :::package-manager
-pnpm dlx shadcn@latest add tooltip dropdown-menu button badge tabs
+pnpm dlx shadcn@latest registry add @plotcn=https://plotcn.vercel.app/r/{name}.json
 :::
 
-Next, learn how component installation works in the [Plotcn Registry](/docs/registry) guide.
+#### GitHub source registries
+
+Modern shadcn also supports installing components directly from public GitHub repositories that provide a root `registry.json`. During local development or experimental releases, you can install components directly from the Plotcn repository address.
+
+## Add a Plotcn component
+
+Once the `@plotcn` namespace is configured, you install visualization components just like standard shadcn primitives:
+
+<ComponentInstallFlow />
+
+## What happens during installation
+
+When you execute an add command, the shadcn CLI performs a structured 7-step sequence:
+
+1. **Resolve Namespace**: Checks `components.json` to map `@plotcn` to the remote registry URL.
+2. **Fetch Schema**: Downloads the component JSON manifest containing source files and dependencies.
+3. **Resolve Registry Dependencies**: Identifies shared Plotcn primitives (e.g. `chart-container`) needed by the component.
+4. **Install Package Dependencies**: Installs only the engine needed (e.g. `recharts` for a Recharts line chart).
+5. **Copy Source Files**: Injects the component files directly into your `components/charts/` folder.
+6. **Rewrite Imports**: Rewrites import statements inside the new files to match your project's configured aliases.
+7. **Verify CSS Tokens**: Checks that required theme tokens are present in your stylesheet.
+
+#### Package vs registry dependencies
+
+- **`dependencies`**: Standard npm packages installed into `node_modules` (e.g. `recharts`, `d3-shape`).
+- **`registryDependencies`**: Reusable component primitives copied as editable source code (e.g. `chart-container`, `chart-state`).
+
+## What gets added
+
+Installing a component places readable, editable source code into your repository:
+
+<RegistryDiff />
+
+## You own the installed source
+
+After installation, Plotcn component source becomes an integral part of your application. You can freely inspect SVG rendering, adjust responsive breakpoints, change tooltip styling, or extend interaction handlers.
+
+> [!NOTE]
+> **Google Charts Distinction**: For Google Charts components, you own the React wrapper and theme adapter source code. However, Google's chart rendering engine loads from Google's external CDN runtime.
+
+## Common setup mistakes
+
+Review these common configuration mismatches and their solutions:
+
+<ConfigurationTroubleshooting />
+
+## Verify setup
+
+Verify your shadcn/ui and registry configuration before installing your first visualization:
+
+<RegistrySetupStatus />
+
+## Next steps
+
+Now that your configuration pipeline is ready, explore the component registry and theming:
+
+- [Plotcn Registry](/docs/registry): Learn how source components are packaged and distributed.
+- [Usage Guide](/docs/usage): General conventions, imports, and responsive container guidelines.
+- [Theming Guide](/docs/theming): Customize categorical color tokens and light/dark mode palettes.

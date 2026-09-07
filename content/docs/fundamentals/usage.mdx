@@ -1,114 +1,512 @@
 ---
 title: "Usage"
-description: "General conventions, component imports, data schemas, responsive containers, and styling."
+description: "Learn how to import, configure, compose, and customize Plotcn visualizations in a React application."
 section: "Fundamentals"
 ---
 
-All Plotcn components follow consistent, idiomatic React conventions. This guide explains how data is structured, how charts adapt to container dimensions, and how to customize interactions.
+<UsageHero />
 
-## Component Anatomy
+<UsageFlow />
 
-A typical Plotcn visualization is composed of:
+## Basic usage
 
-1. **A responsive outer wrapper** that observes container width and height.
-2. **The SVG visualization canvas** containing gridlines, axes, data marks (lines, bars, areas), and defs (gradients).
-3. **An interactive overlay layer** providing accessible tooltips, crosshairs, and focus indicators.
-4. **An optional legend and action toolbar** for series toggling and data export.
+Working with an installed Plotcn component is identical to working with any local React component in your codebase. Once installed via the CLI, you import the source file, provide your data array, and place the component inside your page layout.
 
-Here is a simplified example of how a Plotcn chart is imported and rendered:
+Here is a minimal, complete example using the Cartesian line chart (`PlotLineChart`):
 
-```tsx title="app/dashboard/analytics-card.tsx"
-import { LineChart } from "@/components/charts/line"
+```tsx title="app/dashboard/revenue-chart.tsx"
+import { PlotLineChart, type PlotDatum } from "@/components/charts/plot-line-chart"
 
-const data = [
-  { timestamp: "2026-01-01", value: 1240, baseline: 1100 },
-  { timestamp: "2026-01-02", value: 1380, baseline: 1150 },
-  { timestamp: "2026-01-03", value: 1520, baseline: 1200 },
-  { timestamp: "2026-01-04", value: 1490, baseline: 1220 },
-  { timestamp: "2026-01-05", value: 1680, baseline: 1250 },
+const revenueData: PlotDatum[] = [
+  { label: "Jan", value: 12400, previous: 10200 },
+  { label: "Feb", value: 14800, previous: 11400 },
+  { label: "Mar", value: 16200, previous: 13100 },
+  { label: "Apr", value: 15900, previous: 14500 },
+  { label: "May", value: 18400, previous: 15200 },
+  { label: "Jun", value: 21200, previous: 17800 },
 ]
 
-export function AnalyticsCard() {
+export function RevenueChart() {
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-medium text-foreground">API Throughput</h3>
-        <p className="text-sm text-muted-foreground">Requests processed per second</p>
-      </div>
-
-      <div className="h-[280px] w-full">
-        <LineChart
-          data={data}
-          xKey="timestamp"
-          series={[
-            { key: "value", label: "Current", color: "var(--chart-1)" },
-            { key: "baseline", label: "Baseline", color: "var(--chart-2)", strokeDasharray: "4 4" },
-          ]}
-        />
-      </div>
+    <div className="h-[280px] w-full">
+      <PlotLineChart
+        data={revenueData}
+        label="Monthly Revenue"
+      />
     </div>
   )
 }
 ```
 
-## Data Structure Conventions
+<DocsCallout title="Local source" type="note">
+**Install source once. Use it like any other local React component.** After a Plotcn component is installed, there is no special runtime API or provider you must initialize. Import the local source file, supply the required props, and render it anywhere in your component tree.
+</DocsCallout>
 
-Plotcn charts expect a standard array-of-objects data shape:
+---
 
-- **xKey**: The property representing the independent axis (e.g., date, category, month, or sequence index).
-- **series**: An array specifying which numeric fields to plot, along with their display labels, colors, and line styles.
+## Importing a component
 
-```typescript
-interface DataPoint {
-  [key: string]: string | number
-}
+Plotcn visualizations are distributed directly into your project's `components/charts/` folder. The import statement resolves to your local filesystem using your configured TypeScript path aliases.
 
-interface SeriesConfig {
-  key: string
-  label: string
-  color?: string
-  strokeDasharray?: string
+```tsx
+import { PlotLineChart } from "@/components/charts/plot-line-chart"
+```
+
+<ImportPathMap />
+
+#### Never import from a "plotcn" package
+
+Plotcn does not publish a heavyweight npm runtime package. Do **not** write:
+
+```tsx
+// ❌ Incorrect: Plotcn is not an npm runtime package
+import { PlotLineChart } from "plotcn"
+```
+
+Because the source lives in your repository, you maintain full control over imports, file locations, bundle splitting, and renaming. If you reorganize your project folders, update your local import path accordingly.
+
+---
+
+## Passing data
+
+Visualization contracts should always be strongly typed. Avoid loose `Record<string, any>` objects or untyped arrays that obscure data bugs until runtime.
+
+#### Explicit data contracts
+
+```typescript title="types/chart-data.ts"
+export type RevenuePoint = {
+  label: string     // Independent axis (month, category, date)
+  value: number     // Primary metric
+  previous?: number // Optional comparison benchmark
 }
 ```
 
-## Responsive Container Sizing
-
-Charts do not force hardcoded pixel dimensions. Instead, they fluidly expand to fill their parent container's dimensions.
-
-Always set an explicit height on the parent container (using Tailwind's `h-[300px]`, `h-64`, or `aspect-video`):
+Then supply an array matching that contract:
 
 ```tsx
-{/* Explicit height parent */}
-<div className="h-72 w-full">
-  <LineChart data={data} xKey="date" series={series} />
+const data: RevenuePoint[] = [
+  { label: "Q1", value: 45000, previous: 38000 },
+  { label: "Q2", value: 52000, previous: 44000 },
+]
+
+<PlotLineChart data={data} label="Quarterly Performance" />
+```
+
+<DocsCallout title="Typed Data Principle" type="tip">
+**Prefer explicit data interfaces over generic object bags.** Strongly typed data models ensure autocomplete for series keys, prevent typos in accessor functions, and guarantee that nullish or NaN numeric values are caught before rendering.
+</DocsCallout>
+
+#### Plotcn does not own your data-fetching layer
+
+Plotcn components are pure presentation leaves. They do not dictate how your data is fetched, cached, or refreshed. Feed your charts using whichever pattern fits your architecture:
+
+- **React Server Components**: Fetch data in `page.tsx` and pass serialized arrays down.
+- **TanStack Query / SWR**: Consume client hooks with automatic revalidation.
+- **Route Loaders**: Provide data through Next.js or React Router loaders.
+
+---
+
+## Sizing and responsiveness
+
+Visualizations do not force hardcoded pixel dimensions. Instead, they dynamically scale to fill the width and height of their immediate parent container.
+
+<ResponsiveChartGuide />
+
+#### Sizing container contract
+
+To ensure proper rendering and responsive recalculations, always wrap the chart in a container with an explicit height:
+
+```tsx
+{/* Explicit height parent using Tailwind CSS */}
+<div className="h-[320px] w-full">
+  <PlotLineChart data={data} />
 </div>
 ```
 
-> [!TIP]
-> Avoid rendering charts inside zero-height containers (e.g., collapsed tabs or unmeasured flex containers) to prevent SVG calculation errors during initial mount.
+You can use fixed pixel heights (`h-[360px]`), Tailwind scale utilities (`h-64`, `h-80`), or responsive aspect ratios (`aspect-[16/9]`, `aspect-video`).
 
-## Custom Tooltips
+<DocsCallout title="Avoid Zero-Height Containers" type="danger">
+**A responsive chart cannot render into a container with no measurable height.** If the parent container collapses to `height: 0px` (such as inside an unmeasured flex item or a closed tab panel), SVG geometry calculations will fail or emit ResizeObserver warnings. Always reserve vertical space.
+</DocsCallout>
 
-Plotcn charts separate data rendering from tooltip presentation. You can supply custom tooltip content to display multiple metrics, currency formatting, or status badges:
+---
 
-```tsx
-<LineChart
-  data={data}
-  xKey="date"
-  series={series}
-  renderTooltip={({ active, payload, label }) => {
-    if (!active || !payload?.length) return null
+## Component states
 
+In production applications, charts must handle four distinct operational states: `loading`, `empty`, `error`, and `ready`. Never display only the happy path.
+
+<ChartStateGuide />
+
+#### State composition pattern
+
+Implement truthful state branches using standard React conditionals or by passing state props:
+
+```tsx title="components/analytics/active-users-card.tsx"
+import { PlotLineChart } from "@/components/charts/plot-line-chart"
+import { useQuery } from "@tanstack/react-query"
+
+export function ActiveUsersCard() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["active-users"],
+    queryFn: fetchActiveUsers,
+  })
+
+  // 1. Error state (highest priority)
+  if (error) {
     return (
-      <div className="rounded-lg border border-border bg-popover p-3 shadow-xl">
-        <p className="text-xs font-mono text-muted-foreground">{label}</p>
-        <p className="text-sm font-semibold text-foreground">
-          ${payload[0].value?.toLocaleString()}
-        </p>
+      <div className="h-[280px] flex items-center justify-center rounded-xl border border-rose-500/20 bg-rose-950/10 p-6 text-center text-xs text-rose-300">
+        Failed to load activity metrics. Please try again.
       </div>
     )
+  }
+
+  // 2. Loading state
+  if (isLoading) {
+    return (
+      <div className="h-[280px] flex items-center justify-center rounded-xl border border-white/[0.06] bg-zinc-900/30 text-xs text-zinc-500">
+        Loading visualization…
+      </div>
+    )
+  }
+
+  // 3. Empty state
+  if (!data?.length) {
+    return (
+      <div className="h-[280px] flex items-center justify-center rounded-xl border border-white/[0.06] bg-zinc-900/20 text-xs text-zinc-500">
+        No user activity recorded for this period.
+      </div>
+    )
+  }
+
+  // 4. Ready state
+  return (
+    <div className="h-[280px] w-full">
+      <PlotLineChart data={data} label="Active Users" />
+    </div>
+  )
+}
+```
+
+#### No fake data during loading
+
+Never populate loading skeletons with random placeholder lines or simulated metrics. Faux data misleads users and can be mistaken for actual telemetry. Use truthful, neutral loading skeletons.
+
+---
+
+## Configure the visualization
+
+Plotcn components expose a concise, sensible public prop surface for common adjustments while keeping deep customization where it belongs: in your local source code.
+
+#### Standard prop surface
+
+```tsx
+<PlotLineChart
+  data={revenueData}
+  label="Monthly Revenue"
+  compact={false}  // Hide secondary axes for dense widgets
+  area={true}       // Enable soft gradient background fill
+  loading={false}   // Pass loading state directly
+  error={undefined} // Pass error message directly
+/>
+```
+
+<DocsCallout title="Avoid Giant Prop APIs" type="tip">
+**Plotcn is source-owned, so every customization does not need a new prop.** In traditional chart libraries, teams demand dozens of props (`axisTickColor`, `tooltipBorderRadius`, `gradientStopOpacity`) to configure minor visual details. In Plotcn, you simply edit the local source file directly.
+</DocsCallout>
+
+---
+
+## Customize source
+
+Because installed components belong to your repository, you can tailor them to your product's unique design system, backend requirements, and interaction patterns.
+
+#### Example: Adding custom currency formatting
+
+To format tooltip values as USD currency, locate the installed component file in `components/charts/plot-line-chart.tsx` and adjust the tick and tooltip formatters:
+
+```tsx title="components/charts/plot-line-chart.tsx"
+// 1. Define your localized currency formatter
+const formatCurrency = (val: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(val)
+
+// 2. Apply directly to YAxis ticks
+<YAxis
+  tickFormatter={(val) => `$${val / 1000}k`}
+  tick={{ fill: "var(--plot-muted)", fontSize: 11 }}
+/>
+
+// 3. Apply to Tooltip values
+<Tooltip
+  formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+/>
+```
+
+#### The Golden Rule of Source Customization
+
+- **Generic improvements**: Keep layout containers, ARIA screen-reader labels, and theme variable references upstream-compatible.
+- **Product-specific logic**: Put brand-specific currency rules, custom SVG icons, and company domain logic directly in your local chart files.
+
+---
+
+## Shared vs engine-specific APIs
+
+A foundational Plotcn invariant is: **"Consistency around the chart. Freedom inside the chart."**
+
+<EngineApiComparison />
+
+Plotcn standardizes the outer shell (theming tokens, container responsiveness, error boundaries, accessible screen-reader tables), but does **not** force Recharts, D3.js, and Google Charts into an artificial unified API. Each engine retains its native strengths.
+
+---
+
+## Recharts
+
+Recharts is the recommended choice for standard product dashboards, SaaS metrics, and declarative React composition.
+
+#### Why Recharts?
+
+- **Fastest implementation**: Composable React elements (`<AreaChart>`, `<XAxis>`, `<Tooltip>`).
+- **Declarative**: Sizing and layout are handled seamlessly through React props.
+- **Lightweight bundle**: Only includes Cartesian layout logic.
+
+```tsx title="components/charts/plot-line-chart.tsx"
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
+
+export function PlotLineChart({ data }: PlotLineChartProps) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data}>
+        <XAxis dataKey="label" stroke="var(--chart-muted)" />
+        <YAxis stroke="var(--chart-muted)" />
+        <Tooltip />
+        <Area type="monotone" dataKey="value" stroke="currentColor" fill="url(#gradient)" />
+      </AreaChart>
+    </ResponsiveContainer>
+  )
+}
+```
+
+When you need to adjust grid dash arrays, margins, or active dot radiuses, you modify these JSX primitives directly.
+
+---
+
+## D3.js
+
+Plotcn approaches D3.js with a clear philosophy: **D3 calculates the math and geometry; React renders the SVG elements.**
+
+<D3PipelineFlow />
+
+#### Why avoid `d3.select()` in React?
+
+Manipulating the DOM directly with `d3.select().append("circle")` breaks React's virtual DOM reconciliation, breaks server-side rendering, and makes component cleanup error-prone. By letting React render the SVG tags, you gain full access to React state, props, and transitions.
+
+#### Example: Modular D3 path generation
+
+```tsx title="components/charts/d3-donut.tsx"
+import { useMemo } from "react"
+import { pie, arc } from "d3-shape"
+
+export function D3Donut({ values }: { values: number[] }) {
+  const arcs = useMemo(() => {
+    const pieGen = pie<number>().sort(null).value(d => d)
+    const arcGen = arc<any>().innerRadius(60).outerRadius(90).cornerRadius(3)
+    return pieGen(values).map(slice => arcGen(slice))
+  }, [values])
+
+  return (
+    <svg viewBox="0 0 200 200" className="w-full h-full">
+      <g transform="translate(100, 100)">
+        {arcs.map((d, i) => (
+          <path key={i} d={d ?? ""} fill={`var(--chart-${(i % 5) + 1})`} />
+        ))}
+      </g>
+    </svg>
+  )
+}
+```
+
+Always use modular packages (`d3-shape`, `d3-scale`) rather than the umbrella `d3` package to keep bundle sizes minimal.
+
+---
+
+## Google Charts
+
+Google Charts provides enterprise visualization types—most notably the **Google GeoChart** for interactive country and regional choropleth maps.
+
+#### Hosted runtime considerations
+
+Google Charts renders via a hosted Google CDN script (`google.visualization`). The Plotcn wrapper manages this external dependency gracefully:
+
+- **Script deduplication**: Injects the Google loader once and reuses the shared Promise.
+- **Package isolation**: Loads only the requested visualization package (e.g. `geochart`).
+- **Responsive resize**: Re-draws charts automatically on window resize.
+
+```tsx title="app/dashboard/regional-traffic.tsx"
+import { GoogleGeoChart } from "@/components/charts/google/google-geochart"
+
+const countryTraffic = [
+  { region: "US", users: 12450 },
+  { region: "DE", users: 8920 },
+  { region: "IN", users: 14300 },
+  { region: "GB", users: 6710 },
+  { region: "JP", users: 9540 },
+]
+
+export function RegionalTraffic() {
+  return (
+    <div className="h-[380px] w-full">
+      <GoogleGeoChart
+        data={countryTraffic}
+        regionKey="region"
+        valueKey="users"
+        region="world"
+        displayMode="regions"
+      />
+    </div>
+  )
+}
+```
+
+#### Keep client boundaries narrow
+
+Because Google Charts requires the browser DOM and external script execution, the component carries `"use client"`. However, keep your parent route (`page.tsx`) as a Server Component and import the chart as an interactive client leaf.
+
+---
+
+## Composition
+
+Charts should integrate seamlessly into your broader product interface. Compose them inside standard dashboard surfaces:
+
+```tsx title="app/dashboard/page.tsx"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { PlotLineChart } from "@/components/charts/plot-line-chart"
+import { ChartBoundary } from "@/components/charts/chart-boundary"
+
+export default function AnalyticsDashboard({ revenueData }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>MRR Growth</CardTitle>
+          <CardDescription>Monthly recurring revenue over the past 6 months</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChartBoundary>
+            <div className="h-[280px] w-full">
+              <PlotLineChart data={revenueData} label="MRR" />
+            </div>
+          </ChartBoundary>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+<DocsCallout title="Unopinionated Components" type="note">
+**A chart component should not assume it always lives inside a Card.** Plotcn visualizations provide only the chart graphic and its direct accessibility wrappers. Your application dictates whether the chart sits inside a modal, card, full-width report, or slide-over drawer.
+</DocsCallout>
+
+---
+
+## Interaction
+
+Plotcn charts support rich user interaction while exposing clean, typed event callbacks to your application.
+
+#### Strongly typed event handlers
+
+```tsx
+<GoogleGeoChart
+  data={countryTraffic}
+  regionKey="region"
+  valueKey="users"
+  onRegionSelect={(regionCode: string) => {
+    console.log(`Selected region: ${regionCode}`)
+    router.push(`/analytics/regions/${regionCode.toLowerCase()}`)
   }}
 />
 ```
 
-Next, see how color palettes and dark mode operate in the [Theming](/docs/theming) guide.
+#### Event handler stability
+
+Avoid creating inline anonymous functions for expensive event pipelines:
+
+```tsx
+// ✅ Good: Stable callback reference
+const handleSelect = useCallback((region: string) => {
+  setSelectedRegion(region)
+}, [])
+
+<GoogleGeoChart onRegionSelect={handleSelect} />
+```
+
+---
+
+## Data transformation
+
+Prepare application data **before** passing it to the visualization component. Keep business rules, pricing logic, and filtering outside of generic chart code.
+
+#### Separation of concerns
+
+```typescript
+// 1. Raw backend response
+interface OrderEntity {
+  id: string
+  totalCents: number
+  status: "completed" | "pending" | "refunded"
+  createdAt: string
+}
+
+// 2. Transformation utility outside component
+function prepareRevenueData(orders: OrderEntity[]): PlotDatum[] {
+  return orders
+    .filter((o) => o.status === "completed")
+    .map((o) => ({
+      label: new Date(o.createdAt).toLocaleDateString("en-US", { month: "short" }),
+      value: o.totalCents / 100,
+    }))
+}
+```
+
+#### When to use `useMemo`
+
+Only memoize transformations that process thousands of records or execute non-trivial D3 math (e.g. Voronoi tessellations, force simulations). For small arrays under 100 items, standard JavaScript array mappings are fast enough that `useMemo` introduces unnecessary overhead.
+
+---
+
+## Performance
+
+High-performance dashboard rendering relies on disciplined architectural practices:
+
+1. **Keep Client Boundaries Narrow**: Do not place `"use client"` at the route root. Keep data fetching on the server and render charts as isolated client components.
+2. **Stable Dimensions**: Always specify container heights to avoid cumulative layout shift (CLS) during chart mounting.
+3. **Modular D3 Imports**: Import only the specific submodules needed (`d3-scale`, `d3-shape`) to minimize JavaScript bundle size.
+4. **Deduplicate External Loaders**: Google Charts scripts are shared across all instances on a page through a single singleton promise.
+5. **Contain Exceptions with ChartBoundary**: Wrap complex visualizations in React error boundaries so a rendering error in one widget does not break the rest of the dashboard.
+
+---
+
+## Common mistakes
+
+Diagnostic guidance for common visualization integration pitfalls:
+
+<UsageTroubleshooting />
+
+---
+
+## Recommended workflow
+
+Follow this 10-step sequence when building production visualizations with Plotcn:
+
+<UsageWorkflow />
+
+---
+
+## Next steps
+
+Now that you understand day-to-day chart usage and integration patterns, explore styling and accessible rendering:
+
+<DocsNextSteps />

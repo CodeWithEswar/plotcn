@@ -11,7 +11,7 @@ export default function DocsLayout({
     <div className="docs-shell min-h-screen bg-[#060608] text-foreground flex flex-col">
       <SiteHeader />
 
-      <div className="flex-1 w-full mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 w-full mx-auto max-w-[1440px] px-0 lg:px-8">
         <div className="flex items-start min-h-[calc(100svh-80px)]">
           {/* Desktop Left Sticky Navigation */}
           <aside className="hidden lg:block w-[220px] shrink-0 self-start sticky top-[80px] h-[calc(100svh-80px)] overflow-y-auto no-scrollbar py-8 lg:py-10 pr-5 border-r border-white/[0.08]">
@@ -19,7 +19,7 @@ export default function DocsLayout({
           </aside>
 
           {/* Center Content & Right TOC Region */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full">
             {children}
           </div>
         </div>
