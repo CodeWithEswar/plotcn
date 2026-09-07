@@ -33,6 +33,12 @@ export const docsConfig: DocsConfig = {
           section: "Guide",
         },
         {
+          title: "Engine Strategy",
+          href: "/docs/engine-strategy",
+          description: "Three-engine collection strategy: Recharts, D3.js, and Google Charts runtime policies.",
+          section: "Guide",
+        },
+        {
           title: "Installation",
           href: "/docs/installation",
           description: "Step-by-step installation guide for Next.js, dependencies, and Plotcn.",

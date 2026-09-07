@@ -47,6 +47,23 @@ import {
   FinalSystemMentalModelDiagram,
 } from "./architecture-components"
 import {
+  EngineStrategyHero,
+  EngineTrioSummaryFlow,
+  RechartsPhilosophyCard,
+  RechartsRoadmapCard,
+  D3CoreFlowCard,
+  D3DependencyIsolationCard,
+  GoogleGeoChartTreeCard,
+  GoogleRuntimeBoundaryCard,
+  GoogleThemeAdapterFlow,
+  GoogleResponsiveLifecycleCard,
+  RegistryNamingAndIsolationCard,
+  GalleryAndDocsHierarchyCard,
+  EngineBuildRoadmapFlow,
+  EnginePrinciplesCard,
+  EngineStrategyMentalModelDiagram,
+} from "./engine-strategy-components"
+import {
   InstallationProvider,
   InstallationHero,
   FrameworkSelector,
@@ -122,7 +139,6 @@ import {
   SeriesColorGuide,
   TooltipLegendPreview,
   ThemeModePreview,
-  GoogleThemeAdapterFlow,
   ThemeAccessibilityChecklist,
   ThemingTroubleshooting,
   ThemingWorkflow,
@@ -154,6 +170,7 @@ export async function MDXRenderer({ content, slug, rawContent }: MDXRendererProp
   const elements = await parseMarkdownToReact(content, { slug, rawContent })
   if (
     slug === "architecture" ||
+    slug === "engine-strategy" ||
     slug === "installation" ||
     slug === "project-setup" ||
     slug === "shadcn" ||
@@ -636,6 +653,141 @@ async function parseMarkdownToReact(
       }
       i++
       elements.push(<FinalSystemMentalModelDiagram key={`fin-ment-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineStrategyHero")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineStrategyHero>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineStrategyHero key={`eng-strat-hero-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineTrioSummaryFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineTrioSummaryFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineTrioSummaryFlow key={`eng-trio-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RechartsPhilosophyCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RechartsPhilosophyCard>")) {
+        i++
+      }
+      i++
+      elements.push(<RechartsPhilosophyCard key={`rech-phil-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RechartsRoadmapCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RechartsRoadmapCard>")) {
+        i++
+      }
+      i++
+      elements.push(<RechartsRoadmapCard key={`rech-road-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<D3CoreFlowCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</D3CoreFlowCard>")) {
+        i++
+      }
+      i++
+      elements.push(<D3CoreFlowCard key={`d3-core-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<D3DependencyIsolationCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</D3DependencyIsolationCard>")) {
+        i++
+      }
+      i++
+      elements.push(<D3DependencyIsolationCard key={`d3-dep-iso-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleGeoChartTreeCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleGeoChartTreeCard>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleGeoChartTreeCard key={`gc-geo-tree-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleRuntimeBoundaryCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleRuntimeBoundaryCard>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleRuntimeBoundaryCard key={`gc-run-bound-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleThemeAdapterFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleThemeAdapterFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleThemeAdapterFlow key={`gc-theme-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleResponsiveLifecycleCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleResponsiveLifecycleCard>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleResponsiveLifecycleCard key={`gc-resp-life-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RegistryNamingAndIsolationCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RegistryNamingAndIsolationCard>")) {
+        i++
+      }
+      i++
+      elements.push(<RegistryNamingAndIsolationCard key={`reg-name-iso-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GalleryAndDocsHierarchyCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GalleryAndDocsHierarchyCard>")) {
+        i++
+      }
+      i++
+      elements.push(<GalleryAndDocsHierarchyCard key={`gal-doc-hier-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineBuildRoadmapFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineBuildRoadmapFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineBuildRoadmapFlow key={`eng-build-road-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EnginePrinciplesCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EnginePrinciplesCard>")) {
+        i++
+      }
+      i++
+      elements.push(<EnginePrinciplesCard key={`eng-princ-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineStrategyMentalModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineStrategyMentalModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineStrategyMentalModelDiagram key={`eng-strat-ment-${i}`} />)
       continue
     }
 

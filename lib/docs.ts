@@ -28,6 +28,7 @@ const CONTENT_DIR = path.join(process.cwd(), "content", "docs")
 const SLUG_TO_FILE: Record<string, string> = {
   introduction: "getting-started/introduction.mdx",
   architecture: "getting-started/architecture.mdx",
+  "engine-strategy": "getting-started/engine-strategy.mdx",
   installation: "getting-started/installation.mdx",
   "project-setup": "getting-started/project-setup.mdx",
   shadcn: "getting-started/shadcn-setup.mdx",

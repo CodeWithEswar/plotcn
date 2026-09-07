@@ -1,0 +1,363 @@
+---
+title: "Visualization Engine Strategy"
+description: "Plotcn unifies Recharts, D3.js, and Google Charts into one coherent developer ecosystem while keeping the native capabilities of each engine available."
+section: "Guide"
+---
+
+<EngineStrategyHero
+  eyebrow="Visualization Strategy"
+  title="Visualization Engine Strategy"
+  description="Plotcn uses three visualization engines, each selected for a different class of visualization problems: Recharts for conventional React dashboards, D3.js for custom mathematical geometry, and Google Charts for mature Google-powered and geographic visualizations."
+/>
+
+Plotcn is built on **three visualization engines**, each chosen specifically for what it does best:
+
+<EngineTrioSummaryFlow />
+
+The goal is not to normalize all three engines behind one artificial universal API.
+
+Instead:
+
+> **Plotcn provides one consistent visualization experience around three intentionally different engines.**
+
+Shared concerns such as responsiveness, theming, loading states, accessibility, formatting, documentation, and interaction conventions feel completely unified, while engine-specific capabilities remain available.
+
+<DocsDivider />
+
+## Recharts Collection
+
+Recharts is the **fast, approachable path for conventional application charts**. Components are polished rather than over-engineered.
+
+The Plotcn Recharts layer improves:
+
+- Responsive behavior and container-aware layouts
+- Visual styling with glassmorphic accents
+- Tooltip presentation and KPI readouts
+- Legend behavior and interactive highlighting
+- Loading, empty, and error fallback states
+- Accessibility, screen-reader summaries, and keyboard navigation
+- Reduced motion support honoring system settings
+- Formatting helpers and clear documentation
+- Transparent, editable source code readability
+
+The guiding principle is:
+
+> **Improve the product experience without hiding Recharts.**
+
+### Initial Recharts Families
+
+| Family | Initial Components |
+| --- | --- |
+| **Cartesian** | Line, Area, Bar, Stacked Bar, Grouped Bar, Composed, Scatter |
+| **Polar** | Pie, Donut, Radar, Radial Bar |
+| **Dashboard** | Sparkline, KPI Trend, Mini Area, Metric Comparison, Progress |
+| **Comparison** | Multi-Series Line, Comparison Area, Diverging Bar, Positive/Negative Bar |
+| **Interactive** | Selectable Line, Interactive Legend, Brushable Range, Hover Comparison |
+
+### Recharts Design Philosophy
+
+Plotcn Recharts components favor simplicity, readable source, and sensible defaults over bloated configuration objects:
+
+<RechartsPhilosophyCard />
+
+Avoid turning basic chart components into huge configuration abstractions. A simple component remains conceptually straightforward:
+
+```tsx
+<LineBasic data={data} />
+```
+
+Plotcn is source-first. Developers edit the component directly when product-specific behavior is required instead of toggling hundreds of props.
+
+### Recharts Component Roadmap
+
+<RechartsRoadmapCard />
+
+Plotcn only exposes components that are genuinely implemented, tested, and available through the registry.
+
+<DocsDivider />
+
+## D3.js Collection
+
+D3.js is used when Plotcn requires:
+
+- Lower-level visualization control and bespoke geometry
+- Unusual chart structures and statistical distributions
+- Hierarchy layouts (Treemaps, Sunbursts, Circle Packing)
+- Network graphs and physics-based force simulations
+- Financial visualization and multi-axis market depth
+- Continuous zoom, brush selections, and fluid coordinate transforms
+- High-density interactions and high-fidelity animated transitions
+- Visualization types that do not map naturally to Recharts
+
+The core architecture strictly separates math from DOM:
+
+<D3CoreFlowCard />
+
+### D3.js Categories
+
+| Category | Examples |
+| --- | --- |
+| **Cartesian** | Animated Line, Zoomable Line, Advanced Area, Scatter, Bubble, Hexbin |
+| **Statistical** | Histogram, Box Plot, Violin, Density, Ridgeline, Heatmap, Correlation Matrix |
+| **Hierarchy** | Treemap, Sunburst, Tree, Dendrogram, Circle Packing, Partition |
+| **Network** | Force Graph, Sankey, Chord, Dependency Graph |
+| **Financial** | Candlestick, OHLC, Volume, Market Depth, Trading Timeline |
+| **Geographic** | Choropleth, Bubble Map, Symbol Map, Connection Map |
+| **Temporal** | Timeline, Calendar Heatmap, Horizon Chart, Streamgraph |
+| **Experimental** | Voronoi, Contour, Radial Network, custom SVG visualization |
+
+### D3 Rendering Policy
+
+In Plotcn, **D3 calculates and React renders**. Avoid imperative DOM mutations like:
+
+```ts
+// Avoid in React-owned component trees:
+d3.select(ref.current)
+  .append("svg")
+  .attr("width", width)
+```
+
+Vector SVG remains the default renderer. Canvas is introduced only when point count, mark density, or animation load genuinely justifies it. WebGL remains outside the default stack unless extreme 3D or massive data volumes require it.
+
+### D3 Module Policy
+
+Plotcn imports focused D3 micro-packages rather than importing the monolithic `d3` bundle:
+
+```ts
+import { extent, max } from "d3-array"
+import { scaleLinear, scaleTime } from "d3-scale"
+import { curveMonotoneX, line } from "d3-shape"
+import { hierarchy, treemap } from "d3-hierarchy"
+import { forceSimulation, forceManyBody } from "d3-force"
+import { geoMercator, geoPath } from "d3-geo"
+import { brushX } from "d3-brush"
+import { zoom } from "d3-zoom"
+```
+
+Avoid project-wide use of `import * as d3 from "d3"`. Modular micro-packages keep dependencies explicit, improve tree-shaking, and prevent oversized bundle boundaries.
+
+### D3 Registry Dependency Policy
+
+Each D3 registry item declares only the specific modules it requires:
+
+<D3DependencyIsolationCard />
+
+<DocsDivider />
+
+## Google Charts Collection
+
+Google Charts is Plotcn's third visualization engine. It is used where Google's mature runtime provides strong built-in chart types or geographic capabilities:
+
+- **GeoChart**: Country, state, provincial, and marker-based choropleths
+- **Timeline & Gantt**: Temporal spans and project schedules
+- **Sankey**: Multi-stage resource and user flow diagrams
+- **TreeMap**: Nested hierarchical data distributions
+- **Gauge & Org Chart**: Operational dashboards and organizational reporting
+- **Table**: Statistical interactive data grids
+- **Core Charts**: Enterprise compatibility for teams already using Google Charts
+
+The Google Charts collection remains separate from Recharts and D3.js.
+
+### Google Charts Categories
+
+| Category | Initial Components |
+| --- | --- |
+| **Core Cartesian** | Line, Area, Bar, Column, Combo |
+| **Comparison** | Scatter, Bubble, Histogram, Stepped Area |
+| **Circular** | Pie, Donut |
+| **Specialized** | Timeline, Gauge, Org Chart, TreeMap, Sankey, Table |
+| **Geo** | World GeoChart, Country GeoChart, State/Province GeoChart, Marker GeoChart, Region Selection |
+
+### Google Core Charts
+
+Core Google Charts include:
+- `google-line`, `google-area`, `google-bar`, `google-column`, `google-combo`
+- `google-pie`, `google-donut`, `google-scatter`, `google-bubble`
+- `google-histogram`, `google-stepped-area`
+
+Google variants are included when they provide Google-specific capabilities, integration value, or compatibility for existing Google Charts users. Plotcn avoids duplicate implementations without a distinct product reason.
+
+### Google Specialized Charts
+
+The specialized Google collection is where Google Charts delivers extraordinary value:
+- `google-timeline`: Interactive Gantt and project milestones
+- `google-sankey`: Energy and directional data flows
+- `google-treemap`: High-density hierarchical layouts
+- `google-table`: Sortable, pageable statistical grids
+- `google-gauge`: Operational thresholds and indicators
+- `google-org-chart`: Company hierarchies and reporting lines
+
+### Google GeoChart Collection
+
+GeoChart is a first-class citizen inside the Google Charts collection:
+
+<GoogleGeoChartTreeCard />
+
+> [!NOTE]
+> **GeoChart vs. Google Maps**: GeoChart is vector SVG choropleth mapping belonging to Google Charts. It does not require Google Maps Platform, an API key, or a billing account.
+
+### Google Charts Runtime & Ownership Policy
+
+Because Google Charts loads an external hosted runtime, Plotcn maintains a clear ownership boundary:
+
+<GoogleRuntimeBoundaryCard />
+
+### Shared Google Loader Policy
+
+All Google components share a singleton loader at `@/lib/google-charts/loader.ts`:
+
+- Script injection deduplication
+- Concurrent package request coordination
+- Strictly typed state machine (`idle` → `loading` → `ready` | `error`)
+- Zero `any` types
+
+```ts
+export type GoogleChartsLoaderState =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "error"
+```
+
+### Google Package Isolation
+
+Packages load strictly on demand:
+
+```ts
+export const googleChartPackages = {
+  core: ["corechart"],
+  geo: ["geochart"],
+  timeline: ["timeline"],
+  sankey: ["sankey"],
+  org: ["orgchart"],
+  table: ["table"],
+} as const
+```
+
+Rendering a single Line Chart loads `corechart` only. It never loads `geochart`, `timeline`, or `sankey`.
+
+### Google Component Architecture
+
+Plotcn provides a lightweight typed primitive (`<GoogleChart />`) and wraps it with specialized components:
+
+```tsx
+<GoogleGeoChart
+  data={data}
+  regionKey="region"
+  valueKey="value"
+/>
+```
+
+Application-friendly data arrays are accepted directly:
+
+```ts
+const data = [
+  { region: "IN", value: 540 },
+  { region: "US", value: 420 },
+  { region: "DE", value: 210 },
+]
+```
+
+Plotcn transforms standard arrays internally, eliminating the need to construct Google `DataTable` instances manually.
+
+### Google Theme Adapter
+
+Plotcn bridges application CSS variables to Google options at runtime:
+
+<GoogleThemeAdapterFlow />
+
+### Google Responsive Policy
+
+Container resizing triggers debounced redraws:
+
+<GoogleResponsiveLifecycleCard />
+
+### Google Accessibility Policy
+
+Plotcn wraps Google visualizations in an accessible shell containing accessible titles, descriptions, live summaries, and data disclosure tables. Color alone is never the only means of conveying information.
+
+<DocsDivider />
+
+## Shared Engine Experience
+
+All three engines share a standardized surrounding experience:
+
+| Concern | Recharts | D3.js | Google Charts |
+| --- | --- | --- | --- |
+| **Responsive Container** | Yes (`ResizeObserver`) | Yes (`ResizeObserver`) | Yes (`ResizeObserver` + Debounce) |
+| **Theme System** | CSS Variables / SVG | CSS Variables / SVG | Theme Options Adapter |
+| **Loading State** | Shared Skeleton | Shared Skeleton | Shared Skeleton |
+| **Empty State** | Shared Pattern | Shared Pattern | Shared Pattern |
+| **Error State** | Shared Pattern | Shared Pattern | Runtime-Aware Surface |
+| **Accessibility Shell** | Region + ARIA + Table | Region + ARIA + Table | Region + ARIA + Table (Critical) |
+| **Tooltip Language** | Recharts Glassmorphic | D3 Glassmorphic | Google / Custom Adapter |
+| **Legend Language** | Recharts Interactive | D3 Interactive | Google / Custom Adapter |
+| **Reduced Motion** | CSS / Recharts Policy | D3 Transition Policy | Google Options Support |
+| **Source Ownership** | 100% Local Source | 100% Local Source | 100% Wrapper Source |
+
+<DocsDivider />
+
+## Engine Selection Guide
+
+Choose the engine tailored to your requirement:
+
+| Requirement | Recommended Engine |
+| --- | --- |
+| Standard dashboard visualization | **Recharts** |
+| Business analytics & reporting | **Recharts** |
+| Conventional React declarative charts | **Recharts** |
+| Quick, composable chart layouts | **Recharts** |
+| Highly custom visualization & geometry | **D3.js** |
+| Force-directed network graphs | **D3.js** |
+| Hierarchical sunbursts & circle packing | **D3.js** |
+| Dense statistical histograms & box plots | **D3.js** |
+| Financial candlestick & market depth | **D3.js** |
+| Custom continuous zoom & brush gestures | **D3.js** |
+| World, country, and state GeoChart choropleths | **Google Charts** |
+| Project timelines & Gantt schedules | **Google Charts** |
+| Directional Sankey flow diagrams | **Google Charts** |
+| Density-optimized TreeMaps | **Google Charts** |
+| Interactive statistical data tables | **Google Charts** |
+| Existing Google Charts migrations | **Google Charts** |
+
+<DocsDivider />
+
+## Registry Strategy & Dependency Isolation
+
+Registry item naming is predictable, collision-free, and engine-isolated:
+
+<RegistryNamingAndIsolationCard />
+
+Installing a Recharts component never downloads D3 or Google helpers. Installing a Google GeoChart installs only the Google loader helpers.
+
+<DocsDivider />
+
+## Gallery & Documentation Organization
+
+The component gallery and documentation mirror the three-engine structure:
+
+<GalleryAndDocsHierarchyCard />
+
+<DocsDivider />
+
+## Initial Build Priority
+
+Plotcn executes its implementation across seven distinct milestones:
+
+<EngineBuildRoadmapFlow />
+
+<DocsDivider />
+
+## Core Engine Principles
+
+Fourteen immutable rules guide the Plotcn engine strategy:
+
+<EnginePrinciplesCard />
+
+<DocsDivider />
+
+## Final System Mental Model
+
+<EngineStrategyMentalModelDiagram />
+
+> **Use Recharts when the chart should be easy. Use D3.js when the visualization needs control. Use Google Charts when mature specialized or geographic capabilities are the right fit. Plotcn makes all three belong to one source-first visualization ecosystem.**
