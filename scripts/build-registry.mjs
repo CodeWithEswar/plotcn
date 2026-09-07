@@ -23,10 +23,27 @@ if (!catalog.items || !Array.isArray(catalog.items)) {
   process.exit(1)
 }
 
+const ALIASES = {
+  line: "line-basic",
+  area: "area-basic",
+  bar: "bar-basic",
+  donut: "donut-basic",
+  geochart: "google-geochart",
+  geographic: "google-geochart",
+  network: "d3-force-network",
+  "d3-plot": "d3-animated-line",
+  heatmap: "d3-animated-line",
+  candles: "d3-animated-line",
+  treemap: "d3-force-network",
+  scatter: "d3-animated-line",
+  stream: "d3-animated-line",
+}
+
 // Clean stale files from public/r
 const validFileNames = new Set([
   "registry.json",
-  ...catalog.items.map((i) => `${i.name}.json`)
+  ...catalog.items.map((i) => `${i.name}.json`),
+  ...Object.keys(ALIASES).map((a) => `${a}.json`)
 ])
 if (fs.existsSync(PUBLIC_R)) {
   for (const existingFile of fs.readdirSync(PUBLIC_R)) {
@@ -77,6 +94,21 @@ for (const item of catalog.items) {
   builtCount++
 }
 
+// Generate backward-compatible aliases
+for (const [aliasName, targetItemName] of Object.entries(ALIASES)) {
+  const targetPath = path.join(PUBLIC_R, `${targetItemName}.json`)
+  if (fs.existsSync(targetPath)) {
+    const raw = fs.readFileSync(targetPath, "utf-8")
+    const itemData = JSON.parse(raw)
+    itemData.name = aliasName
+    fs.writeFileSync(
+      path.join(PUBLIC_R, `${aliasName}.json`),
+      JSON.stringify(itemData, null, 2),
+      "utf-8"
+    )
+  }
+}
+
 // Write the global registry index
 fs.writeFileSync(
   path.join(PUBLIC_R, "registry.json"),
@@ -84,5 +116,5 @@ fs.writeFileSync(
   "utf-8"
 )
 
-console.log(`[build-registry] Successfully generated ${builtCount} registry items into public/r/`)
+console.log(`[build-registry] Successfully generated ${builtCount} canonical items + ${Object.keys(ALIASES).length} aliases into public/r/`)
 

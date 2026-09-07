@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "bar",
+  "type": "registry:component",
+  "title": "Basic Bar Chart",
+  "description": "Categorical vertical bar chart with rounded caps and responsive tooltips.",
+  "dependencies": [
+    "recharts"
+  ],
+  "registryDependencies": [
+    "@plotcn/chart-container",
+    "@plotcn/chart-motion",
+    "@plotcn/chart-tooltip"
+  ],
+  "files": [
+    {
+      "path": "components/charts/recharts/bar-basic.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from \"recharts\"\nimport { useChartReducedMotion } from \"../shared/use-chart-reduced-motion\"\nimport { ChartContainer } from \"../shared/chart-container\"\nimport { ChartTooltip } from \"../shared/chart-tooltip\"\n\nexport interface BarBasicDatum {\n  label: string\n  value: number\n  [key: string]: unknown\n}\n\nexport interface BarBasicProps {\n  data: BarBasicDatum[]\n  valueKey?: string\n  labelKey?: string\n  color?: string\n  height?: number | string\n  showXAxis?: boolean\n  showYAxis?: boolean\n  grid?: \"off\" | \"horizontal\" | \"both\"\n  tooltip?: boolean\n  legend?: boolean\n  className?: string\n  /**\n   * Optional motion configuration or toggle.\n   * Section 10.26, 10.46, 10.60.\n   */\n  motion?: boolean | { duration?: number }\n}\n\n/**\n * Recharts BarBasic\n * Categorical vertical bar chart with rounded caps, baseline grow animation, and reduced-motion awareness.\n * Section 10.26, 10.46, 10.60.\n */\nexport function BarBasic({\n  data,\n  valueKey = \"value\",\n  labelKey = \"label\",\n  color = \"var(--chart-1, #10b981)\",\n  height = 280,\n  className,\n  showXAxis = true,\n  showYAxis = true,\n  grid = \"horizontal\",\n  tooltip = true,\n  legend = false,\n\n  motion = true,\n}: BarBasicProps) {\n  const reducedMotion = useChartReducedMotion()\n\n  const isAnimated = motion !== false && !reducedMotion\n  const animationDuration =\n    typeof motion === \"object\" && motion?.duration !== undefined ? motion.duration * 1000 : 300\n\n  return (\n    <div className={className} style={{ width: \"100%\", height }}>\n      <ChartContainer>\n        <ResponsiveContainer width=\"100%\" height=\"100%\" minWidth={0} minHeight={0} initialDimension={{ width: 320, height: typeof height === \"number\" ? height : 280 }}>\n          <BarChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>\n            {grid !== \"off\" && <CartesianGrid strokeDasharray=\"3 3\" vertical={grid === \"both\"} stroke=\"var(--chart-grid, rgba(255,255,255,0.1))\" />}\n            <XAxis hide={!showXAxis} dataKey={labelKey} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: \"var(--chart-axis, #a1a1aa)\" }} />\n            <YAxis hide={!showYAxis} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: \"var(--chart-axis, #a1a1aa)\" }} />\n            {tooltip && (\n              <Tooltip\n                content={<ChartTooltip />}\n                cursor={{ fill: \"var(--chart-grid, rgba(255,255,255,0.06))\" }}\n              />\n            )}\n            {legend && <Legend />}\n            <Bar\n              dataKey={valueKey}\n              fill={color}\n              radius={[4, 4, 0, 0]}\n              isAnimationActive={isAnimated}\n              animationDuration={animationDuration}\n              animationEasing=\"ease-out\"\n            />\n          </BarChart>\n        </ResponsiveContainer>\n      </ChartContainer>\n    </div>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "components/charts/recharts/bar-basic.tsx"
+    }
+  ],
+  "categories": [
+    "charts",
+    "recharts"
+  ]
+}

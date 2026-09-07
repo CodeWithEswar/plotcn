@@ -85,7 +85,7 @@ describe("Registry Install Command System", () => {
     assert.equal(lineBasicInfo.isVerified, true)
     assert.equal(lineBasicInfo.fileCount, 1)
     assert.deepEqual(lineBasicInfo.dependencies, ["recharts"])
-    assert.ok(lineBasicInfo.registryDependencies.includes("chart-tooltip"))
+    assert.ok(lineBasicInfo.registryDependencies.some((d) => d.includes("chart-tooltip")))
 
     const unknownInfo = getRegistryItemInfo("non-existent-chart-xyz")
     assert.equal(unknownInfo, null)

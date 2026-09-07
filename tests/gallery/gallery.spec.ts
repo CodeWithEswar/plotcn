@@ -114,7 +114,7 @@ describe("Charts discovery", () => {
             .at(-1)!
             .replace(/\.json$/, "")
           if (catalog.items.some((x: { name: string }) => x.name === name)) {
-            assert.match(dep, /^https?:\/\//)
+            assert.ok(dep.startsWith("@plotcn/") || /^https?:\/\//.test(dep))
             collect(name)
           }
         }
