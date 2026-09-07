@@ -1,34 +1,40 @@
 import React, { forwardRef, type HTMLAttributes } from "react"
+import { LegendMarkerIcon } from "./legend-marker"
+import type { ChartLegendItem } from "../types/legend"
 
-export interface LegendItemData {
-  id: string
-  label: string
-  color?: string
-  value?: string | number
-  disabled?: boolean
-  hidden?: boolean
-}
+export type LegendItemData = ChartLegendItem
 
 export interface LegendItemProps extends Omit<HTMLAttributes<HTMLDivElement>, "onToggle"> {
-  item: LegendItemData
+
+  item: ChartLegendItem
   /** Called when item is toggled via click or Enter/Space keyboard event */
   onToggle?: (id: string) => void
+  /** Called when item is isolated (soloed) via Alt/Option click or context action */
+  onIsolate?: (id: string) => void
+  /** Called on hover to temporarily emphasize series */
+  onHoverChange?: (id: string | null) => void
   /** Render custom color swatch */
-  renderSwatch?: (item: LegendItemData) => React.ReactNode
+  renderSwatch?: (item: ChartLegendItem) => React.ReactNode
 }
 
 /**
  * LegendItem renders an accessible, interactive series identifier in chart legends.
+ * Follows button semantics with generous touch bounds and keyboard accessibility.
+ * Section 8.43, 8.54, 8.55, 8.56, 8.57.
  */
 export const LegendItem = forwardRef<HTMLDivElement, LegendItemProps>(
   function LegendItem(
     {
       item,
       onToggle,
+      onIsolate,
+      onHoverChange,
       renderSwatch,
       className,
       onClick,
       onKeyDown,
+      onMouseEnter,
+      onMouseLeave,
       ...props
     },
     ref
@@ -37,51 +43,83 @@ export const LegendItem = forwardRef<HTMLDivElement, LegendItemProps>(
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
       onClick?.(e)
-      if (isInteractive) {
+      if (!isInteractive) return
+
+      // Alt/Option+Click or Shift+Click triggers isolate mode (Section 8.51)
+      if ((e.altKey || e.shiftKey) && onIsolate) {
+        onIsolate(item.id)
+      } else {
         onToggle?.(item.id)
       }
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       onKeyDown?.(e)
-      if (isInteractive && (e.key === "Enter" || e.key === " ")) {
+      if (!isInteractive) return
+
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault()
-        onToggle?.(item.id)
+        if ((e.altKey || e.shiftKey) && onIsolate) {
+          onIsolate(item.id)
+        } else {
+          onToggle?.(item.id)
+        }
       }
     }
+
+    const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+      onMouseEnter?.(e)
+      if (isInteractive) {
+        onHoverChange?.(item.id)
+      }
+    }
+
+    const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+      onMouseLeave?.(e)
+      if (isInteractive) {
+        onHoverChange?.(null)
+      }
+    }
+
+    const isHidden = Boolean(item.hidden)
+    const isDisabled = Boolean(item.disabled)
 
     return (
       <div
         ref={ref}
         role={isInteractive ? "button" : "listitem"}
         tabIndex={isInteractive ? 0 : undefined}
-        aria-pressed={isInteractive ? !item.hidden : undefined}
-        aria-disabled={item.disabled}
+        aria-pressed={isInteractive ? !isHidden : undefined}
+        aria-label={`${item.label} series, ${isHidden ? "hidden" : "visible"}`}
+        aria-disabled={isDisabled}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className={
           className
-            ? `plotcn-legend-item inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-opacity select-none ${
-                item.hidden ? "opacity-35 line-through" : ""
-              } ${isInteractive ? "cursor-pointer hover:text-foreground" : ""} ${className}`
-            : `plotcn-legend-item inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-opacity select-none ${
-                item.hidden ? "opacity-35 line-through" : ""
-              } ${isInteractive ? "cursor-pointer hover:text-foreground" : ""}`
+            ? `plotcn-legend-item inline-flex min-h-[32px] cursor-pointer select-none items-center gap-2 rounded px-2 py-1 text-xs transition-opacity duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                isHidden ? "opacity-35 line-through" : "opacity-100"
+              } ${isDisabled ? "cursor-not-allowed opacity-30" : ""} ${className}`
+            : `plotcn-legend-item inline-flex min-h-[32px] cursor-pointer select-none items-center gap-2 rounded px-2 py-1 text-xs transition-opacity duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                isHidden ? "opacity-35 line-through" : "opacity-100"
+              } ${isDisabled ? "cursor-not-allowed opacity-30" : ""}`
+
         }
         {...props}
       >
         {renderSwatch ? (
           renderSwatch(item)
         ) : (
-          <span
-            className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
-            style={{ backgroundColor: item.color || "currentColor" }}
-            aria-hidden="true"
+          <LegendMarkerIcon
+            marker={item.marker}
+            color={item.color}
+            className={isHidden ? "grayscale opacity-50" : ""}
           />
         )}
-        <span className="font-medium text-foreground/90">{item.label}</span>
+        <span className="font-medium text-foreground">{item.label}</span>
         {item.value !== undefined && (
-          <span className="font-mono text-muted-foreground">({item.value})</span>
+          <span className="tabular-nums text-muted-foreground">({item.value})</span>
         )}
       </div>
     )

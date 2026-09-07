@@ -1,25 +1,34 @@
 import React, { forwardRef, type SVGProps } from "react"
 import { useChart } from "../root/chart-context"
+import type { CrosshairMode } from "../types/interaction"
 
 export interface CrosshairProps extends SVGProps<SVGGElement> {
   /** Active X coordinate in plot area */
   x?: number
   /** Active Y coordinate in plot area */
   y?: number
-  /** Line style type. Defaults to "both" if both x and y are passed, otherwise derives. */
-  mode?: "vertical" | "horizontal" | "both"
+  /** Crosshair line mode. Section 8.27 - 8.31. */
+  mode?: CrosshairMode | "vertical" | "horizontal"
+  /** Radius for point crosshair mode */
+  pointRadius?: number
+  /** Radius for point halo ring */
+  haloRadius?: number
   /** Dash pattern */
   strokeDasharray?: string
 }
 
 /**
- * Crosshair is a presentational SVG guide indicating active pointer/datum position.
+ * Crosshair is a presentational SVG guide indicating active pointer/datum coordinate.
+ * Supports x (vertical), y (horizontal), both, and point-halo modes.
+ * Section 8.27 - 8.33.
  */
 export const Crosshair = forwardRef<SVGGElement, CrosshairProps>(function Crosshair(
   {
     x,
     y,
     mode,
+    pointRadius = 4,
+    haloRadius = 8,
     stroke = "currentColor",
     strokeOpacity = 0.35,
     strokeWidth = 1,
@@ -31,17 +40,28 @@ export const Crosshair = forwardRef<SVGGElement, CrosshairProps>(function Crossh
 ) {
   const { innerWidth, innerHeight } = useChart()
 
-  const showVertical = (mode === "vertical" || mode === "both" || (mode === undefined && x !== undefined)) && x !== undefined
-  const showHorizontal = (mode === "horizontal" || mode === "both" || (mode === undefined && y !== undefined)) && y !== undefined
+  const resolvedMode = mode ?? (x !== undefined && y !== undefined ? "both" : x !== undefined ? "x" : "y")
+  const isVertical = resolvedMode === "x" || resolvedMode === "vertical" || resolvedMode === "both"
+  const isHorizontal = resolvedMode === "y" || resolvedMode === "horizontal" || resolvedMode === "both"
+  const isPoint = resolvedMode === "point"
 
-  if (!showVertical && !showHorizontal) {
+  const showVertical = isVertical && x !== undefined
+  const showHorizontal = isHorizontal && y !== undefined
+  const showPoint = isPoint && x !== undefined && y !== undefined
+
+
+  if (!showVertical && !showHorizontal && !showPoint) {
     return null
   }
 
   return (
     <g
       ref={ref}
-      className={className ? `plotcn-crosshair pointer-events-none ${className}` : "plotcn-crosshair pointer-events-none"}
+      className={
+        className
+          ? `plotcn-crosshair pointer-events-none ${className}`
+          : "plotcn-crosshair pointer-events-none"
+      }
       role="presentation"
       {...props}
     >
@@ -68,6 +88,27 @@ export const Crosshair = forwardRef<SVGGElement, CrosshairProps>(function Crossh
           strokeWidth={strokeWidth}
           strokeDasharray={strokeDasharray}
         />
+      )}
+      {showPoint && (
+        <g>
+          {/* Subtle outer halo */}
+          <circle
+            cx={x}
+            cy={y}
+            r={haloRadius}
+            fill={stroke}
+            fillOpacity={0.15}
+          />
+          {/* Active target mark */}
+          <circle
+            cx={x}
+            cy={y}
+            r={pointRadius}
+            fill={stroke}
+            stroke="var(--background, #09090b)"
+            strokeWidth={1.5}
+          />
+        </g>
       )}
     </g>
   )

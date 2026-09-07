@@ -1,48 +1,106 @@
 import React, { forwardRef, type SVGProps } from "react"
 import { useChart } from "../root/chart-context"
+import type { ChartCursor } from "../types/interaction"
 
-export interface CursorProps extends SVGProps<SVGRectElement> {
-  /** X start coordinate in pixels */
-  x: number
-  /** Y start coordinate in pixels. Defaults to 0 */
+export interface CursorProps extends SVGProps<SVGGElement> {
+  /** Active X coordinate in plot area */
+  x?: number
+  /** Active Y coordinate in plot area */
   y?: number
-  /** Width of the cursor band. */
-  width: number
-  /** Height of the cursor band. Defaults to innerHeight */
-  height?: number
+  /** Cursor visual style. Section 8.34 & 8.35. */
+  styleType?: ChartCursor
+  /** Band width for categorical band cursor */
+  bandWidth?: number
+  /** Width alias */
+  width?: number
 }
 
 /**
- * Cursor renders a highlight/selection band representing the active category or bar column.
+ * Cursor provides category context highlighting (line, band, crosshair, point).
+ * Section 8.34 & 8.35.
  */
-export const Cursor = forwardRef<SVGRectElement, CursorProps>(function Cursor(
+export const Cursor = forwardRef<SVGGElement, CursorProps>(function Cursor(
   {
     x,
-    y = 0,
+    y,
+    styleType,
+    bandWidth,
     width,
-    height: customHeight,
     fill = "currentColor",
-    fillOpacity = 0.05,
+    fillOpacity = 0.08,
+    stroke = "currentColor",
+    strokeOpacity = 0.3,
+    strokeWidth = 1,
     className,
     ...props
   },
   ref
 ) {
   const { innerHeight } = useChart()
-  const height = customHeight !== undefined ? customHeight : innerHeight
+
+  if (x === undefined || styleType === "none") {
+    return null
+  }
+
+  const effectiveWidth = width ?? bandWidth ?? 24
+  const isLine = styleType === "line"
+  const isCrosshair = styleType === "crosshair"
+  const isPoint = styleType === "point" && y !== undefined
 
   return (
-    <rect
+    <g
       ref={ref}
-      x={x}
-      y={y}
-      width={Math.max(0, width)}
-      height={Math.max(0, height)}
-      fill={fill}
-      fillOpacity={fillOpacity}
-      className={className ? `plotcn-cursor pointer-events-none ${className}` : "plotcn-cursor pointer-events-none"}
+      className={
+        className
+          ? `plotcn-cursor pointer-events-none ${className}`
+          : "plotcn-cursor pointer-events-none"
+      }
       role="presentation"
       {...props}
-    />
+    >
+      {isLine ? (
+        <line
+          x1={x}
+          x2={x}
+          y1={0}
+          y2={innerHeight}
+          stroke={stroke}
+          strokeOpacity={strokeOpacity}
+          strokeWidth={strokeWidth}
+        />
+      ) : isCrosshair ? (
+        <line
+          x1={x}
+          x2={x}
+          y1={0}
+          y2={innerHeight}
+          stroke={stroke}
+          strokeOpacity={strokeOpacity}
+          strokeWidth={strokeWidth}
+          strokeDasharray="3 3"
+        />
+      ) : isPoint ? (
+        <circle
+          cx={x}
+          cy={y}
+          r={6}
+          fill={fill}
+          fillOpacity={fillOpacity}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      ) : (
+        <rect
+          x={x - effectiveWidth / 2}
+          y={0}
+          width={effectiveWidth}
+          height={innerHeight}
+          fill={fill}
+          fillOpacity={fillOpacity}
+          rx={3}
+        />
+      )}
+    </g>
   )
 })
+

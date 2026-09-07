@@ -7,7 +7,7 @@ import { ChartRoot, ChartProvider, ChartSurface } from "./root"
 import { Plot, XAxis, YAxis, Grid, Line, Area, Bar, ScatterPoint } from "./cartesian"
 import { PolarPlot, RadialAxis, AngularAxis, RadialGrid } from "./polar"
 import { Crosshair, Cursor, HitArea, ChartTooltip, ChartSelection, InteractionProvider } from "./interaction"
-import { Legend, LegendItem, LegendList } from "./legend"
+import { Legend, LegendItem, LegendList, LegendMarkerIcon } from "./legend"
 import { ReferenceLine, ReferenceBand, ReferencePoint, Annotation } from "./annotations"
 import { ChartTitle, ChartDescription, ChartSummary } from "./accessibility"
 
@@ -60,6 +60,7 @@ export const Chart = {
   Legend,
   LegendItem,
   LegendList,
+  LegendMarker: LegendMarkerIcon,
   ReferenceLine,
   ReferenceBand,
   ReferencePoint,
@@ -68,3 +69,4 @@ export const Chart = {
   Description: ChartDescription,
   Summary: ChartSummary,
 } as const
+
