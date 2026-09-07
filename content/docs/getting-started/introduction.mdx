@@ -1,163 +1,530 @@
 ---
 title: "Introduction"
-description: "Learn what Plotcn is, how its visualization engines work together, and why Plotcn distributes visualization components as source."
+description: "Learn what Plotcn is, how its three visualization engines work together, and why Plotcn distributes visualization components as source."
 section: "Getting Started"
 ---
 
 <DocsIntroHero
   eyebrow="Introduction"
   title="Plotcn"
-  description="Beautiful React visualizations you can actually own."
+  description="Three visualization engines. One coherent ecosystem. Source you own."
 />
 
 <DocsMeta />
 
 Plotcn is a source-first visualization system for React.
 
-It brings together **Recharts**, **D3.js**, and **Google Charts** under a shared developer experience while keeping the strengths of each engine available. Instead of hiding visualization code behind a rigid package boundary, Plotcn distributes components through the **shadcn Registry** so the implementation can live directly inside your application.
+It brings together **Recharts**, **D3.js**, and **Google Charts** under a shared developer experience while keeping the strengths of each engine available. Instead of hiding visualization code behind a rigid package boundary, Plotcn distributes components through the **shadcn Registry** so the implementation lives directly inside your application.
 
 <VisualizationSystemPreview />
 
-## What is Plotcn?
+## Vision
 
-Plotcn is a collection of reusable, production-oriented visualization components designed for modern React applications.
+Plotcn is designed as a visualization-focused sibling to shadcn/ui rather than a traditional black-box chart package.
 
-Instead of asking your application to depend on a monolithic abstraction layer, Plotcn provides the component source itself. Install a visualization, inspect the generated file, adapt the interaction, replace the data model, adjust the visual tokens, or rebuild parts of it entirely.
+The Plotcn Registry distributes complete, editable source code that developers can install directly into their applications, inspect, own, and customize.
 
-<DocsCallout title="Source first">
-Plotcn treats customization as part of the normal workflow, not an escape hatch. Components are meant to live in your application, not behind an opaque package boundary.
-</DocsCallout>
+Recharts, D3.js, and Google Charts remain distinct visualization engines, while Plotcn owns the shared visual language, responsive behavior, accessibility patterns, interaction conventions, documentation, source distribution, and overall developer experience.
 
-## Why Plotcn exists
+```text
+Plotcn
+│
+├── Recharts Collection
+│   └── Standard dashboard, business, analytics, and application charts
+│
+├── D3.js Collection
+│   └── Advanced, custom, highly interactive, and bespoke visualizations
+│
+├── Google Charts Collection
+│   ├── Core Charts
+│   ├── Timeline
+│   ├── Sankey
+│   ├── TreeMap
+│   ├── Table
+│   └── GeoChart
+│
+├── Shared Chart Experience
+│   ├── Theme
+│   ├── Responsiveness
+│   ├── Tooltip
+│   ├── Legend
+│   ├── Loading / Empty / Error states
+│   ├── Accessibility
+│   ├── Interaction conventions
+│   └── Motion conventions
+│
+├── Registry
+│   └── Source-code distribution through the shadcn Registry model
+│
+├── Blocks
+│   └── Complete analytics, dashboard, reporting, and visualization sections
+│
+├── Documentation
+│
+└── Playground
+```
 
-Visualization libraries already solve the fundamental problem of drawing charts extremely well.
+The core product model is:
 
-The difficult part in a real product often lives around the chart: responsive containers, loading and empty states, accessibility summaries, tooltips, legends, theme integration, interaction behavior, motion, error handling, and visual consistency across an application.
+```text
+Visualization engines
+        ↓
+Recharts / D3.js / Google Charts
+        ↓
+Plotcn visual + interaction system
+        ↓
+Plotcn Registry
+        ↓
+Developer-owned source
+        ↓
+Application
+```
 
-Plotcn focuses on this product layer while preserving access to the engine underneath.
+Plotcn does not try to hide the underlying visualization engines behind one universal API.
 
-## Three engines, one visual language
+> **Plotcn standardizes the experience around the visualization while preserving the strengths and native capabilities of each engine.**
+
+<DocsDivider />
+
+## Visualization Engine Strategy
+
+Plotcn supports three distinct visualization families.
 
 <EngineGrid />
 
 ### Recharts
 
-Use Recharts when you want a declarative React model for common product and dashboard visualizations. It is a strong default for line, area, bar, radial, categorical, and other familiar chart patterns.
+Use Recharts for:
 
-Plotcn adds production-ready composition, styling, responsiveness, accessibility patterns, and source-distributed components around that model.
+- Standard dashboard charts
+- Business metrics and KPIs
+- Analytics interfaces
+- Declarative React visualization
+- Common Cartesian charts (Line, Area, Bar)
+- Pie and donut charts
+- Straightforward interaction patterns
+- Fast application development
+
+Typical components include:
+
+```text
+Line
+Area
+Bar
+Pie
+Donut
+Scatter
+Radar
+Radial
+Composed charts
+```
+
+Recharts is the default starting point when a developer needs a polished, conventional React chart.
 
 ### D3.js
 
-Use D3.js when the visualization itself needs deeper mathematical and geometric control.
+Use D3.js for:
 
-D3 is particularly useful when custom layout, coordinate calculations, hierarchy, force networks, geographic projection, brushing, zooming, or specialized interaction are central to the experience. Plotcn uses D3 primarily for calculation and geometry primitives while React remains responsible for component lifecycle and DOM rendering where appropriate.
+- Advanced custom visualization
+- Bespoke geometric representations
+- Custom mathematical scales and continuous domains
+- Force-directed physics layouts
+- Hierarchy and tree visualizations
+- Complex data exploration and brush/zoom interactions
+- Highly specialized visualization behaviors
+
+Plotcn structures D3 implementations with a clear boundary:
+
+```text
+D3
+→ mathematics
+→ scales
+→ layouts
+→ geometry
+
+React
+→ rendering
+→ lifecycle
+→ state
+→ accessibility
+```
+
+Plotcn prefers granular micro-packages (such as `d3-shape`, `d3-scale`, `d3-force`) rather than monolithic bundle imports:
+
+```ts
+// Preferred: modular micro-package
+import { scaleLinear } from "d3-scale"
+import { line, curveMonotoneX } from "d3-shape"
+```
 
 ### Google Charts
 
-Use Google Charts when a Google-provided visualization fits the problem well, especially when working with **GeoChart** for worldwide and regional choropleth maps or mature standard chart types.
+Use Google Charts for mature Google-powered visualization types and geographic visualization where its native chart implementations are useful.
 
-Plotcn provides the React integration, lifecycle handling, singleton script loading, responsive shell, theme adaptation, loading and error states, and documentation around the Google runtime.
+Typical categories include:
 
-<DocsCallout title="External runtime">
-Google Charts relies on Google's hosted visualization runtime. For Google Charts components, you own the Plotcn React wrapper and shell code within your application, while the underlying chart rendering engine is loaded from Google.
-</DocsCallout>
+```text
+Core Charts
+├── Line
+├── Area
+├── Bar
+├── Column
+├── Combo
+├── Pie
+├── Donut
+├── Scatter
+├── Bubble
+├── Histogram
+└── Stepped Area
 
-### Engine Comparison
+Specialized Charts
+├── Timeline
+├── Gauge
+├── Org Chart
+├── TreeMap
+├── Sankey
+└── Table
 
-| Capability | Recharts | D3.js | Google Charts |
-| --- | --- | --- | --- |
-| Dashboard charts | Excellent | Capable | Strong |
-| Custom geometry & math | Limited | Excellent | Limited |
-| React-first composition | Native | Plotcn-managed | Plotcn-managed |
-| Geographic choropleths | Limited | Strong with geo modules | Excellent via GeoChart |
-| External runtime dependency | No (bundled) | No (bundled) | Yes (Google hosted) |
-| Source-level customization | Full component | Full component | Wrapper & shell |
+Geo
+└── GeoChart
+    ├── World regions
+    ├── Country regions
+    ├── State / province regions
+    ├── Marker maps
+    ├── Value-based coloring
+    └── Region selection
+```
 
-<DocsDivider />
+Google Charts remains a separate engine family. Its APIs are not merged into Recharts or D3 abstractions.
 
-## Install the source. Keep the source.
-
-Plotcn follows a source-distribution model.
-
-A component is discovered in Plotcn, installed through the shadcn Registry, and written into your own project. From that point forward, it becomes part of your application source tree.
-
-<RegistryFlow />
-
-This changes the relationship between your application and the component. You are not limited to a configuration surface chosen by an external author. You can open the file and change the implementation itself.
-
-## One visual language across different engines
-
-Plotcn does not try to make Recharts, D3.js, and Google Charts pretend to be the same visualization library.
-
-Their rendering models, capabilities, and APIs are fundamentally different — and those differences are useful.
-
-Instead, Plotcn standardizes the product-level experience around them:
-
-- Responsive containers and resize observers
-- Semantic theme tokens and dark-mode adaptation
-- Loading, empty, and error fallback states
-- Accessibility labels and hidden screen-reader summaries
-- Tooltip and legend presentation patterns
-- Motion conventions respecting reduced-motion preferences
-- Clear documentation and clean component source organization
-
-<DocsCallout title="Shared experience, not a universal wrapper">
-The goal is consistency around the visualization without removing the capabilities that make each engine valuable.
-</DocsCallout>
+> [!NOTE]
+> **GeoChart vs. Google Maps Platform**: Google GeoChart belongs under `Google Charts └── GeoChart` as a vector SVG choropleth visualization. It does not require Google Maps Platform, an API key, or a billing account. Plotcn will only introduce a separate Maps family if dedicated raster/vector map SDKs (such as Google Maps Platform or MapLibre) are introduced.
 
 <DocsDivider />
 
-## How Plotcn is structured
+## Shared Visualization Experience
+
+The three engines remain technically independent while sharing a consistent product experience.
+
+```text
+                    Plotcn Shared Layer
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+
+    Recharts             D3.js          Google Charts
+
+ Declarative React    Custom geometry    Hosted runtime
+     charts             and layouts         + wrapper
+
+        │                  │                  │
+        └──────────────────┼──────────────────┘
+                           ▼
+
+                  Shared Plotcn Experience
+```
+
+The shared layer covers:
+
+- Chart containers and ResizeObserver bounding
+- Responsive measurement and fluid adaptations
+- Visual theme tokens and dark-mode adaptation
+- Truthful states (loading, empty, error, offline)
+- Accessibility (roles, live announcements, screen-reader data summaries)
+- Metadata standards and documentation structure
+- Tooltip and legend visual conventions
+- Number and currency formatting utilities
+- Purposeful motion adhering to `prefers-reduced-motion`
+
+The shared layer never becomes a heavy cross-engine abstraction.
+
+> **Consistency around the chart. Freedom inside the chart.**
+
+<DocsDivider />
+
+## Product Principles
+
+| Principle | Implementation meaning |
+| --- | --- |
+| **Copy, own, customize** | Installed Plotcn chart source lives inside your application and remains 100% editable. |
+| **Three engines, one ecosystem** | Recharts, D3.js, and Google Charts remain separate implementations presented within one coherent visualization system. |
+| **Choose the right engine** | Developers select Recharts for conventional React charts, D3.js for custom math/geometry, and Google Charts for mature Google chart types and GeoChart. |
+| **Shared experience, not a universal wrapper** | Plotcn standardizes theme, responsiveness, states, accessibility, and documentation without forcing every engine into one artificial API. |
+| **Adaptive responsiveness** | Charts alter tick density, legend placement, labels, margins, and interaction according to container dimensions—not merely global viewport width. |
+| **Accessibility by default** | Accessible naming, descriptions, natural-language summaries, keyboard navigation, reduced motion, and non-color encodings are standard contract requirements. |
+| **Purposeful motion** | Animations communicate state transitions, filtering, and data changes rather than adding decorative distractions. |
+| **Simple first, composable when needed** | Provides ready-to-use chart components while preserving readable source and low-level customization paths. |
+| **Engine isolation** | Installing a Recharts component never installs D3.js or Google Charts dependencies, and vice versa. |
+| **Source-first distribution** | Plotcn components are delivered through the shadcn Registry model rather than requiring an immutable npm runtime package. |
+| **Theme-native** | Inherits your application's CSS variables and translates shared semantic tokens into each engine where necessary. |
+| **Truthful states** | Loading, empty, error, unavailable, and offline states are explicit rather than masked with synthetic placeholder data. |
+| **Progressive complexity** | Start with a simple pre-configured component and customize deeper only when requirements demand it. |
+
+<DocsDivider />
+
+## Three Engines, Different Strengths
+
+There is no single "best" visualization engine. Choose the engine that best matches the specific visualization challenge.
+
+| Requirement | Recommended engine |
+| --- | --- |
+| Standard dashboard metrics & KPIs | **Recharts** |
+| Business analytics & reporting | **Recharts** |
+| Conventional React declarative charts | **Recharts** |
+| Highly customized SVG visualization | **D3.js** |
+| Specialized geometry & continuous scales | **D3.js** |
+| Custom interaction model & brush/zoom | **D3.js** |
+| Force-directed networks & hierarchies | **D3.js** |
+| Google GeoChart (world, countries, provinces) | **Google Charts** |
+| Google Timeline & Gantt visualizations | **Google Charts** |
+| Google Sankey flow diagrams | **Google Charts** |
+| Google TreeMap hierarchical density | **Google Charts** |
+| Google Table statistical data grids | **Google Charts** |
+| Existing Google Charts enterprise migrations | **Google Charts** |
+
+<DocsDivider />
+
+## Engine Isolation
+
+Each registry item installs only what it requires:
+
+```text
+@plotcn/line-basic
+      │
+      └── recharts
+```
+
+```text
+@plotcn/d3-force-network
+      │
+      └── d3-force, d3-scale (modular D3 packages)
+```
+
+```text
+@plotcn/google-geochart
+      │
+      └── Plotcn Google loader / adapter
+             │
+             └── Google Charts hosted runtime
+```
+
+Plotcn strictly avoids bundle contamination:
+
+```text
+Install one chart
+      ↓
+recharts  +  all D3 packages  +  Google Charts helpers   ❌ (Avoided)
+```
+
+Engine isolation ensures your production application bundle contains zero unused visualization code.
+
+<DocsDivider />
+
+## Google Charts Runtime Model
+
+Google Charts requires special architectural treatment because the underlying visualization runtime is externally hosted on Google's content delivery network.
+
+```text
+Plotcn installed source
+        │
+        ▼
+Google chart wrapper
+        │
+        ▼
+Shared Google loader
+        │
+        ▼
+Google Charts runtime
+        │
+        ▼
+Rendered visualization
+```
+
+**What Plotcn owns:**
+- React wrapper source code
+- Component lifecycle and resize observers
+- Loader coordination and promise deduplication
+- CSS variable theme mapping
+- Loading, empty, and error fallback surfaces
+- Accessible screen-reader summaries and data tables
+- Typed data transformation and event translation
+
+**What Google owns:**
+- The underlying hosted chart rendering engine (`google.visualization`)
+
+> **The developer owns the installed Plotcn Google wrapper source, but not Google's hosted visualization engine.**
+
+<DocsDivider />
+
+## Google Loader Principle
+
+All Google Charts components share a single, resilient loader located in `@/lib/google-charts/loader.ts`.
+
+```text
+Google Charts components
+        │
+        ▼
+Shared Plotcn loader
+        │
+        ├── deduplicate script loading (single <script> tag)
+        ├── manage packages on-demand
+        ├── manage ready state promises
+        └── handle network & CSP failures gracefully
+        │
+        ▼
+Google Charts runtime
+```
+
+Individual chart components never inject independent `<script>` tags. The loader exposes a strictly typed state machine:
+
+```ts
+export type GoogleChartsLoaderState =
+  | "idle"
+  | "loading"
+  | "ready"
+  | "error"
+```
+
+## Google Package Isolation
+
+The loader loads only the specific packages declared by the mounted chart:
+
+```ts
+const googleChartPackages = {
+  core: ["corechart"],
+  geo: ["geochart"],
+  timeline: ["timeline"],
+  sankey: ["sankey"],
+  org: ["orgchart"],
+  table: ["table"],
+} as const
+```
+
+- Google Line, Bar, Area → loads `corechart`
+- Google GeoChart → loads `geochart`
+- Google Timeline → loads `timeline`
+- Google Sankey → loads `sankey`
+
+Packages are never loaded globally or preemptively.
+
+<DocsDivider />
+
+## Target Users
+
+Plotcn is built for:
+
+- **Frontend engineers** building dashboards, SaaS analytics, reporting applications, and data-intensive admin panels.
+- **Product teams** wanting polished charts without repeatedly re-implementing responsive math, accessibility tables, tooltips, and loading skeletons.
+- **Design system engineers** requiring source-owned visualization primitives that conform directly to their brand's design tokens.
+- **React teams** already using **shadcn/ui** and looking for an identical copy-and-own workflow for visualization.
+- **Data specialists** requiring D3.js geometric flexibility for custom mathematical projections and network graphs.
+- **Teams needing geographic visualization** via Google GeoChart for country, state, and regional choropleths.
+- **Organizations migrating existing Google Charts** code into a modern, theme-aware React design system.
+- **Developers who want complete source ownership** and refuse to be trapped by closed-box third-party chart libraries.
+
+<DocsDivider />
+
+## Target Developer Experience
+
+The intended developer journey is fast, transparent, and direct:
+
+```text
+Discover visualization
+        ↓
+Choose engine (Recharts, D3.js, Google Charts)
+        ↓
+Inspect source & registry manifest
+        ↓
+Install through shadcn CLI
+        ↓
+Import local component
+        ↓
+Connect typed data
+        ↓
+Customize locally
+        ↓
+Ship
+```
+
+Direct shadcn installation example:
+
+```bash
+npx shadcn@latest add @plotcn/line-basic
+```
+
+Or for D3 and Google Charts:
+
+```bash
+npx shadcn@latest add @plotcn/d3-force-network
+```
+
+```bash
+npx shadcn@latest add @plotcn/google-geochart
+```
+
+<DocsDivider />
+
+## Product Positioning
+
+Plotcn is intentionally **not** another proprietary chart library, nor is it an all-encompassing wrapper attempting to hide underlying engines.
+
+> **Plotcn is a source-first React visualization system that brings Recharts, D3.js, and Google Charts into one consistent developer experience.**
+
+The engines provide the specialized visualization power. Plotcn provides the design language, responsive containers, error surfaces, accessible data summaries, registry distribution, and complete source code ownership.
+
+<DocsDivider />
+
+## Final Architecture & Mental Model
 
 <PlotcnArchitecture />
 
-Plotcn keeps engine-specific implementation separate from the shared chart layer.
+```text
+                         Plotcn
+                            │
+               ┌────────────┼────────────┐
+               │            │            │
+               ▼            ▼            ▼
 
-This prevents a Google Chart from depending on D3 internals, or a D3 visualization from being constrained by a Recharts-style API. Shared infrastructure is used only where the concern is genuinely common: theme variables, container bounding, state fallbacks, and accessibility primitives.
+          Recharts         D3.js      Google Charts
+          Collection     Collection     Collection
 
-## Choose the right engine
+               │            │            │
+               └────────────┼────────────┘
+                            ▼
 
-### Choose Recharts when
+                 Shared Chart Experience
+                            │
+         ┌──────────────────┼───────────────────┐
+         │                  │                   │
+       Theme          Responsiveness      Accessibility
+         │                  │                   │
+         └──────────────────┼───────────────────┘
+                            ▼
 
-- You are building dashboards or familiar application charts
-- You want a declarative React component API
-- You want to move quickly with standard Cartesian patterns
-- The chart fits common line, bar, area, scatter, or radial structures
+                     Plotcn Registry
+                            │
+                            ▼
 
-### Choose D3.js when
+                    Developer Source
+                            │
+                            ▼
 
-- The visualization requires custom geometry, scales, or layouts
-- Interaction, brushing, or zooming is central to the product experience
-- You need hierarchy, force-directed networks, voronoi, or advanced projections
-- You want maximum control over the visualization pipeline
+                      Application
+```
 
-### Choose Google Charts when
+> **Three visualization engines. One coherent ecosystem. Source you own.**
 
-- A Google chart type already matches your requirement
-- You need choropleth maps via **GeoChart**
-- You prefer Google's mature chart runtime
-- An external hosted runtime is acceptable for your deployment environment
+- **Recharts** handles declarative, fast product dashboards.
+- **D3.js** provides complete geometric and mathematical control.
+- **Google Charts** delivers mature enterprise chart types and choropleth geographic maps.
 
-## What Plotcn is not
-
-Plotcn is intentionally not trying to become a wrapper around every chart library on npm.
-
-A visualization or engine should only become part of Plotcn when the project can add meaningful value through better defaults, source ownership, responsiveness, accessibility, integration, documentation, or developer experience.
-
-Plotcn is also not a no-code chart builder. The source code is intentionally visible and accessible because developers are expected to own and evolve it with their application.
+Plotcn unifies all three under a single visual and architectural standard without compromising what makes each engine distinct.
 
 <DocsDivider />
 
-## Project status
+## Project Status
 
-Plotcn is being built incrementally.
-
-The documentation system and registry foundation are established first. Visualization components are then implemented, tested, documented, and published one by one.
-
-This keeps the public catalog aligned with functionality that actually works instead of filling the project with placeholder components.
+Plotcn is built iteratively and published component-by-component through verified registry items.
 
 <ProjectStatus />
-
-## Next steps
-
-<DocsNextSteps />
