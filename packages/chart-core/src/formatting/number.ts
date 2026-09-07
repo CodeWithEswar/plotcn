@@ -16,21 +16,5 @@ export function formatNumber(
   }
 }
 
-/**
- * Formats a currency value requiring an explicit ISO currency code (e.g. "USD", "EUR", "GBP").
- */
-export function formatCurrency(
-  value: number,
-  currency: string,
-  locale = "en-US"
-): string {
-  if (!isFiniteNumber(value)) return "—"
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency,
-    }).format(value)
-  } catch {
-    return `${currency} ${value}`
-  }
-}
+// Re-export formatCurrency and CurrencyFormatOptions for backwards compatibility with imports from './number'
+export { formatCurrency, type CurrencyFormatOptions } from "./currency"

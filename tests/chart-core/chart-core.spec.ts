@@ -37,6 +37,7 @@ import {
 import {
   euclideanDistance,
   isPointInsideRect,
+  isPointInsideBounds,
   rectIntersectsRect,
   lerp,
   inverseLerp,
@@ -100,7 +101,7 @@ describe("@plotcn/chart-core Data & Validation", () => {
     assert.equal(invalidResult.issues.length, 2)
   })
 
-  it("should compute numeric domains with policies", () => {
+  it("should compute numeric domains with policies including manual override", () => {
     const data = [{ v: 10 }, { v: 50 }, { v: 20 }]
     const exact = calculateNumericDomain(data, (d) => d.v, { policy: "exact" })
     assert.deepEqual(exact, [10, 50])
@@ -110,6 +111,9 @@ describe("@plotcn/chart-core Data & Validation", () => {
 
     const symmetric = calculateNumericDomain(data, (d) => d.v, { policy: "symmetric" })
     assert.deepEqual(symmetric, [-50, 50])
+
+    const manual = calculateNumericDomain(data, (d) => d.v, { policy: "manual", manualDomain: [5, 95] })
+    assert.deepEqual(manual, [5, 95])
   })
 
   it("should extract series values without mutating original data", () => {
@@ -147,14 +151,15 @@ describe("@plotcn/chart-core Scales & Math", () => {
 })
 
 describe("@plotcn/chart-core Coordinates & Geometry", () => {
-  it("should calculate distances and point containment", () => {
+  it("should calculate distances and point containment with isPointInsideBounds", () => {
     const p1 = createPoint(0, 0)
     const p2 = createPoint(3, 4)
     assert.equal(euclideanDistance(p1, p2), 5)
 
     const bounds = createBounds(0, 0, 100, 100)
     assert.equal(isPointInsideRect(p2, bounds), true)
-    assert.equal(isPointInsideRect(createPoint(150, 50), bounds), false)
+    assert.equal(isPointInsideBounds(p2, bounds), true)
+    assert.equal(isPointInsideBounds(createPoint(150, 50), bounds), false)
   })
 
   it("should convert between Cartesian and Polar coordinates", () => {
@@ -180,11 +185,12 @@ describe("@plotcn/chart-core Coordinates & Geometry", () => {
 })
 
 describe("@plotcn/chart-core Formatting & Statistics", () => {
-  it("should format numbers, compact notation, and percentages", () => {
+  it("should format numbers, compact notation, percentages, and currencies with explicit options", () => {
     assert.equal(formatCompactNumber(1500), "1.5K")
     assert.equal(formatCompactNumber(2500000), "2.5M")
     assert.equal(formatPercentage(0.45, 0), "45%")
     assert.equal(formatCurrency(120, "USD"), "$120.00")
+    assert.ok(formatCurrency(42500, { currency: "INR", locale: "en-IN" }).includes("42,500"))
     assert.equal(formatDuration(150), "2m 30s")
   })
 

@@ -4,13 +4,18 @@ import { isFiniteNumber } from "./predicates"
 
 /**
  * Calculates a pure numeric scale domain from data using a given accessor and policy.
+ * Policies: "exact" | "include-zero" | "padded" | "symmetric" | "manual"
  */
 export function calculateNumericDomain<TDatum>(
   data: readonly TDatum[],
   accessor: Accessor<TDatum, number>,
   options: DomainOptions = {}
 ): NumericDomain {
-  const { policy = "exact", padding = 0.05, zeroInclusive = false } = options
+  const { policy = "exact", padding = 0.05, zeroInclusive = false, manualDomain } = options
+
+  if (policy === "manual" && manualDomain) {
+    return manualDomain
+  }
 
   if (!data || data.length === 0) {
     return zeroInclusive || policy === "include-zero" ? [0, 1] : [0, 1]

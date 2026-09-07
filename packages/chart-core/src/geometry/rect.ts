@@ -2,9 +2,10 @@ import type { Point } from "../types/coordinates"
 import type { Bounds } from "../types/dimensions"
 
 /**
- * Checks whether a 2D Point is inside a geometric Bounds rectangle.
+ * Checks whether a 2D Point is inside geometric Bounds.
+ * Renderer-independent hit-testing (SVG, Canvas, HTML overlays).
  */
-export function isPointInsideRect(point: Point, bounds: Bounds): boolean {
+export function isPointInsideBounds(point: Point, bounds: Bounds): boolean {
   return (
     point.x >= bounds.x &&
     point.x <= bounds.x + bounds.width &&
@@ -12,6 +13,11 @@ export function isPointInsideRect(point: Point, bounds: Bounds): boolean {
     point.y <= bounds.y + bounds.height
   )
 }
+
+/**
+ * Alias for isPointInsideBounds.
+ */
+export const isPointInsideRect = isPointInsideBounds
 
 /**
  * Checks whether two Bounds rectangles intersect.
