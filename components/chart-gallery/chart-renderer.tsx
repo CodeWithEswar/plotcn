@@ -132,6 +132,10 @@ export const sampleGeoData = [
 ]
 
 // Dynamic chart imports
+const RechartsSignalLine = dynamic(
+  () => import("@/registry/recharts/line-signal").then((m) => m.SignalLine),
+  { ssr: false }
+)
 const RechartsLineBasic = dynamic(
   () => import("@/registry/recharts/line-basic").then((m) => m.LineBasic),
   { ssr: false }
@@ -240,6 +244,18 @@ export function DynamicChartRenderer({
         {visible ? (
           (() => {
             switch (registryName) {
+              case "line-signal":
+                return (
+                  <RechartsSignalLine
+                    data={sampleLineData}
+                    xKey="label"
+                    seriesKey="value"
+                    height={height}
+                    motion={motion && !reduced}
+                    color={color}
+                    {...chartProps}
+                  />
+                )
               case "line-basic":
                 return (
                   <RechartsLineBasic

@@ -7,6 +7,7 @@ import { getRelatedCharts } from "@/lib/charts/get-charts"
 import { ChartDetailView } from "@/components/chart-detail/chart-detail-view"
 import { constructPageMetadata } from "@/lib/seo/metadata"
 import { highlightCode } from "@/lib/shiki"
+import { getChartMdx } from "@/lib/charts/chart-mdx"
 
 interface PageProps {
   params: Promise<{ chart: string }>
@@ -50,6 +51,7 @@ export default async function RechartsChartPage({ params }: PageProps) {
   }
 
   const related = getRelatedCharts(chart, 3)
+  const mdxData = getChartMdx("recharts", chart.slug)
 
   return (
     <ChartDetailView
@@ -57,6 +59,7 @@ export default async function RechartsChartPage({ params }: PageProps) {
       sourceCode={sourceCode}
       highlightedSourceCode={highlightedSourceCode}
       relatedCharts={related}
+      mdxData={mdxData}
     />
   )
 }

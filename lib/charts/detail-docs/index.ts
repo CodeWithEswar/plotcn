@@ -1,9 +1,12 @@
 import type { ChartMetadata } from "../metadata"
 import type { ChartDetailDoc, PropDoc } from "./types"
 import { googleLineDoc } from "./google-line-doc"
+import { lineSignalDoc } from "./line-signal-doc"
 
 const specializedDocs: Record<string, ChartDetailDoc> = {
   "google-line": googleLineDoc,
+  "recharts-line-signal": lineSignalDoc,
+  "line-signal": lineSignalDoc,
 }
 
 export function getChartDetailDoc(chart: ChartMetadata): ChartDetailDoc {

@@ -3,6 +3,27 @@ import type { ChartMetadata } from "@/lib/charts/metadata"
 export const charts: readonly ChartMetadata[] = [
   // Recharts Family
   {
+    id: "recharts-line-signal",
+    slug: "line-signal",
+    registryName: "line-signal",
+    title: "Signal Line",
+    description:
+      "Focused single-series time-series visualization with restrained active-point emphasis, accessible keyboard exploration, and Plotcn semantic tokens.",
+    engine: "recharts",
+    renderer: "svg",
+    status: "stable",
+    difficulty: "beginner",
+    category: "line",
+    tags: ["recharts", "line", "signal", "time-series", "trend", "analytics", "accessible"],
+    componentPath: "registry/recharts/line-signal.tsx",
+    exportName: "SignalLine",
+    dependencies: ["recharts"],
+    registryDependencies: ["chart-container", "chart-state", "chart-tooltip", "chart-motion"],
+    features: ["responsive", "animated", "interactive", "tooltip", "keyboard", "accessible-data"],
+    dataShape: `interface SignalLineDatum {\n  date: string\n  value: number\n}`,
+    snippet: `<SignalLine data={data} xKey="date" seriesKey="value" />`,
+  },
+  {
     id: "recharts-line-basic",
     slug: "line-basic",
     registryName: "line-basic",

@@ -1,0 +1,155 @@
+---
+title: "Signal Line"
+description: "Focused single-series time-series visualization with restrained active-point emphasis, accessible keyboard exploration, and Plotcn semantic tokens."
+component: "SignalLine"
+engine: "recharts"
+registryName: "line-signal"
+number: "001"
+status: "stable"
+renderer: "svg"
+---
+
+## Overview
+
+**Signal Line** is Plotcn's reference single-series Cartesian visualization for continuous time-series and ordered metrics. Built on native Recharts primitives and styled with Plotcn's semantic color system, it delivers an uncluttered, high-density analytical surface.
+
+Unlike standard charting defaults, Signal Line eliminates unnecessary marker clutter, replaces noisy grids with quiet horizontal reference rules, and emphasizes data through a crisp active-point dot and vertical nearest-X crosshair.
+
+```tsx
+import { SignalLine } from "@/components/charts/recharts/line-signal"
+
+export function MetricCard() {
+  return (
+    <SignalLine
+      data={telemetryData}
+      xKey="timestamp"
+      seriesKey="latency"
+      color="var(--chart-1)"
+    />
+  )
+}
+```
+
+---
+
+## Best Suited For
+
+Signal Line is specifically calibrated for:
+
+- **Application Performance**: Request latency, error rates, and throughput over time.
+- **Operational & Infrastructure Telemetry**: CPU load, memory pressure, active worker threads, and queue depth.
+- **Product Growth & Usage**: Daily active users (DAU), conversion rates, checkout velocity, and subscription changes.
+- **Financial & Revenue Trends**: Monthly recurring revenue (MRR), cash flow runs, and gross merchandise volume (GMV).
+
+### When to Avoid
+
+- **Comparing Multiple Series**: Use `MultiSeriesLine` or `StackedArea` when comparing 3+ independent series simultaneously.
+- **Part-to-Whole Ratios**: Use `Donut` or `Treemap` when the primary question is categorical share rather than temporal progression.
+- **Network Topologies**: Use `D3ForceNetwork` for non-Cartesian node and edge graphs.
+
+---
+
+## Installation
+
+Install Signal Line directly into your project via the shadcn CLI. The component source and its required dependencies (`recharts` and shared Plotcn primitives) will be copied directly into your repository under complete source ownership.
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-signal.json
+:::
+
+> Once accepted into the official shadcn registry directory, the shortened namespace command `npx shadcn@latest add @plotcn/line-signal` becomes available.
+
+---
+
+## Data Contract
+
+Signal Line accepts a readonly array of objects. Each record must contain a horizontal domain key (time, date, or ordered category) and a numeric metric value.
+
+```typescript
+export interface TelemetryPoint {
+  date: string      // ISO date string, formatted timestamp, or ordinal label
+  latency: number   // Numeric observation in milliseconds
+}
+```
+
+### Truthful Missing Values
+
+When an observation is missing or disconnected in production, Signal Line respects the data's truth:
+
+| Policy | Prop Configuration | Visual Behavior |
+| :--- | :--- | :--- |
+| **Gap (Default)** | `missingValuePolicy="gap"` | Produces an explicit break in the stroke. Missing values are **never** silently coerced to zero. |
+| **Connect** | `missingValuePolicy="connect"` | Line draws across the gap to bridge adjacent valid observations. |
+
+---
+
+## Component Props
+
+### Core Configuration
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. The caller's array is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property name representing the horizontal X axis coordinate. |
+| `seriesKey` | `keyof TData & string` | `"value"` | Property name representing the numeric metric value. |
+| `height` | `number \| string` | `320` | Container height in pixels or standard CSS string (e.g. `100%`, `380px`). |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | Line interpolation. Use `monotone` for smooth trends, `linear` for raw points, `step` for discrete state changes. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `"auto"` | Explicit Y-axis bounds. Single-value datasets automatically expand around the value to prevent zero-height scales. |
+| `missingValuePolicy` | `"gap" \| "connect"` | `"gap"` | Handling of `null` or `undefined` observations. |
+
+### Visual & Appearance
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `color` | `string` | `"var(--chart-1, #10b981)"` | Primary stroke color. Supports CSS custom properties, hex, and RGB tokens. |
+| `showGrid` | `boolean` | `true` | Renders subtle dashed horizontal reference dividers (`var(--chart-grid)`). |
+| `showXAxis` | `boolean` | `true` | Renders horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Renders vertical metric values. |
+| `showLegend` | `boolean` | `false` | Toggles series legend. Disabled by default for single-series clarity. |
+| `motion` | `boolean \| { duration: number }` | `true` | Line reveal animation (350ms). Automatically disabled under `prefers-reduced-motion`. |
+
+### Accessibility & States
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | `"Signal Line"` | Accessible name announced by screen readers for the `<figure>` region. |
+| `description` | `string` | `undefined` | Extended description providing context on metric behavior and trends. |
+| `loading` | `boolean` | `false` | Displays neutral loading skeleton while preserving chart footprint. |
+| `error` | `Error \| string \| null` | `null` | Displays actionable error state banner with optional retry trigger. |
+| `unavailable` | `boolean \| string \| null` | `false` | Displays metric unavailability notice (e.g. tier restrictions or retention limits). |
+| `onRetry` | `() => void` | `undefined` | Callback invoked when user clicks the error retry button. |
+
+---
+
+## Responsive Behavior
+
+Signal Line automatically adapts to its parent container via an internal `ResizeObserver`:
+
+- **Desktop (1024px+)**: Spacious margins, full tick intervals, and hover tooltip inspector.
+- **Tablet (640px – 1023px)**: Adaptive X-axis tick thinning to prevent label collision, compact margin offsets.
+- **Mobile (< 640px)**: Aggressive tick reduction (preserving start/end endpoints), full touch-scrub hit area, and edge-to-edge container expansion (`w-full px-4`).
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Signal Line is fully operable without a mouse:
+
+1. **Focusable Region**: Pressing <kbd>Tab</kbd> focuses the chart container with a prominent focus ring (`var(--chart-focus)`).
+2. **Arrow Key Navigation**:
+   - <kbd>→</kbd> Selects the next data observation.
+   - <kbd>←</kbd> Selects the previous data observation.
+   - <kbd>Home</kbd> Jumps directly to the first observation.
+   - <kbd>End</kbd> Jumps to the final observation.
+   - <kbd>Esc</kbd> Clears active selection.
+3. **Screen Reader Announcement**: A live region announces the selected index and value without requiring pointer interaction.
+4. **Factual Figure Summary**: An invisible `<figcaption>` provides an automated quantitative overview (total observation count, net change from start to finish, and min/max extremes).
+
+---
+
+## Data Safety Guarantee
+
+1. **Zero Fabricated Fallback Data**: Signal Line will never generate fake metrics when data is empty or missing.
+2. **Finite Number Enforcement**: Non-finite values (`NaN`, `Infinity`, `-Infinity`) are cleanly caught before calculation, preventing broken `d="M NaN..."` SVG paths.
+3. **Safe Scale Expansion**: If every datum contains the exact same value (e.g. `[42, 42, 42]`), the Y-domain deterministically expands (`[37, 47]`) rather than collapsing into a zero-height division error.
+4. **Distinct State Precedence**: `error`, `unavailable`, `loading`, and `empty` are mutually exclusive and strictly prioritized.

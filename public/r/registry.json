@@ -93,6 +93,33 @@
       ]
     },
     {
+      "name": "line-signal",
+      "type": "registry:component",
+      "title": "Signal Line",
+      "description": "Focused single-series time-series or ordered categorical line visualization with restrained active-point emphasis.",
+      "dependencies": [
+        "recharts"
+      ],
+      "registryDependencies": [
+        "@plotcn/chart-container",
+        "@plotcn/chart-state",
+        "@plotcn/chart-tooltip",
+        "@plotcn/chart-motion"
+      ],
+      "files": [
+        {
+          "path": "registry/recharts/line-signal.tsx",
+          "type": "registry:component",
+          "target": "components/charts/recharts/line-signal.tsx"
+        }
+      ],
+      "categories": [
+        "charts",
+        "recharts",
+        "line"
+      ]
+    },
+    {
       "name": "line-basic",
       "type": "registry:component",
       "title": "Basic Line Chart",

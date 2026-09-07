@@ -1,4 +1,5 @@
 import type { ChartMetadata } from "@/lib/charts/metadata"
+import type { ChartMdxData } from "@/lib/charts/chart-mdx"
 import { getChartDetailDoc } from "@/lib/charts/detail-docs"
 import { ChartDetailShell } from "./chart-detail-shell"
 import { SiteHeader } from "@/components/site/site-header"
@@ -9,6 +10,7 @@ export interface ChartDetailViewProps {
   sourceCode: string
   highlightedSourceCode?: string
   relatedCharts: readonly ChartMetadata[]
+  mdxData?: ChartMdxData | null
 }
 
 export function ChartDetailView({
@@ -16,6 +18,7 @@ export function ChartDetailView({
   sourceCode,
   highlightedSourceCode,
   relatedCharts,
+  mdxData,
 }: ChartDetailViewProps) {
   const doc = getChartDetailDoc(chart)
 
@@ -23,13 +26,14 @@ export function ChartDetailView({
     <>
       <SiteHeader />
       <div className="charts-surface min-h-screen" data-theme="dark">
-        <main id="main" tabIndex={-1} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <main id="main" tabIndex={-1} className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           <ChartDetailShell
             chart={chart}
             doc={doc}
             sourceCode={sourceCode}
             highlightedSourceCode={highlightedSourceCode}
             relatedCharts={relatedCharts}
+            mdxData={mdxData}
           />
         </main>
       </div>
