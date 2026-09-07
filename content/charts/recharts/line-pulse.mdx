@@ -1,0 +1,174 @@
+---
+title: "Pulse Line"
+description: "High-frequency operational trend visualization for rapidly changing metrics, rolling windows, and live telemetry surfaces."
+component: "PulseLine"
+engine: "recharts"
+registryName: "line-pulse"
+number: "002"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Pulse Line** is Plotcn's reference operational visualization designed for rapidly updating metrics, real-time dashboards, infrastructure monitoring, and streaming telemetry surfaces.
+
+While **Signal Line** is calibrated for analytical trends and deliberate historical inspection, **Pulse Line** keeps watch over a live signal. It introduces an active terminal marker for the latest observation, built-in rolling window slicing (`windowSize`), direct geometry updates that prevent animation queue lag, and a restrained visual hierarchy that stays quiet in dense multi-metric dashboards.
+
+```tsx
+import { PulseLine } from "@/components/charts/recharts/line-pulse"
+
+export function RequestLatencyCard() {
+  return (
+    <PulseLine
+      data={telemetryStream}
+      xKey="timestamp"
+      seriesKey="latency"
+      windowSize={30}
+      showLatestPoint
+      showLatestValue
+      color="var(--chart-1)"
+    />
+  )
+}
+```
+
+---
+
+## Best Suited For
+
+Pulse Line is optimized for continuous operational metrics where immediate awareness of the **current value** and **recent trajectory** is paramount:
+
+- **API & Service Telemetry**: Request throughput (QPS), P50/P95/P99 latency, error rates, and connection pools.
+- **Infrastructure Health**: CPU load %, memory pressure, disk I/O velocity, active worker threads, and queue depth.
+- **Live Business Operations**: Payment processing velocity, streaming conversions, checkout queue volume, and concurrent connected clients.
+- **IoT & Sensor Feeds**: Temperature delta, battery voltage drain, and network packet loss.
+
+### When to Avoid
+
+- **Historical Reporting**: Use `SignalLine` when inspecting multi-month business trends with deliberate reporting annotations.
+- **Comparing Independent Series**: Use `MultiSeriesLine` or `StackedArea` when comparing 3+ separate metrics simultaneously.
+- **Part-to-Whole Relationships**: Use `Donut` or `Treemap` when evaluating categorical share rather than sequential rate of change.
+
+---
+
+## Installation
+
+Install Pulse Line directly into your project via the shadcn CLI. The component source and its required dependencies (`recharts` and shared Plotcn primitives) will be copied directly into your codebase under full source ownership.
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-pulse.json
+:::
+
+> Once accepted into the official shadcn registry index, the shortened namespace command `npx shadcn@latest add @plotcn/line-pulse` becomes available.
+
+---
+
+## Data Contract
+
+Pulse Line accepts a readonly array of chronological records. Each observation contains a domain coordinate (timestamp or sequential interval) and a numeric metric value.
+
+```typescript
+export interface OperationalSample {
+  timestamp: string  // ISO time string or sequential tick (e.g. "14:20:05")
+  latency: number    // Numeric operational observation (e.g. milliseconds)
+}
+```
+
+### Rolling Window (windowSize)
+
+In streaming applications, observations arrive continuously. Rather than requiring caller-side array truncation, Pulse Line accepts a `windowSize` prop. It deterministically slices the latest $N$ observations without mutating the original dataset:
+
+```tsx
+// Incoming buffer contains 120 observations; only the latest 30 are rendered
+<PulseLine data={buffer} xKey="time" seriesKey="qps" windowSize={30} />
+```
+
+### Truthful Missing Telemetry
+
+In operational environments, a missing sample represents a telemetry drop or sensor outage—**never a value of zero**. Pulse Line adheres to strict data truthfulness:
+
+| Policy | Configuration | Visual & Semantic Behavior |
+| :--- | :--- | :--- |
+| **Gap (Default)** | `missingValuePolicy="gap"` | Stroke breaks across missing observations. Prevents misleading drops to zero. |
+| **Connect** | `missingValuePolicy="connect"` | Line bridges across the missing interval to connect adjacent valid samples. |
+
+---
+
+## Component Props
+
+### Core Configuration
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. The caller's array is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property name representing the horizontal X axis coordinate. |
+| `seriesKey` | `keyof TData & string` | `"value"` | Property name representing the numeric metric value. |
+| `windowSize` | `number` | `undefined` | Rolling window size. When specified, only the latest N observations are rendered. |
+| `showLatestPoint` | `boolean` | `true` | Renders a terminal marker dot with subtle outer ring at the latest observation. |
+| `showLatestValue` | `boolean` | `false` | Displays a compact header pill showing the latest formatted metric value. |
+| `latestValueFormatter` | `(value: number) => string` | `undefined` | Dedicated formatter for the latest-value pill. Falls back to `series.valueFormatter`. |
+| `curve` | `"linear" \| "monotone" \| "step"` | `"monotone"` | Interpolation method. Use `linear` for discrete sensor ticks, `monotone` for continuous flow. |
+| `height` | `number \| string` | `280` | Container height in pixels or standard CSS string (e.g. `100%`, `320px`). |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `"auto"` | Explicit Y-axis bounds. Single-value signals automatically expand to prevent zero-height scales. |
+| `tickStrategy` | `"auto" \| "all" \| "preserve-start" \| "preserve-end" \| "preserve-both"` | `"auto"` | Horizontal tick thinning policy. |
+
+### Operational & Visual
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `updateMode` | `"direct" \| "transition"` | `"direct"` | High-frequency update mode. `direct` applies updates immediately with zero animation lag. |
+| `color` | `string` | `"var(--chart-1, #10b981)"` | Primary stroke and terminal marker color. Supports CSS custom properties and hex codes. |
+| `showGrid` | `boolean` | `true` | Renders subtle horizontal dashed background reference rules (`var(--chart-grid)`). |
+| `showXAxis` | `boolean` | `true` | Renders horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Renders vertical metric values. |
+| `showLegend` | `boolean` | `false` | Toggles series legend. Disabled by default to preserve dashboard surface area. |
+| `referenceLines` | `readonly PulseReferenceLine[]` | `undefined` | Array of horizontal threshold rules (e.g. SLO, SLA, capacity limit). |
+| `missingValuePolicy` | `"gap" \| "connect"` | `"gap"` | Handling of `null` or `undefined` observations. |
+| `motion` | `boolean \| { duration: number }` | `true` | Line reveal animation. Automatically disabled under `prefers-reduced-motion`. |
+
+### Accessibility & States
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | `"Pulse Line"` | Accessible name announced by screen readers for the `<figure>` region. |
+| `description` | `string` | `undefined` | Extended description providing context on telemetry behavior. |
+| `loading` | `boolean` | `false` | Displays neutral loading skeleton while preserving chart layout footprint. |
+| `error` | `Error \| string \| null` | `null` | Displays actionable error state banner with optional retry trigger. |
+| `unavailable` | `boolean \| string \| null` | `null` | Displays metric stream unavailability notice (e.g. retention cutoff). |
+| `onRetry` | `() => void` | `undefined` | Callback invoked when user clicks the error retry trigger. |
+
+---
+
+## Responsive Behavior
+
+Pulse Line dynamically adjusts its tick density, terminal marker offsets, and hit target padding via an internal `ResizeObserver`:
+
+- **Desktop (1024px+)**: Full horizontal interval resolution, spacious margins, prominent latest-value badge, and hover crosshair.
+- **Tablet (640px – 1023px)**: Adaptive tick thinning (preserving endpoints), compact latest pill, and balanced axis footprint.
+- **Mobile (< 640px)**: Aggressive tick reduction (preserving start and end ticks), inline latest-value rail, and edge-to-edge touch scrub.
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Pulse Line is fully operable without a mouse:
+
+1. **Focusable Container**: Pressing <kbd>Tab</kbd> focuses the chart container with a prominent focus ring (`var(--chart-focus)`).
+2. **Keyboard Controls**:
+   - <kbd>→</kbd> Advances to the next observation.
+   - <kbd>←</kbd> Moves to the previous observation.
+   - <kbd>Home</kbd> Jumps to the first visible observation in the current window.
+   - <kbd>End</kbd> **Jumps directly to the latest live observation**.
+   - <kbd>Esc</kbd> Clears active inspection selection.
+3. **Controlled Audio Output**: Pulse Line intentionally **does not** announce every incoming stream tick via `aria-live`, preventing screen-reader audio flooding. Announcements occur only upon explicit user keyboard navigation.
+4. **Factual Figure Summary**: An invisible `<figcaption>` provides an automated quantitative overview (observation count, current value, and min/max extremes).
+
+---
+
+## Data Safety Guarantee
+
+1. **Zero Fabricated Operational Data**: Pulse Line will never generate fake metrics when data is empty or disconnected.
+2. **Zero Animation Queue Buildup**: In `updateMode="direct"` (default), rapid telemetry updates apply immediately without queuing transitions that lag behind real-time streams.
+3. **Historical Dot Elimination**: Historical observation markers remain hidden by default, rendering only the single latest terminal marker to minimize SVG DOM nodes during high-frequency refreshes.
+4. **Deterministic Window Slicing**: Invalid or non-finite `windowSize` values fall back safely to rendering all available data without throwing runtime exceptions.

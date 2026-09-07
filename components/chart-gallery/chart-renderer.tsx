@@ -136,6 +136,10 @@ const RechartsSignalLine = dynamic(
   () => import("@/registry/recharts/line-signal").then((m) => m.SignalLine),
   { ssr: false }
 )
+const RechartsPulseLine = dynamic(
+  () => import("@/registry/recharts/line-pulse").then((m) => m.PulseLine),
+  { ssr: false }
+)
 const RechartsLineBasic = dynamic(
   () => import("@/registry/recharts/line-basic").then((m) => m.LineBasic),
   { ssr: false }
@@ -253,6 +257,19 @@ export function DynamicChartRenderer({
                     height={height}
                     motion={motion && !reduced}
                     color={color}
+                    {...chartProps}
+                  />
+                )
+              case "line-pulse":
+                return (
+                  <RechartsPulseLine
+                    data={sampleLineData}
+                    xKey="label"
+                    seriesKey="value"
+                    height={height}
+                    motion={motion && !reduced}
+                    color={color}
+                    showLatestPoint
                     {...chartProps}
                   />
                 )
