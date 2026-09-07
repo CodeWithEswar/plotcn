@@ -189,14 +189,27 @@ export function resolveGoogleColor(
     }
   }
 
-  // 3. Resolve named colors, hsl, oklch, or rgb via browser canvas
+  // 3. If standard rgba/rgb with numbers, return directly
+  if (/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*[\d.]+/i.test(current)) {
+    return current
+  }
+
+  // 4. Resolve modern CSS colors (oklch, lab, etc.) via 1x1 canvas pixel read
   if (typeof document !== "undefined") {
     try {
-      const ctx = document.createElement("canvas").getContext("2d")
+      const canvas = document.createElement("canvas")
+      canvas.width = 1
+      canvas.height = 1
+      const ctx = canvas.getContext("2d", { willReadFrequently: true })
       if (ctx) {
         ctx.fillStyle = current
-        const resolved = ctx.fillStyle
-        if (resolved) return resolved
+        ctx.fillRect(0, 0, 1, 1)
+        const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data
+        if (a === 255) {
+          const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+          return `#${hex}`
+        }
+        return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(2)})`
       }
     } catch {
       // fallback
