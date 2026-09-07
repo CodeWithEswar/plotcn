@@ -1,92 +1,105 @@
 "use client"
 
-import React, { useState } from "react"
 import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowUpRight01Icon, Copy01Icon } from "@hugeicons/core-free-icons"
 import type { ChartMetadata } from "@/lib/charts/metadata"
-import { EngineBadge } from "@/components/chart-detail/engine-badge"
+import { chartHref, engineLabels } from "@/lib/charts/filters"
+import { getCategoryLabel } from "@/lib/charts/categories"
 import { DynamicChartRenderer } from "./chart-renderer"
-import { getInstallCommand } from "@/lib/registry/install-command"
-import { Copy, Check, ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { InstallCommand } from "@/components/registry/install-command"
 
-export interface ChartCardProps {
+export function ChartCard({
+  chart,
+  compact = false,
+}: {
   chart: ChartMetadata
-}
-
-export function ChartCard({ chart }: ChartCardProps) {
-  const [copied, setCopied] = useState(false)
-  const detailHref = `/charts/${chart.engine}/${chart.slug}`
-  const installCmd = getInstallCommand(chart.registryName)
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    navigator.clipboard.writeText(installCmd)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  compact?: boolean
+}) {
+  const rawFeature =
+    chart.features.find((f) => f !== "responsive") || chart.features[0]
+  const primaryFeature =
+    rawFeature === "accessible-data" ? "Accessible" : rawFeature
 
   return (
-    <div className="group relative flex flex-col rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-5 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-2xl hover:shadow-primary/5">
-      {/* Header Info */}
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <EngineBadge engine={chart.engine} size="sm" />
-            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/[0.06]">
-              {chart.category}
-            </span>
-          </div>
-          <h3 className="text-base font-semibold text-white tracking-tight group-hover:text-primary transition-colors truncate">
-            {chart.title}
-          </h3>
+    <article className="lens-module">
+      {/* Rail — Engine Badge + Category Badge + Install Icon */}
+      <div className="lens-module-rail">
+        <div className="lens-module-badges">
+          <span className="lens-badge" data-engine={chart.engine}>
+            <span className="lens-badge-dot" />
+            {chart.engine === "google" ? "Google" : engineLabels[chart.engine]}
+          </span>
+          <span className="lens-badge">
+            {getCategoryLabel(chart.category)}
+          </span>
         </div>
-
-        {/* Quick Copy Command */}
-        <button
-          onClick={handleCopy}
-          title={`Copy: ${installCmd}`}
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
-        >
-          {copied ? (
-            <Check className="size-4 text-emerald-400" />
-          ) : (
-            <Copy className="size-4" />
-          )}
-        </button>
-      </div>
-
-      {/* Description */}
-      <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mb-4 min-h-[36px]">
-        {chart.description}
-      </p>
-
-      {/* Live Preview Area */}
-      <div className="relative mb-4 flex h-48 w-full items-center justify-center overflow-hidden rounded-xl border border-white/[0.06] bg-zinc-900/60 p-3">
-        <DynamicChartRenderer registryName={chart.registryName} height={170} />
-      </div>
-
-      {/* Footer Features & Open Link */}
-      <div className="mt-auto flex items-center justify-between pt-3 border-t border-white/[0.06]">
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          {chart.features.slice(0, 2).map((feat) => (
-            <span
-              key={feat}
-              className="text-[10px] font-mono text-zinc-400 truncate bg-white/[0.03] px-2 py-0.5 rounded"
+        <div className="lens-module-rail-actions">
+          <Popover>
+            <PopoverTrigger
+              className="lens-install-icon"
+              aria-label={`Install ${chart.title} via command`}
             >
-              {feat}
-            </span>
-          ))}
+              <HugeiconsIcon icon={Copy01Icon} size={14} />
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              side="top"
+              sideOffset={8}
+              className="w-[calc(100vw-32px)] sm:w-[380px] max-w-[400px] p-0 border border-border bg-popover shadow-xl rounded-lg overflow-hidden"
+            >
+              <InstallCommand
+                registryName={chart.registryName}
+                engine={chart.engine}
+                variant="compact"
+              />
+            </PopoverContent>
+          </Popover>
         </div>
+      </div>
 
-        <Link
-          href={detailHref}
-          className="inline-flex items-center gap-1 text-xs font-medium text-zinc-300 hover:text-white group-hover:translate-x-0.5 transition-all shrink-0 ml-2"
+      {/* Info — Title + Description */}
+      <div className="lens-module-info">
+        <div className="lens-title-row">
+          <h2>
+            <Link href={chartHref(chart)}>{chart.title}</Link>
+          </h2>
+          {chart.status !== "stable" && (
+            <span className="lens-status">{chart.status}</span>
+          )}
+        </div>
+        <p>{chart.description}</p>
+      </div>
+
+      {/* Live Preview */}
+      <div className="lens-plot" aria-label={`${chart.title} example preview`}>
+        <DynamicChartRenderer
+          registryName={chart.registryName}
+          height={compact ? 190 : 260}
+          motion={false}
+        />
+      </div>
+
+      {/* Footer — Capabilities + View Source */}
+      <div className="lens-module-footer">
+        <div
+          className="lens-capabilities"
+          title={`Difficulty: ${chart.difficulty} • Features: ${chart.features.join(", ")}`}
         >
+          <span className="lens-diff-badge" data-difficulty={chart.difficulty}>
+            <span className="lens-diff-dot" data-difficulty={chart.difficulty} />
+            {chart.difficulty}
+          </span>
+          {primaryFeature && (
+            <span className="lens-feature-badge">{primaryFeature}</span>
+          )}
+        </div>
+        <Link href={chartHref(chart)} className="lens-view-source">
           <span>View Source</span>
-          <ArrowRight className="size-3.5" />
+          <HugeiconsIcon icon={ArrowUpRight01Icon} size={13} className="lens-view-source-icon" />
         </Link>
       </div>
-    </div>
+    </article>
   )
 }

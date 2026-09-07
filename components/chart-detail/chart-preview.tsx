@@ -2,7 +2,8 @@
 
 import React, { useState } from "react"
 import { DynamicChartRenderer } from "@/components/chart-gallery/chart-renderer"
-import { Laptop, Tablet, Smartphone } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ComputerIcon, Tablet01Icon, SmartPhone01Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 
 export interface ChartPreviewProps {
@@ -38,7 +39,7 @@ export function ChartPreview({ registryName, title }: ChartPreviewProps) {
               device === "desktop" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
             )}
           >
-            <Laptop className="size-4" />
+            <HugeiconsIcon icon={ComputerIcon} size={15} />
           </button>
           <button
             onClick={() => setDevice("tablet")}
@@ -48,7 +49,7 @@ export function ChartPreview({ registryName, title }: ChartPreviewProps) {
               device === "tablet" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
             )}
           >
-            <Tablet className="size-4" />
+            <HugeiconsIcon icon={Tablet01Icon} size={15} />
           </button>
           <button
             onClick={() => setDevice("mobile")}
@@ -58,7 +59,7 @@ export function ChartPreview({ registryName, title }: ChartPreviewProps) {
               device === "mobile" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
             )}
           >
-            <Smartphone className="size-4" />
+            <HugeiconsIcon icon={SmartPhone01Icon} size={15} />
           </button>
         </div>
       </div>

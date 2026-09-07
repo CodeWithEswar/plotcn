@@ -1,13 +1,18 @@
 "use client"
 
 import * as React from "react"
-import { loadGoogleChartsPackages, type GoogleChartsLoaderState } from "./google-chart-loader"
+import {
+  loadGoogleChartsPackages,
+  resolveGoogleColor,
+  type GoogleChartsLoaderState,
+  type GoogleVisualizationChart,
+} from "./google-chart-loader"
 import { GoogleChartContainer } from "./google-chart-container"
 
 export interface GeoChartDatum {
   region: string
   value: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface GoogleGeoChartProps {
@@ -16,6 +21,7 @@ export interface GoogleGeoChartProps {
   valueKey?: string
   region?: string
   displayMode?: "regions" | "markers"
+  color?: string
   colorMin?: string
   colorMax?: string
   height?: number | string
@@ -33,6 +39,7 @@ export function GoogleGeoChart({
   valueKey = "value",
   region = "world",
   displayMode = "regions",
+  color,
   colorMin = "#1e293b",
   colorMax = "#10b981",
   height = 360,
@@ -40,7 +47,7 @@ export function GoogleGeoChart({
   onRegionSelect,
 }: GoogleGeoChartProps) {
   const chartRef = React.useRef<HTMLDivElement>(null)
-  const chartInstanceRef = React.useRef<any>(null)
+  const chartInstanceRef = React.useRef<GoogleVisualizationChart | null>(null)
   const [status, setStatus] = React.useState<GoogleChartsLoaderState>("loading")
   const [errorMsg, setErrorMsg] = React.useState<string>()
 
@@ -72,32 +79,58 @@ export function GoogleGeoChart({
     const dataTable = new window.google.visualization.DataTable()
     dataTable.addColumn("string", "Region")
     dataTable.addColumn("number", "Value")
+    dataTable.addColumn({ type: "string", role: "tooltip", p: { html: true } })
+
+    const css = getComputedStyle(chartRef.current)
+    const gridColor = css.getPropertyValue("--chart-grid").trim() || "#27272a"
+    const surfaceColor = css.getPropertyValue("--muted").trim() || "#18181b"
+    const targetMax = color || colorMax
+    const resolvedMin = resolveGoogleColor(colorMin, chartRef.current, "#1e293b")
+    const resolvedMax = resolveGoogleColor(targetMax, chartRef.current, "#10b981")
 
     data.forEach((item) => {
-      dataTable.addRow([String(item[regionKey]), Number(item[valueKey])])
+      const regionName = String(item[regionKey])
+      const val = Number(item[valueKey])
+      const displayVal = Number.isFinite(val) ? val.toLocaleString() : String(item[valueKey])
+      const tooltipHtml = `
+        <div class="plotcn-tooltip-card">
+          <div class="plotcn-tooltip-header">
+            <span class="plotcn-tooltip-indicator" style="background-color: ${resolvedMax}; box-shadow: 0 0 8px ${resolvedMax}80;"></span>
+            <span class="plotcn-tooltip-title">${regionName}</span>
+          </div>
+          <div class="plotcn-tooltip-metric">
+            <span class="plotcn-tooltip-label">${valueKey}</span>
+            <span class="plotcn-tooltip-value">${displayVal}</span>
+          </div>
+        </div>
+      `.trim()
+      dataTable.addRow([regionName, val, tooltipHtml])
     })
 
     const options = {
       region,
       displayMode,
       backgroundColor: "transparent",
-      datalessRegionColor: "#18181b",
-      defaultColor: "#27272a",
+      datalessRegionColor: surfaceColor,
+      defaultColor: gridColor,
       colorAxis: {
-        colors: [colorMin, colorMax],
+        colors: [resolvedMin, resolvedMax],
       },
       legend: "none",
       keepAspectRatio: true,
+      tooltip: {
+        isHtml: true,
+      },
     }
 
     if (!chartInstanceRef.current) {
       chartInstanceRef.current = new window.google.visualization.GeoChart(chartRef.current)
       if (onRegionSelect) {
         window.google.visualization.events.addListener(chartInstanceRef.current, "select", () => {
-          const selection = chartInstanceRef.current.getSelection()
+          const selection = chartInstanceRef.current?.getSelection?.()
           if (selection && selection.length > 0) {
             const row = selection[0].row
-            if (row !== null && row !== undefined) {
+            if (row !== null && row !== undefined && dataTable.getValue) {
               const regionCode = dataTable.getValue(row, 0)
               onRegionSelect(String(regionCode))
             }
@@ -106,8 +139,8 @@ export function GoogleGeoChart({
       }
     }
 
-    chartInstanceRef.current.draw(dataTable, options)
-  }, [status, data, regionKey, valueKey, region, displayMode, colorMin, colorMax, onRegionSelect])
+    chartInstanceRef.current?.draw(dataTable, options)
+  }, [status, data, regionKey, valueKey, region, displayMode, color, colorMin, colorMax, onRegionSelect])
 
   React.useEffect(() => {
     drawChart()
@@ -130,11 +163,26 @@ export function GoogleGeoChart({
     return () => {
       clearTimeout(timeoutId)
       observer.disconnect()
+    }
+  }, [drawChart])
+
+  // Cleanup chart instance ONLY on component unmount
+  React.useEffect(() => {
+    return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.clearChart?.()
         chartInstanceRef.current = null
       }
     }
+  }, [])
+
+  React.useEffect(() => {
+    const surface = chartRef.current?.closest("[data-theme]")
+    const observer = new MutationObserver(drawChart)
+    if (surface) observer.observe(surface, { attributes: true, attributeFilter: ["data-theme"] })
+    const media = window.matchMedia("(prefers-color-scheme: dark)")
+    media.addEventListener("change", drawChart)
+    return () => { observer.disconnect(); media.removeEventListener("change", drawChart) }
   }, [drawChart])
 
   return (

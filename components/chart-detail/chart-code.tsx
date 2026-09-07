@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Copy, Check } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Copy01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 
 export interface ChartCodeProps {
@@ -74,12 +75,12 @@ export function ChartCode({
           >
             {copied ? (
               <>
-                <Check className="size-3 text-emerald-400" />
+                <HugeiconsIcon icon={Tick02Icon} size={14} className="text-emerald-400" />
                 <span className="text-emerald-400 text-[11px]">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="size-3" />
+                <HugeiconsIcon icon={Copy01Icon} size={14} />
                 <span className="text-[11px]">Copy</span>
               </>
             )}

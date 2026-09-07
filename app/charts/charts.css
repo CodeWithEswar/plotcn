@@ -1,0 +1,1670 @@
+/* ==========================================================================
+   Charts Surface — Design Tokens
+   ========================================================================== */
+.charts-surface {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --muted: #18181b;
+  --muted-foreground: #a1a1aa;
+  --border: #29292e;
+  --input: #29292e;
+  --popover: #101012;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
+  --lens-panel: #0e0e11;
+  --lens-hover: #1c1c20;
+
+  /* Engine Accent Colors */
+  --engine-recharts: #10b981;
+  --engine-d3: #f97316;
+  --engine-google: #4285f4;
+
+  /* Canonical Plotcn Chart Tokens (Dark) */
+  --chart-background: #09090b;
+  --chart-foreground: #fafafa;
+  --chart-muted-foreground: #a1a1aa;
+  --chart-border: rgba(255, 255, 255, 0.1);
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-grid-emphasis: rgba(255, 255, 255, 0.16);
+  --chart-axis: #a1a1aa;
+  --chart-axis-emphasis: #fafafa;
+  --chart-zero-line: rgba(255, 255, 255, 0.24);
+  --chart-crosshair: rgba(255, 255, 255, 0.4);
+  --chart-focus: #10b981;
+  --chart-selection: #10b981;
+  --chart-1: #10b981;
+  --chart-2: #0ea5e9;
+  --chart-3: #8b5cf6;
+  --chart-4: #f59e0b;
+  --chart-5: #f43f5e;
+  --chart-6: #6366f1;
+  --chart-7: #14b8a6;
+  --chart-8: #f97316;
+  --chart-positive: #10b981;
+  --chart-negative: #f43f5e;
+  --chart-warning: #f59e0b;
+  --chart-tooltip-background: #09090b;
+  --chart-tooltip-foreground: #fafafa;
+  --chart-tooltip-muted: #a1a1aa;
+  --chart-tooltip-border: rgba(255, 255, 255, 0.12);
+
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.18);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
+  --scrollbar-thumb-active: rgba(255, 255, 255, 0.48);
+
+  color-scheme: dark;
+  background: var(--background);
+  color: var(--foreground);
+  min-width: 0;
+}
+
+/* Light Theme */
+.charts-surface[data-theme="light"] {
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+  --scrollbar-thumb-active: rgba(0, 0, 0, 0.5);
+  color-scheme: light;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --muted: #efeff1;
+  --muted-foreground: #5f5f69;
+  --border: #dcdce1;
+  --input: #dcdce1;
+  --popover: #fff;
+  --popover-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #fff;
+  --lens-panel: #fff;
+  --lens-hover: #ececf0;
+  --engine-recharts: #059669;
+  --engine-d3: #ea580c;
+  --engine-google: #1a73e8;
+
+  --chart-background: #ffffff;
+  --chart-foreground: #09090b;
+  --chart-muted-foreground: #71717a;
+  --chart-border: #e4e4e7;
+  --chart-grid: #f4f4f5;
+  --chart-grid-emphasis: #e4e4e7;
+  --chart-axis: #71717a;
+  --chart-axis-emphasis: #09090b;
+  --chart-zero-line: #d4d4d8;
+  --chart-crosshair: #71717a;
+  --chart-focus: #059669;
+  --chart-selection: #059669;
+  --chart-1: #059669;
+  --chart-2: #0284c7;
+  --chart-3: #7c3aed;
+  --chart-4: #d97706;
+  --chart-5: #e11d48;
+  --chart-6: #4f46e5;
+  --chart-7: #0d9488;
+  --chart-8: #ea580c;
+  --chart-positive: #059669;
+  --chart-negative: #e11d48;
+  --chart-warning: #d97706;
+  --chart-tooltip-background: #ffffff;
+  --chart-tooltip-foreground: #09090b;
+  --chart-tooltip-muted: #71717a;
+  --chart-tooltip-border: #e4e4e7;
+
+  color-scheme: light;
+}
+
+/* System Theme */
+@media (prefers-color-scheme: light) {
+  .charts-surface[data-theme="system"] {
+    --background: #fafafa;
+    --foreground: #18181b;
+    --muted: #efeff1;
+    --muted-foreground: #5f5f69;
+    --border: #dcdce1;
+    --input: #dcdce1;
+    --popover: #fff;
+    --popover-foreground: #18181b;
+    --primary: #18181b;
+    --primary-foreground: #fff;
+    --lens-panel: #fff;
+    --lens-hover: #ececf0;
+    --engine-recharts: #059669;
+    --engine-d3: #ea580c;
+    --engine-google: #1a73e8;
+
+    --chart-background: #ffffff;
+    --chart-foreground: #09090b;
+    --chart-muted-foreground: #71717a;
+    --chart-border: #e4e4e7;
+    --chart-grid: #f4f4f5;
+    --chart-grid-emphasis: #e4e4e7;
+    --chart-axis: #71717a;
+    --chart-axis-emphasis: #09090b;
+    --chart-zero-line: #d4d4d8;
+    --chart-crosshair: #71717a;
+    --chart-focus: #059669;
+    --chart-selection: #059669;
+    --chart-1: #059669;
+    --chart-2: #0284c7;
+    --chart-3: #7c3aed;
+    --chart-4: #d97706;
+    --chart-5: #e11d48;
+    --chart-6: #4f46e5;
+    --chart-7: #0d9488;
+    --chart-8: #ea580c;
+    --chart-positive: #059669;
+    --chart-negative: #e11d48;
+    --chart-warning: #d97706;
+    --chart-tooltip-background: #ffffff;
+    --chart-tooltip-foreground: #09090b;
+    --chart-tooltip-muted: #71717a;
+    --chart-tooltip-border: #e4e4e7;
+
+    color-scheme: light;
+  }
+}
+
+/* ==========================================================================
+   Base Resets
+   ========================================================================== */
+.charts-surface :where(button, a, input, select):focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 4px;
+}
+.charts-surface button {
+  cursor: pointer;
+}
+.charts-surface select {
+  border: 1px solid var(--border);
+  background: var(--lens-panel);
+  color: var(--foreground);
+  border-radius: 5px;
+  padding: 9px 28px 9px 10px;
+  font-size: 12px;
+  min-height: 40px;
+}
+
+/* ==========================================================================
+   Shell & Layout
+   ========================================================================== */
+.lens-shell,
+.site-container-wide {
+  width: min(100% - 96px, 1520px);
+  margin-inline: auto;
+}
+.lens-shell {
+  margin: auto;
+  padding: 66px 0 32px;
+  min-height: 80vh;
+}
+.lens-eyebrow {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--muted-foreground);
+}
+
+/* ==========================================================================
+   Hero Header
+   ========================================================================== */
+.lens-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  padding-bottom: 52px;
+}
+.lens-heading h1 {
+  font-size: clamp(32px, 3.3vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 1.1;
+  margin: 20px 0;
+}
+.lens-heading p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--muted-foreground);
+  max-width: 610px;
+}
+.lens-heading-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.lens-theme {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.lens-stats {
+  display: flex;
+  gap: 38px;
+}
+.lens-stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 5px;
+}
+.lens-stats dd {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 32px;
+  letter-spacing: -0.07em;
+}
+.lens-stats dt {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+/* ==========================================================================
+   Engine Selector Panels
+   ========================================================================== */
+.lens-engine-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.lens-engine-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--lens-panel);
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.25s;
+  overflow: hidden;
+}
+.lens-engine-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.lens-engine-panel[data-engine="recharts"]::before {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+}
+.lens-engine-panel[data-engine="d3"]::before {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.06) 0%, transparent 60%);
+}
+.lens-engine-panel[data-engine="google"]::before {
+  background: linear-gradient(135deg, rgba(66, 133, 244, 0.06) 0%, transparent 60%);
+}
+.lens-engine-panel:hover::before,
+.lens-engine-panel[aria-pressed="true"]::before {
+  opacity: 1;
+}
+.lens-engine-panel:hover {
+  border-color: var(--muted-foreground);
+}
+.lens-engine-panel[aria-pressed="true"] {
+  background: var(--lens-hover);
+}
+.lens-engine-panel[aria-pressed="true"][data-engine="recharts"] {
+  border-color: var(--engine-recharts);
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.15), 0 4px 24px -4px rgba(16, 185, 129, 0.12);
+}
+.lens-engine-panel[aria-pressed="true"][data-engine="d3"] {
+  border-color: var(--engine-d3);
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.15), 0 4px 24px -4px rgba(249, 115, 22, 0.12);
+}
+.lens-engine-panel[aria-pressed="true"][data-engine="google"] {
+  border-color: var(--engine-google);
+  box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.15), 0 4px 24px -4px rgba(66, 133, 244, 0.12);
+}
+.lens-engine-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.lens-engine-panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lens-engine-panel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lens-engine-panel[data-engine="recharts"] .lens-engine-panel-dot { background: var(--engine-recharts); }
+.lens-engine-panel[data-engine="d3"] .lens-engine-panel-dot { background: var(--engine-d3); }
+.lens-engine-panel[data-engine="google"] .lens-engine-panel-dot { background: var(--engine-google); }
+
+.lens-engine-panel[aria-pressed="true"][data-engine="recharts"] .lens-engine-panel-dot {
+  box-shadow: 0 0 8px var(--engine-recharts);
+}
+.lens-engine-panel[aria-pressed="true"][data-engine="d3"] .lens-engine-panel-dot {
+  box-shadow: 0 0 8px var(--engine-d3);
+}
+.lens-engine-panel[aria-pressed="true"][data-engine="google"] .lens-engine-panel-dot {
+  box-shadow: 0 0 8px var(--engine-google);
+}
+
+.lens-engine-panel-name {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.lens-engine-panel-count {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+  color: var(--muted-foreground);
+  transition: color 0.2s;
+}
+.lens-engine-panel[aria-pressed="true"] .lens-engine-panel-count {
+  color: var(--foreground);
+}
+.lens-engine-panel-tagline {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient watermark blending the brand into the card background */
+.lens-engine-watermark {
+  position: absolute;
+  right: -4px;
+  bottom: -6px;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.045;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+.lens-engine-panel:hover .lens-engine-watermark,
+.lens-engine-panel[aria-pressed="true"] .lens-engine-watermark {
+  opacity: 0.11;
+  transform: scale(1.06) translate(-2px, -2px);
+}
+.lens-watermark-img {
+  object-fit: contain;
+  filter: grayscale(0.2);
+}
+.lens-watermark-img.recharts {
+  color: var(--engine-recharts);
+}
+
+/* Brand badge pill inside the card */
+.lens-engine-panel-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  width: fit-content;
+  margin-top: auto;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+.lens-engine-panel:hover .lens-engine-panel-logo {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.lens-engine-panel[aria-pressed="true"] .lens-engine-panel-logo {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.lens-engine-all-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.lens-engine-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-foreground);
+  transition: all 0.2s;
+}
+.lens-engine-all-btn[aria-pressed="true"] {
+  background: var(--lens-hover);
+  color: var(--foreground);
+  border-color: var(--foreground);
+}
+.lens-engine-all-btn:hover {
+  color: var(--foreground);
+  border-color: var(--muted-foreground);
+}
+.lens-engine-all-count {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* ==========================================================================
+   Workspace Panel (Search + Filters)
+   ========================================================================== */
+.lens-workspace {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--lens-panel);
+}
+.lens-workspace-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.lens-text-button {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  padding: 5px 0;
+}
+.lens-text-button:hover {
+  color: var(--foreground);
+}
+.lens-search-row {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+}
+.lens-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 0 13px;
+  border-radius: 8px;
+  color: var(--muted-foreground);
+}
+.lens-search input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 14px 0;
+  color: var(--foreground);
+  font-size: 13px;
+}
+.lens-search:focus-within {
+  outline: 1px solid var(--foreground);
+}
+.lens-search input:focus-visible {
+  outline: 0;
+}
+.lens-search button {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 40px;
+}
+.lens-filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  min-height: 44px;
+}
+.lens-filter-button span {
+  font-family: monospace;
+}
+
+/* ==========================================================================
+   Category Chips
+   ========================================================================== */
+.lens-categories {
+  display: flex;
+  gap: 6px;
+  padding: 18px 0;
+  overflow-x: auto;
+  margin-bottom: 4px;
+}
+.lens-categories button {
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 7px 14px;
+  color: var(--muted-foreground);
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.lens-categories button:hover {
+  color: var(--foreground);
+  background: var(--lens-hover);
+}
+.lens-categories button[aria-pressed="true"] {
+  background: var(--foreground);
+  color: var(--primary-foreground);
+  border-color: var(--foreground);
+}
+
+/* ==========================================================================
+   Filter Fields & Sheet
+   ========================================================================== */
+.lens-filter-fields {
+  display: grid;
+  gap: 22px;
+  padding: 12px 20px;
+  overflow: auto;
+}
+.lens-filter-fields label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.lens-sheet {
+  width: min(90vw, 390px) !important;
+  border-color: var(--border);
+}
+.lens-guide {
+  width: min(340px, 90vw);
+  padding: 22px;
+  line-height: 1.6;
+  border: 1px solid var(--border);
+}
+.lens-guide p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-top: 10px;
+}
+.lens-guide strong {
+  display: block;
+  color: var(--foreground);
+  margin-bottom: 3px;
+}
+
+/* ==========================================================================
+   Active Filter Pills
+   ========================================================================== */
+.lens-active {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 18px;
+}
+.lens-active button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+
+/* ==========================================================================
+   Result Row & Density Toggle
+   ========================================================================== */
+.lens-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26px 0 18px;
+  gap: 12px;
+}
+.lens-result-row p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.lens-result-row strong {
+  color: var(--foreground);
+  font-weight: 500;
+}
+.lens-result-note {
+  margin-left: 8px;
+  opacity: 0.7;
+}
+.lens-density {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 1px solid var(--border);
+  padding: 2px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.lens-density button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  height: 25px;
+  min-height: 25px;
+  max-height: 25px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--muted-foreground);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.lens-density button:hover:not([aria-pressed="true"]) {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.04);
+}
+.lens-density button[aria-pressed="true"] {
+  background: var(--muted);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================================================
+   Chart Grid
+   ========================================================================== */
+.lens-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* ==========================================================================
+   Card — Module
+   ========================================================================== */
+.lens-module {
+  container-type: inline-size;
+  container-name: card;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--lens-panel);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s, box-shadow 0.25s;
+}
+.lens-module:hover {
+  border-color: var(--muted-foreground);
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* Card Rail — Engine + Category Badges */
+.lens-module-rail {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+  min-width: 0;
+}
+.lens-module-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+.lens-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.lens-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lens-badge[data-engine="recharts"] .lens-badge-dot { background: var(--engine-recharts); }
+.lens-badge[data-engine="d3"] .lens-badge-dot { background: var(--engine-d3); }
+.lens-badge[data-engine="google"] .lens-badge-dot { background: var(--engine-google); }
+
+.lens-module-rail-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lens-install-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition: all 0.15s;
+}
+.lens-install-icon:hover {
+  color: var(--foreground);
+  background: var(--muted);
+  border-color: var(--muted-foreground);
+}
+
+/* Card Info */
+.lens-module-info {
+  padding: 0 20px 16px;
+  flex: 1;
+}
+.lens-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lens-title-row h2 {
+  font-size: 16px;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+.lens-title-row a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lens-status {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: var(--muted-foreground);
+}
+.lens-module-info p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-top: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Card Preview */
+.lens-plot {
+  padding: 6px 16px 16px;
+  min-width: 0;
+  overflow: hidden;
+  background-image: radial-gradient(var(--border) 0.65px, transparent 0.65px);
+  background-size: 20px 20px;
+}
+.lens-plot > div {
+  min-width: 0;
+}
+.lens-plot > div > div:not([data-chart]) {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.lens-preview-loading {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font: 10px var(--font-geist-mono), monospace;
+  color: var(--muted-foreground);
+}
+
+/* Card Footer — Capabilities + View Source */
+.lens-module-footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  flex-wrap: nowrap;
+}
+.lens-capabilities {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+.lens-diff-badge,
+.lens-capabilities span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  line-height: 1.3;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
+}
+.lens-feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+  flex-shrink: 1;
+  user-select: none;
+}
+.lens-diff-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lens-diff-dot[data-difficulty="beginner"] {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.45);
+}
+.lens-diff-dot[data-difficulty="intermediate"] {
+  background: #f59e0b;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.45);
+}
+.lens-diff-dot[data-difficulty="advanced"] {
+  background: #a855f7;
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.45);
+}
+.lens-view-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  line-height: 1.3;
+}
+.lens-view-source:hover {
+  color: var(--foreground);
+  border-color: var(--muted-foreground);
+  background: var(--muted);
+}
+.lens-view-source-icon {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+.lens-view-source:hover .lens-view-source-icon {
+  transform: translate(1.5px, -1.5px);
+}
+.lens-module:hover .lens-view-source {
+  color: var(--foreground);
+}
+@container card (max-width: 275px) {
+  .lens-feature-badge {
+    display: none;
+  }
+}
+
+/* Legacy action row support */
+.lens-module-actions {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.lens-module-actions > a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  min-height: 36px;
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+.lens-empty {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+}
+.lens-empty h2 {
+  font-size: 20px;
+}
+.lens-empty p {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+/* ==========================================================================
+   Endnote
+   ========================================================================== */
+.lens-endnote {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+  margin-top: 42px;
+  font: 9px var(--font-geist-mono), monospace;
+  color: var(--muted-foreground);
+  line-height: 1.8;
+}
+.lens-endnote > span:first-child {
+  letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+   Density Variants
+   ========================================================================== */
+.lens-grid[data-density="compact"] .lens-module-info p {
+  display: none;
+}
+.lens-grid[data-density="compact"] .lens-module-info {
+  padding-bottom: 10px;
+}
+.lens-grid[data-density="compact"] .lens-plot {
+  padding: 6px 12px 12px;
+}
+
+/* ==========================================================================
+   Brand Logos
+   ========================================================================== */
+.lens-brand {
+  object-fit: contain;
+  max-height: 18px;
+  flex-shrink: 0;
+  height: auto;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  opacity: 0.85;
+}
+.lens-engine-panel:hover .lens-brand,
+.lens-engine-panel[aria-pressed="true"] .lens-brand {
+  opacity: 1;
+}
+.lens-brand.google {
+  width: 52px;
+  max-height: 18px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  height: auto;
+}
+.lens-brand.d3 {
+  width: 18px;
+  max-height: 18px;
+  height: auto;
+}
+.lens-brand.recharts {
+  width: 82px;
+  max-height: 16px;
+  height: auto;
+  color: var(--foreground);
+  filter: none;
+}
+.charts-surface[data-theme="light"] .lens-brand.recharts {
+  color: #0f172a;
+  filter: none;
+}
+
+/* ==========================================================================
+   Copy / Install Helpers
+   ========================================================================== */
+.lens-copy {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+.lens-copy > button {
+  border-radius: 7px;
+  font-size: 11px;
+  min-height: 34px;
+}
+.lens-copy-error {
+  position: static;
+  width: 240px;
+  max-width: 100%;
+  border-radius: 6px;
+  line-height: 1.6;
+  z-index: 5;
+  padding: 12px;
+  background: var(--popover);
+  border: 1px solid var(--border);
+  font-size: 11px;
+}
+.lens-copy-error code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 8px;
+  font-size: 10px;
+  user-select: text;
+}
+.lens-install p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  flex: 1;
+  min-width: 180px;
+}
+
+/* ==========================================================================
+   Responsive — Narrow Desktop (3 columns)
+   ========================================================================== */
+@media (max-width: 1400px) {
+  .lens-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Responsive — Tablet
+   ========================================================================== */
+@media (max-width: 1150px) {
+  .lens-shell,
+  .site-container-wide {
+    width: calc(100% - 64px);
+  }
+}
+@media (max-width: 1023px) {
+  .lens-shell {
+    padding: 44px 0 24px;
+  }
+  .lens-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lens-heading-side {
+    justify-content: flex-start;
+  }
+  .lens-stats {
+    gap: 22px;
+  }
+  .lens-module-rail {
+    padding: 12px 14px;
+  }
+  .lens-plot {
+    padding: 6px 10px 14px;
+  }
+  .lens-module-info {
+    padding: 0 14px 14px;
+  }
+  .lens-heading h1 {
+    font-size: 38px;
+  }
+  .lens-engine-panel {
+    padding: 18px;
+  }
+  .lens-engine-panel-name {
+    font-size: 13px;
+  }
+  .lens-engine-panel-count {
+    font-size: 18px;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Mobile
+   ========================================================================== */
+@media (max-width: 767px) {
+  .lens-shell {
+    padding: 36px 0 22px;
+    width: calc(100% - 40px);
+  }
+  .lens-heading {
+    flex-direction: column;
+    gap: 26px;
+    padding-bottom: 30px;
+  }
+  .lens-heading h1 {
+    font-size: 36px;
+    max-width: 360px;
+  }
+  .lens-heading p {
+    font-size: 13px;
+  }
+  .lens-heading-side {
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .lens-theme {
+    font-size: 0;
+    gap: 0;
+  }
+  .lens-theme select {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .lens-stats {
+    gap: 24px;
+  }
+  .lens-stats dd {
+    font-size: 24px;
+  }
+  .lens-stats dt {
+    font-size: 8px;
+  }
+  .lens-engine-selector {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .lens-engine-panel {
+    padding: 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .lens-engine-panel-head {
+    flex: 1;
+  }
+  .lens-engine-panel-tagline {
+    display: none;
+  }
+  .lens-engine-panel-logo {
+    display: none;
+  }
+  .lens-search-row {
+    padding: 14px;
+    gap: 8px;
+  }
+  .lens-search input {
+    font-size: 12px;
+  }
+  .lens-filter-button {
+    font-size: 0;
+    padding: 0 12px;
+    gap: 4px;
+  }
+  .lens-filter-button span {
+    font-size: 10px;
+  }
+  .lens-workspace-title {
+    padding: 12px 14px;
+  }
+  .lens-categories {
+    padding: 10px 14px;
+    gap: 4px;
+  }
+  .lens-categories button {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+  .lens-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .lens-result-note {
+    display: none;
+  }
+  .lens-density button {
+    padding: 0 8px;
+    font-size: 11px;
+    height: 25px;
+    min-height: 25px;
+  }
+  .lens-module-info p {
+    max-width: none;
+  }
+  .lens-module-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+  .lens-endnote {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lens-empty {
+    text-align: center;
+    padding: 24px;
+  }
+  .lens-empty h2 {
+    font-size: 18px;
+  }
+  .lens-copy > button,
+  .lens-module-actions > a {
+    min-height: 44px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .charts-surface * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   Recharts Tooltip Focus
+   ========================================================================== */
+.lens-plot figure {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.lens-plot figure > div[class*="absolute"] {
+  background: var(--lens-panel);
+}
+.lens-plot figure > div[class*="absolute"] span {
+  color: var(--muted-foreground);
+}
+.lens-plot .recharts-tooltip-wrapper:focus-visible {
+  outline: 2px solid var(--foreground);
+}
+.lens-detail {
+  padding-top: 36px;
+}
+.lens-back {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lens-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin: 32px 0;
+}
+.lens-detail-heading h1 {
+  font-size: clamp(28px, 3vw, 46px);
+  letter-spacing: -0.05em;
+  font-weight: 500;
+  margin: 14px 0;
+}
+.lens-detail-heading p {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.8;
+  max-width: 780px;
+}
+.lens-source-link {
+  white-space: nowrap;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border-radius: 4px;
+}
+.lens-detail-workspace {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  gap: 0;
+}
+.lens-detail-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.lens-detail-toolbar [data-slot="tabs-trigger"] {
+  padding: 10px 16px;
+  min-height: 36px;
+}
+.lens-preview-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.lens-devices,
+.lens-preview-utilities {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lens-devices button {
+  height: 36px;
+  font-size: 11px;
+  padding: 0 10px;
+}
+.lens-devices button[aria-pressed="true"] {
+  background: var(--muted);
+  color: var(--foreground);
+}
+.lens-devices small {
+  font: 9px monospace;
+  color: var(--muted-foreground);
+}
+.lens-preview-utilities select {
+  min-height: 34px;
+  padding: 7px 10px;
+}
+.lens-simulator {
+  padding: 32px;
+  min-height: 430px;
+  background: var(--muted);
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+.lens-simulator-container {
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+.lens-simulator-ruler {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  font:
+    9px var(--font-geist-mono),
+    monospace;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+}
+.lens-simulator .lens-plot {
+  padding-top: 22px;
+}
+.lens-preview-caption {
+  font:
+    9px var(--font-geist-mono),
+    monospace;
+  padding: 14px 20px;
+  color: var(--muted-foreground);
+}
+.lens-fullscreen {
+  width: calc(100vw - 40px) !important;
+  max-width: 1600px !important;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  max-height: 95vh;
+  overflow: auto;
+  padding: 26px;
+}
+.lens-code-panel {
+  padding: 0 20px;
+  min-width: 0;
+  max-height: 650px;
+  overflow: auto;
+}
+.lens-install {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 28px 0;
+}
+.lens-install > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+}
+.lens-install > div + div {
+  border-top: 1px solid var(--border);
+  background: var(--lens-panel);
+}
+.lens-install code {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  line-height: 1.8;
+}
+.lens-implementation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border);
+}
+.lens-implementation h2 {
+  font-size: 24px;
+  letter-spacing: -0.04em;
+  margin: 14px 0;
+}
+.lens-implementation p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--muted-foreground);
+  margin-top: 12px;
+  max-width: 650px;
+}
+.lens-implementation dl > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 20px;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  font-size: 12px;
+}
+.lens-implementation dt {
+  color: var(--muted-foreground);
+}
+.lens-implementation dd {
+  overflow-wrap: anywhere;
+}
+.lens-implementation a {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lens-related {
+  margin: 36px 0;
+}
+.lens-related h2 {
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+.lens-related a {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.lens-related span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+@media (max-width: 767px) {
+  .lens-detail-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .lens-preview-controls {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+  .lens-devices button {
+    padding: 0 8px;
+  }
+  .lens-devices small {
+    display: none;
+  }
+  .lens-simulator {
+    padding: 12px;
+  }
+  .lens-simulator-ruler {
+    font-size: 8px;
+  }
+  .lens-detail-toolbar {
+    padding: 8px 10px;
+  }
+  .lens-detail-toolbar > .lens-eyebrow {
+    display: none;
+  }
+  .lens-install > div {
+    padding: 14px;
+    flex-wrap: wrap;
+  }
+  .lens-implementation {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .lens-fullscreen {
+    padding: 18px;
+  }
+  .lens-code-panel {
+    padding: 0 10px;
+  }
+  .lens-related a {
+    align-items: center;
+  }
+  .lens-related span {
+    white-space: nowrap;
+  }
+}
+.lens-plot figure {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.lens-plot figure > div[class*="absolute"] {
+  background: var(--lens-panel);
+}
+.lens-plot figure > div[class*="absolute"] span {
+  color: var(--muted-foreground);
+}
+.lens-plot .recharts-tooltip-wrapper:focus-visible {
+  outline: 2px solid var(--foreground);
+}
+.lens-copy-error code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 8px;
+  font-size: 10px;
+  user-select: text;
+}
+
+@media (max-width: 1150px) {
+  .lens-shell,
+  .site-container-wide {
+    width: calc(100% - 64px);
+  }
+}
+@media (max-width: 600px) {
+  .lens-shell,
+  .site-container-wide {
+    width: calc(100% - 40px);
+  }
+  .lens-copy > button,
+  .lens-module-actions > a {
+    min-height: 44px;
+  }
+}
+.lens-copy {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+.lens-copy-error {
+  position: static;
+  width: 240px;
+  max-width: 100%;
+  border-radius: 6px;
+  line-height: 1.6;
+}
+.lens-module-actions {
+  flex-wrap: wrap;
+}
+.lens-install p {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  flex: 1;
+  min-width: 180px;
+}
+/* Keep nested discovery controls consistent with the rounded panel shell. */
+.lens-search,
+.lens-filter-button {
+  border-radius: 8px;
+}
+.lens-engines {
+  gap: 8px;
+  padding-bottom: 10px;
+}
+.lens-engines button {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding-block: 12px;
+}
+.lens-engines button[aria-pressed="true"] {
+  border-color: var(--border);
+}
+.lens-categories button,
+.lens-density button,
+.lens-active button {
+  border-radius: 6px;
+}
+.lens-density {
+  border-radius: 8px;
+}
+.lens-copy > button,
+.lens-devices button,
+.lens-preview-utilities button {
+  border-radius: 7px;
+}

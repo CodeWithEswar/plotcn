@@ -40,6 +40,23 @@
       ]
     },
     {
+      "name": "chart-tooltip",
+      "type": "registry:ui",
+      "title": "Chart Tooltip Primitive",
+      "description": "High-contrast developer tooltip with tabular numbers and semantic token mapping.",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/shared/chart-tooltip.tsx",
+          "type": "registry:ui",
+          "target": "components/charts/shared/chart-tooltip.tsx"
+        }
+      ],
+      "categories": [
+        "primitives"
+      ]
+    },
+    {
       "name": "chart-accessibility",
       "type": "registry:ui",
       "title": "Accessible Chart Shell",
@@ -77,15 +94,17 @@
     },
     {
       "name": "line-basic",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Basic Line Chart",
       "description": "Approachable Cartesian line chart built with Recharts and theme tokens.",
       "dependencies": [
         "recharts"
       ],
       "registryDependencies": [
-        "chart-container",
-        "chart-state"
+        "@plotcn/chart-container",
+        "@plotcn/chart-state",
+        "@plotcn/chart-motion",
+        "@plotcn/chart-tooltip"
       ],
       "files": [
         {
@@ -101,14 +120,15 @@
     },
     {
       "name": "line-multiple",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Multi-Series Line Chart",
       "description": "Multi-series line chart comparing current vs previous periods.",
       "dependencies": [
         "recharts"
       ],
       "registryDependencies": [
-        "chart-container"
+        "@plotcn/chart-container",
+        "@plotcn/chart-tooltip"
       ],
       "files": [
         {
@@ -124,14 +144,15 @@
     },
     {
       "name": "area-basic",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Basic Area Chart",
       "description": "Gradient area chart with smooth monotone interpolation.",
       "dependencies": [
         "recharts"
       ],
       "registryDependencies": [
-        "chart-container"
+        "@plotcn/chart-container",
+        "@plotcn/chart-tooltip"
       ],
       "files": [
         {
@@ -147,14 +168,16 @@
     },
     {
       "name": "bar-basic",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Basic Bar Chart",
       "description": "Categorical vertical bar chart with rounded caps and responsive tooltips.",
       "dependencies": [
         "recharts"
       ],
       "registryDependencies": [
-        "chart-container"
+        "@plotcn/chart-container",
+        "@plotcn/chart-motion",
+        "@plotcn/chart-tooltip"
       ],
       "files": [
         {
@@ -170,7 +193,7 @@
     },
     {
       "name": "d3-animated-line",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "D3 Animated Line",
       "description": "Continuous scales, monotone curves, and data points computed with D3 and rendered via React SVG.",
       "dependencies": [
@@ -188,11 +211,14 @@
       "categories": [
         "charts",
         "d3"
+      ],
+      "registryDependencies": [
+        "@plotcn/chart-motion"
       ]
     },
     {
       "name": "d3-force-network",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "D3 Force-Directed Network",
       "description": "Physics-based node simulation with link springs and repulsion forces.",
       "dependencies": [
@@ -235,7 +261,7 @@
       "description": "Lifecycle wrapper managing ResizeObserver and fallback states for Google Charts.",
       "dependencies": [],
       "registryDependencies": [
-        "google-chart-loader"
+        "@plotcn/google-chart-loader"
       ],
       "files": [
         {
@@ -251,13 +277,13 @@
     },
     {
       "name": "google-geochart",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Google GeoChart Choropleth",
       "description": "World, country, and regional statistical choropleths via Google Charts hosted geochart package.",
       "dependencies": [],
       "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
+        "@plotcn/google-chart-container",
+        "@plotcn/google-chart-loader"
       ],
       "files": [
         {
@@ -273,13 +299,13 @@
     },
     {
       "name": "google-line",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Google Line Chart",
       "description": "Smooth 2D Cartesian line chart rendered with Google Charts corechart package.",
       "dependencies": [],
       "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
+        "@plotcn/google-chart-container",
+        "@plotcn/google-chart-loader"
       ],
       "files": [
         {
@@ -295,13 +321,13 @@
     },
     {
       "name": "google-bar",
-      "type": "registry:block",
+      "type": "registry:component",
       "title": "Google Bar Chart",
       "description": "Categorical column chart rendered with Google Charts corechart package.",
       "dependencies": [],
       "registryDependencies": [
-        "google-chart-container",
-        "google-chart-loader"
+        "@plotcn/google-chart-container",
+        "@plotcn/google-chart-loader"
       ],
       "files": [
         {
@@ -313,6 +339,86 @@
       "categories": [
         "charts",
         "google"
+      ]
+    },
+    {
+      "name": "chart-motion",
+      "type": "registry:hook",
+      "title": "Reduced motion preference",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "registry/shared/use-chart-reduced-motion.ts",
+          "type": "registry:hook",
+          "target": "components/charts/shared/use-chart-reduced-motion.ts"
+        }
+      ],
+      "categories": [
+        "primitives"
+      ]
+    },
+    {
+      "name": "donut-basic",
+      "type": "registry:component",
+      "title": "Basic Donut Chart",
+      "description": "Proportional breakdown with optional legend and pointer tooltips.",
+      "dependencies": [
+        "recharts"
+      ],
+      "registryDependencies": [
+        "@plotcn/chart-container",
+        "@plotcn/chart-motion",
+        "@plotcn/chart-tooltip"
+      ],
+      "files": [
+        {
+          "path": "registry/recharts/donut-basic.tsx",
+          "type": "registry:component",
+          "target": "components/charts/recharts/donut-basic.tsx"
+        }
+      ],
+      "categories": [
+        "charts",
+        "recharts"
+      ]
+    },
+    {
+      "name": "block-frame",
+      "type": "registry:component",
+      "title": "Dashboard frame",
+      "description": "Local panel isolation, metrics and honest dashboard states.",
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/blocks/block-frame.tsx",
+          "type": "registry:component",
+          "target": "components/charts/blocks/block-frame.tsx"
+        }
+      ]
+    },
+    {
+      "name": "revenue-dashboard",
+      "type": "registry:block",
+      "title": "Revenue Dashboard",
+      "description": "Revenue trend, channel comparison and contribution with real period and channel filters.",
+      "registryDependencies": [
+        "@plotcn/line-basic",
+        "@plotcn/bar-basic",
+        "@plotcn/donut-basic",
+        "@plotcn/block-frame",
+        "select"
+      ],
+      "files": [
+        {
+          "path": "registry/blocks/revenue-dashboard.tsx",
+          "type": "registry:component",
+          "target": "components/charts/blocks/revenue-dashboard.tsx"
+        },
+        {
+          "path": "registry/blocks/revenue-dashboard-data.ts",
+          "type": "registry:component",
+          "target": "components/charts/blocks/revenue-dashboard-data.ts"
+        }
       ]
     }
   ]

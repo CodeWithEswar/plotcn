@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 import { siteConfig } from "@/config/site"
+import { blocks } from "@/config/blocks"
 import { charts } from "@/config/charts"
 import { getAllDocSlugs } from "@/lib/docs"
 
@@ -38,7 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }))
 
   // Blocks detail routes
-  const blockSlugs = ["analytics-overview", "revenue-funnel", "network-topology"]
+  const blockSlugs = blocks.map(block => block.slug)
   const blockRoutes: MetadataRoute.Sitemap = blockSlugs.map((slug) => ({
     url: `${baseUrl}/blocks/${slug}`,
     lastModified: currentDate,

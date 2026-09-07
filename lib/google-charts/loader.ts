@@ -1,10 +1,5 @@
 import type { GoogleChartPackage, GoogleGlobal } from "./types"
 
-declare global {
-  interface Window {
-    google?: any
-  }
-}
 
 const GOOGLE_CHARTS_SCRIPT_URL = "https://www.gstatic.com/charts/loader.js"
 
@@ -88,7 +83,7 @@ export async function loadGoogleCharts(options: LoadGoogleChartsOptions = {}): P
   )
 
   if (packagesToLoad.length === 0) {
-    return window.google
+    return window.google as unknown as GoogleGlobal
   }
 
   const version = options.version || "current"
@@ -108,5 +103,5 @@ export async function loadGoogleCharts(options: LoadGoogleChartsOptions = {}): P
     }
   })
 
-  return window.google
+  return window.google as unknown as GoogleGlobal
 }

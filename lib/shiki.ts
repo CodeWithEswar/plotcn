@@ -44,7 +44,7 @@ export async function highlightCode(
   lang = "typescript"
 ): Promise<string> {
   const normalizedLang = normalizeLanguage(lang)
-  const trimmed = code.trim()
+  const trimmed = code.replace(/\r\n/g, "\n").trim()
   const cacheKey = `${normalizedLang}::${trimmed}`
 
   const cached = snippetCache.get(cacheKey)
@@ -61,10 +61,11 @@ export async function highlightCode(
       ? normalizedLang
       : "text"
 
-    const html = highlighter.codeToHtml(trimmed, {
+    const rawHtml = highlighter.codeToHtml(trimmed, {
       lang: targetLang,
       theme: "vesper",
     })
+    const html = rawHtml.replace(/<\/span>\r?\n<span class="line">/g, '</span><span class="line">')
 
     snippetCache.set(cacheKey, html)
     return html

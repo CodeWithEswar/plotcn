@@ -1,19 +1,21 @@
 "use client"
 
 import * as React from "react"
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
-import { ChartContainer } from "@/components/charts/chart-container"
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts"
+import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartContainer } from "../shared/chart-container"
+import { ChartTooltip } from "../shared/chart-tooltip"
 import {
   ChartLoadingState,
   ChartEmptyState,
   ChartErrorState,
   ChartUnavailableState,
-} from "@/components/charts/chart-state"
+} from "../shared/chart-state"
 
 export interface LineBasicDatum {
   label: string
   value: number
-  [key: string]: any
+  [key: string]: unknown
 }
 
 export interface LineBasicProps {
@@ -22,6 +24,12 @@ export interface LineBasicProps {
   labelKey?: string
   color?: string
   height?: number | string
+  showXAxis?: boolean
+  showYAxis?: boolean
+  grid?: "off" | "horizontal" | "both"
+  tooltip?: boolean
+  legend?: boolean
+  curve?: "linear" | "monotone" | "step"
   className?: string
   /**
    * Optional motion configuration or toggle.
@@ -53,6 +61,13 @@ export function LineBasic({
   color = "var(--chart-1, #10b981)",
   height = 280,
   className,
+  showXAxis = true,
+  showYAxis = true,
+  grid = "horizontal",
+  tooltip = true,
+  legend = false,
+  curve = "monotone",
+
   motion = true,
   loading = false,
   error = null,
@@ -62,13 +77,7 @@ export function LineBasic({
   loadingContent,
   onRetry,
 }: LineBasicProps) {
-  const [reducedMotion, setReducedMotion] = React.useState(false)
-
-  React.useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia) {
-      setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-    }
-  }, [])
+  const reducedMotion = useChartReducedMotion()
 
   // Section 12.6: Deterministic state precedence
   // 1. Explicit error
@@ -124,37 +133,29 @@ export function LineBasic({
   return (
     <div className={className} style={{ width: "100%", height }}>
       <ChartContainer>
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} initialDimension={{ width: 320, height: typeof height === "number" ? height : 280 }}>
           <LineChart data={data} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
-            <XAxis
+            {grid !== "off" && <CartesianGrid strokeDasharray="3 3" vertical={grid === "both"} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />}
+            <XAxis hide={!showXAxis}
               dataKey={labelKey}
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
             />
-            <YAxis
+            <YAxis hide={!showYAxis}
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
             />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (!active || !payload?.length) return null
-                return (
-                  <div className="rounded-lg border border-white/[0.08] bg-zinc-950/90 p-2.5 shadow-xl backdrop-blur-md">
-                    <div className="text-[11px] font-mono text-zinc-400 mb-1">{label}</div>
-                    <div className="text-xs font-semibold text-white">
-                      {typeof payload[0]?.value === "number" && Number.isFinite(payload[0].value)
-                        ? payload[0].value.toLocaleString()
-                        : "—"}
-                    </div>
-                  </div>
-                )
-              }}
-            />
+            {tooltip && (
+              <Tooltip
+                content={<ChartTooltip indicator="line" />}
+                cursor={{ stroke: "var(--chart-crosshair, rgba(255,255,255,0.2))", strokeDasharray: "3 3" }}
+              />
+            )}
+            {legend && <Legend />}
             <Line
-              type="monotone"
+              type={curve}
               dataKey={valueKey}
               stroke={color}
               strokeWidth={2}

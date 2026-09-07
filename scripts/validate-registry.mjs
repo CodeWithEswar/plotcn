@@ -47,8 +47,9 @@ for (const item of catalog.items || []) {
 
   // 3. Registry dependencies check
   for (const regDep of item.registryDependencies || []) {
-    const depItem = (catalog.items || []).find((i) => i.name === regDep)
-    if (!depItem) {
+    const cleanDep = regDep.replace(/^@plotcn\//, "")
+    const depItem = (catalog.items || []).find((i) => i.name === cleanDep)
+    if (!depItem && !new Set(["select"]).has(regDep)) {
       console.error(`[validate-registry] Item "${item.name}" references unknown registryDependency: "${regDep}"`)
       errors++
     }
@@ -56,7 +57,7 @@ for (const item of catalog.items || []) {
 
   // 4. Google items must declare google-chart-loader or google-chart-container
   if (item.name.startsWith("google-") && item.name !== "google-chart-loader" && item.name !== "google-chart-container") {
-    const regDeps = item.registryDependencies || []
+    const regDeps = (item.registryDependencies || []).map((d) => d.replace(/^@plotcn\//, ""))
     if (!regDeps.includes("google-chart-container") && !regDeps.includes("google-chart-loader")) {
       console.warn(`[validate-registry] Warning: Google item "${item.name}" should declare google-chart-container in registryDependencies.`)
       warnings++

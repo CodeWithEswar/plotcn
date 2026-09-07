@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import { scaleLinear } from "d3-scale"
-import { line, curveMonotoneX } from "d3-shape"
+import { line, curveMonotoneX, curveLinear, curveStep } from "d3-shape"
 import { max, min } from "d3-array"
+import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
 import { cn } from "@/lib/utils"
 
 export interface D3LineDatum {
@@ -16,6 +17,8 @@ export interface D3AnimatedLineProps {
   width?: number
   height?: number
   color?: string
+  curve?: "linear" | "monotone" | "step"
+  grid?: "off" | "horizontal"
   className?: string
   /**
    * Optional motion configuration or toggle.
@@ -36,6 +39,8 @@ export function D3AnimatedLine({
   height = 300,
   color = "var(--chart-1, #10b981)",
   className,
+  curve = "monotone",
+  grid = "horizontal",
   motion = true,
 }: D3AnimatedLineProps) {
   const margin = { top: 20, right: 20, bottom: 30, left: 40 }
@@ -45,12 +50,9 @@ export function D3AnimatedLine({
   const pathRef = React.useRef<SVGPathElement>(null)
   const [mounted, setMounted] = React.useState(false)
   const [pathLength, setPathLength] = React.useState(0)
-  const [reducedMotion, setReducedMotion] = React.useState(false)
+  const reducedMotion = useChartReducedMotion()
 
   React.useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia) {
-      setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-    }
     if (pathRef.current) {
       setPathLength(pathRef.current.getTotalLength())
     }
@@ -79,10 +81,13 @@ export function D3AnimatedLine({
     const generator = line<D3LineDatum>()
       .x((_, i) => xScale(i))
       .y((d) => yScale(d.y))
-      .curve(curveMonotoneX)
+      .curve({linear:curveLinear,monotone:curveMonotoneX,step:curveStep}[curve])
 
     return generator(data) || ""
-  }, [data, xScale, yScale])
+  }, [data, xScale, yScale, curve])
+
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const svgRef = React.useRef<SVGSVGElement>(null)
 
   const isAnimated = motion !== false && !reducedMotion
   const duration = typeof motion === "object" && motion?.duration !== undefined ? motion.duration : 0.35
@@ -97,17 +102,18 @@ export function D3AnimatedLine({
       : {}
 
   return (
-    <div className={cn("w-full overflow-hidden rounded-xl border border-white/[0.08] bg-zinc-950/60 p-4", className)}>
+    <div className={cn("relative w-full overflow-hidden rounded-xl border border-[var(--chart-border,rgba(255,255,255,0.08))] bg-[var(--chart-background,#09090b)]/60 p-4", className)}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-auto overflow-visible"
+        className="w-full h-auto overflow-visible select-none"
         aria-label="D3 Animated Line Chart"
         role="img"
       >
         <g transform={`translate(${margin.left},${margin.top})`}>
           {/* Grid lines (decorative - Section 11.41) */}
           <g aria-hidden="true">
-            {yScale.ticks(5).map((tick) => (
+            {grid !== "off" && yScale.ticks(5).map((tick) => (
               <line
                 key={tick}
                 x1={0}
@@ -131,21 +137,90 @@ export function D3AnimatedLine({
             style={pathStyle}
           />
 
+          {/* Interactive Crosshair & Highlighted Point */}
+          {hoveredIndex !== null && data[hoveredIndex] && (
+            <g pointerEvents="none">
+              <line
+                x1={xScale(hoveredIndex)}
+                x2={xScale(hoveredIndex)}
+                y1={0}
+                y2={innerHeight}
+                stroke="rgba(255,255,255,0.25)"
+                strokeDasharray="3 3"
+              />
+              <circle
+                cx={xScale(hoveredIndex)}
+                cy={yScale(data[hoveredIndex].y)}
+                r={6}
+                fill="#ffffff"
+                stroke={color}
+                strokeWidth={2.5}
+                className="drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]"
+              />
+            </g>
+          )}
+
           {/* Coordinate points */}
           {data.map((d, i) => (
             <circle
               key={i}
               cx={xScale(i)}
               cy={yScale(d.y)}
-              r={3.5}
-              fill="var(--background, #09090b)"
+              r={hoveredIndex === i ? 5.5 : 3.5}
+              fill="var(--chart-background, var(--background, #09090b))"
               stroke={color}
               strokeWidth={2}
-              className="hover:r-5 transition-all"
+              className="transition-all duration-150"
             />
           ))}
+
+          {/* Transparent Overlay for Smooth Crosshair Hover Tracking */}
+          <rect
+            x={0}
+            y={0}
+            width={innerWidth}
+            height={innerHeight}
+            fill="transparent"
+            className="cursor-crosshair"
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const relX = Math.max(0, Math.min(rect.width, e.clientX - rect.left))
+              const idx = Math.round((relX / rect.width) * (data.length - 1))
+              const clamped = Math.max(0, Math.min(data.length - 1, idx))
+              setHoveredIndex(clamped)
+            }}
+            onMouseLeave={() => setHoveredIndex(null)}
+          />
         </g>
       </svg>
+
+      {/* Floating Theme Tooltip */}
+      {hoveredIndex !== null && data[hoveredIndex] && (
+        <div
+          className="absolute pointer-events-none z-30 -translate-x-1/2 -translate-y-full transition-all duration-75"
+          style={{
+            left: `${((margin.left + xScale(hoveredIndex)) / width) * 100}%`,
+            top: `${((margin.top + yScale(data[hoveredIndex].y)) / height) * 100}%`,
+            marginTop: "-12px",
+          }}
+        >
+          <div className="rounded-lg border border-white/[0.14] bg-zinc-950/95 p-2.5 text-white shadow-xl backdrop-blur-md text-xs min-w-[130px]">
+            <div className="text-[11px] font-mono text-zinc-400 mb-1.5 pb-1 border-b border-white/[0.08] flex items-center justify-between gap-2">
+              <span>{String(data[hoveredIndex].x)}</span>
+              <span
+                className="size-2 rounded-full shadow-[0_0_8px]"
+                style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 font-mono">
+              <span className="text-[11px] text-zinc-400">Value</span>
+              <span className="text-xs font-semibold tabular-nums text-white">
+                {data[hoveredIndex].y.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

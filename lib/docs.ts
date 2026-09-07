@@ -37,6 +37,11 @@ const SLUG_TO_FILE: Record<string, string> = {
   theming: "fundamentals/theming.mdx",
   accessibility: "fundamentals/accessibility.mdx",
   motion: "fundamentals/motion.mdx",
+  performance: "fundamentals/performance.mdx",
+  "typescript-and-i18n": "fundamentals/typescript-and-i18n.mdx",
+  typescript: "fundamentals/typescript-and-i18n.mdx",
+  internationalization: "fundamentals/typescript-and-i18n.mdx",
+  formatting: "fundamentals/typescript-and-i18n.mdx",
   "google-charts": "google-charts/overview.mdx",
   "google-geochart": "google-charts/geochart.mdx",
 }

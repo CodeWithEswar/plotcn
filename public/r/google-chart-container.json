@@ -6,7 +6,7 @@
   "description": "Lifecycle wrapper managing ResizeObserver and fallback states for Google Charts.",
   "dependencies": [],
   "registryDependencies": [
-    "google-chart-loader"
+    "@plotcn/google-chart-loader"
   ],
   "files": [
     {

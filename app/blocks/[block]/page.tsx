@@ -1,159 +1,22 @@
-import React from "react"
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
+import fs from "node:fs/promises"
+import path from "node:path"
 import Link from "next/link"
+import { notFound } from "next/navigation"
+import { blocks, getBlock } from "@/config/blocks"
+import { getChartById } from "@/config/charts"
+import { chartHref } from "@/lib/charts/filters"
 import { SiteHeader } from "@/components/site/site-header"
 import { SiteFooter } from "@/components/site/site-footer"
+import { BlockWorkspace } from "@/components/blocks/block-workspace"
+import { ChartInstall } from "@/components/chart-detail/chart-install"
+import { CodeBlock } from "@/components/docs/code-block"
 import { constructPageMetadata } from "@/lib/seo/metadata"
-import { DynamicChartRenderer } from "@/components/chart-gallery/chart-renderer"
-import { ArrowLeft, Terminal, Copy } from "lucide-react"
-
-interface PageProps {
-  params: Promise<{ block: string }>
-}
-
-const blocksData: Record<
-  string,
-  {
-    title: string
-    description: string
-    category: string
-    charts: Array<{ name: string; title: string }>
-  }
-> = {
-  "analytics-overview": {
-    title: "Analytics Overview Dashboard",
-    description:
-      "A complete metrics dashboard section featuring concurrent trend lines, category volume comparisons, and geographical user density.",
-    category: "Dashboard",
-    charts: [
-      { name: "line-basic", title: "Monthly Growth Trend" },
-      { name: "bar-basic", title: "Traffic by Channel" },
-      { name: "google-geochart", title: "Global User Distribution" },
-    ],
-  },
-  "revenue-funnel": {
-    title: "Revenue & Conversion Funnel",
-    description:
-      "Financial overview block comparing gross recurring revenue volume against dual retention series.",
-    category: "Financial",
-    charts: [
-      { name: "area-basic", title: "Gross Recurring Revenue" },
-      { name: "line-multiple", title: "New vs Returning Customers" },
-    ],
-  },
-  "network-topology": {
-    title: "Infrastructure Topology Monitor",
-    description:
-      "Force simulation clustering for service discovery and latency monitoring across microservices.",
-    category: "Operations",
-    charts: [
-      { name: "d3-force-network", title: "Service Mesh Graph" },
-      { name: "d3-animated-line", title: "Latency Telemetry" },
-    ],
-  },
-}
-
-export async function generateStaticParams() {
-  return Object.keys(blocksData).map((block) => ({ block }))
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { block } = await params
-  const data = blocksData[block]
-  if (!data) return { title: "Block Not Found — Plotcn" }
-
-  return constructPageMetadata({
-    title: `${data.title} — Plotcn Blocks`,
-    description: data.description,
-    path: `/blocks/${block}`,
-  })
-}
-
-export default async function BlockDetailPage({ params }: PageProps) {
-  const { block } = await params
-  const data = blocksData[block]
-
-  if (!data) {
-    notFound()
-  }
-
-  return (
-    <div className="relative min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
-      <SiteHeader />
-
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Back link */}
-        <div className="mb-6">
-          <Link
-            href="/blocks"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="size-3.5" />
-            <span>Back to Blocks</span>
-          </Link>
-        </div>
-
-        {/* Title */}
-        <div className="space-y-2 mb-8">
-          <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-            {data.category} Block
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
-            {data.title}
-          </h1>
-          <p className="text-base text-zinc-400 max-w-3xl leading-relaxed">
-            {data.description}
-          </p>
-        </div>
-
-        {/* Dashboard Composite Preview Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-          {data.charts.map((c, i) => (
-            <div
-              key={c.name}
-              className={`flex flex-col rounded-2xl border border-white/[0.08] bg-zinc-950/80 p-5 backdrop-blur-md ${
-                i === 0 && data.charts.length === 3 ? "lg:col-span-2" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-mono font-medium text-zinc-300">{c.title}</h3>
-                <span className="text-[10px] font-mono text-zinc-500">{c.name}</span>
-              </div>
-              <div className="flex h-56 w-full items-center justify-center overflow-hidden rounded-xl border border-white/[0.06] bg-zinc-900/60 p-3">
-                <DynamicChartRenderer registryName={c.name} height={200} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Components Included List */}
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/60 p-6 backdrop-blur-md">
-          <h2 className="text-sm font-mono font-semibold text-white mb-4">Required Registry Items</h2>
-          <div className="flex flex-col gap-2">
-            {data.charts.map((c) => (
-              <div
-                key={c.name}
-                className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono text-emerald-400">{c.name}</span>
-                  <span className="text-xs text-zinc-400 hidden sm:inline">— {c.title}</span>
-                </div>
-                <Link
-                  href={`/r/${c.name}.json`}
-                  target="_blank"
-                  className="text-xs font-mono text-zinc-400 hover:text-white underline underline-offset-4"
-                >
-                  View JSON
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      <SiteFooter />
-    </div>
-  )
+export function generateStaticParams(){return blocks.map(b=>({block:b.slug}))}
+export async function generateMetadata({params}:{params:Promise<{block:string}>}){const item=getBlock((await params).block);return item ? constructPageMetadata({title:item.title,description:item.description,path:"/blocks/"+item.slug}) : {title:"Block not found"}}
+export default async function BlockPage({params}:{params:Promise<{block:string}>}){
+ const item=getBlock((await params).block);if(!item)notFound()
+ const read=(file:string)=>fs.readFile(path.join(process.cwd(),"registry/blocks",file),"utf8")
+ const [source,data,frame]=await Promise.all([read(item.slug+".tsx"),read(item.slug+"-data.ts"),read("block-frame.tsx")])
+ const usage='import { '+item.exportName+' } from "@/components/charts/blocks/'+item.slug+'"\nimport { '+item.fixtureName+' } from "@/components/charts/blocks/'+item.slug+'-data"\n\nexport function Example() {\n  return <'+item.exportName+' data={'+item.fixtureName+'} />\n}'
+ return <div className="charts-surface"><SiteHeader/><main className="lens-shell product-shell"><header className="product-heading"><div><Link href="/blocks" className="lens-eyebrow">PLOTCN / BLOCKS</Link><h1>{item.title}</h1><p>{item.description}</p></div><span className="lens-eyebrow">RECHARTS / {item.charts.length} CHARTS</span></header><BlockWorkspace slug={item.slug} title={item.title} source={<><CodeBlock code={source} language="tsx" title={item.slug+".tsx"}/><CodeBlock code={frame} language="tsx" title="block-frame.tsx"/></>} data={<CodeBlock code={data} language="typescript" title={item.slug+"-data.ts"}/>} usage={<CodeBlock code={usage.replaceAll('\\n','\n')} language="tsx" title="Usage"/>}/><ChartInstall registryName={item.slug}/><div className="block-detail-notes"><section><h2>Dependency trace</h2><p>This block composes the installed chart components. Every file stays in your project.</p><ul>{item.charts.map(id=>{const chart=getChartById(id)!;return <li key={id}><Link href={chartHref(chart)}>{chart.title}</Link><span>{chart.registryName}</span></li>})}<li>shadcn Select<span>select</span></li><li>Local panel and state helpers<span>block-frame</span></li></ul><a href={"/r/"+item.slug+".json"}>Inspect local registry JSON</a></section><section><h2>Data & customization</h2><p>{item.fields}</p><p>{item.customization}</p><h2>States & accessibility</h2><p>Loading, empty and error states are explicit. A breakdown failure preserves the main trend. Filters have accessible names; value tables provide a textual alternative. Motion respects the system preference. Preview data is a fixture, not live business data.</p></section></div></main><SiteFooter/></div>
 }

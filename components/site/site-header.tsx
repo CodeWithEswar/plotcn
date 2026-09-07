@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import { useMotionValueEvent, useScroll } from "motion/react"
 import { AppLogo } from "@/components/brand"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Command, CommandInput, CommandList, CommandGroup, CommandItem, CommandEmpty } from "@/components/ui/command"
@@ -96,6 +97,20 @@ const searchGroups: { group: string; items: SearchItem[] }[] = [
         href: "/docs/accessibility",
         icon: CheckmarkCircle01Icon,
         badge: "A11y",
+      },
+      {
+        label: "Performance & Rendering",
+        description: "Rendering strategy, SVG defaults, modular D3, and resource lifecycle",
+        href: "/docs/performance",
+        icon: ComputerTerminal01Icon,
+        badge: "Perf",
+      },
+      {
+        label: "TypeScript & Internationalization",
+        description: "Strict public types, Intl formatting, currency handling, and RTL layout",
+        href: "/docs/typescript-and-i18n",
+        icon: SourceCodeIcon,
+        badge: "Types",
       },
       {
         label: "Google Charts Overview",
@@ -202,6 +217,12 @@ export function SiteHeader() {
     }
   }
 
+  const isDocs = pathname?.startsWith("/docs")
+  const isWide =
+    pathname?.startsWith("/charts") ||
+    pathname?.startsWith("/blocks") ||
+    pathname?.startsWith("/playground")
+
   return (
     <>
       <a className="skip-link" href="#main">
@@ -210,8 +231,10 @@ export function SiteHeader() {
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <div
           className={`${
-            pathname?.startsWith("/docs")
+            isDocs
               ? "w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8"
+              : isWide
+              ? "site-container-wide"
               : "site-container"
           } header-inner`}
         >
@@ -278,26 +301,84 @@ export function SiteHeader() {
                   </Button>
                 }
               />
-              <SheetContent className="dark mobile-sheet">
-                <SheetHeader>
-                  <SheetTitle>Plotcn</SheetTitle>
-                  <SheetDescription>Visualizations. Your way.</SheetDescription>
+              <SheetContent
+                className="dark mobile-sheet !w-[270px] !max-w-[85vw] !p-0 !gap-0 !bg-[#0c0c0e] !border-l !border-white/[0.08] shadow-2xl flex flex-col justify-between overflow-hidden"
+                style={{ width: "270px", maxWidth: "85vw" }}
+              >
+                <SheetHeader className="p-4 pb-3 pr-10 border-b border-white/[0.08] flex flex-col gap-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <AppLogo className="size-5 shrink-0" />
+                    <SheetTitle className="!text-[15px] !font-semibold !leading-none tracking-tight text-white m-0 flex items-center">
+                      Plotcn
+                    </SheetTitle>
+                    <span className="font-mono text-[9px] text-zinc-400 border border-zinc-700/80 px-1.5 py-0.5 rounded leading-none">
+                      beta
+                    </span>
+                  </div>
+                  <SheetDescription className="!text-[11px] !leading-normal text-zinc-400 m-0">
+                    Visualizations. Your way.
+                  </SheetDescription>
                 </SheetHeader>
-                <nav aria-label="Mobile navigation">
-                  {navigation.map((item) => (
-                    <Link key={item.href} href={item.href} onClick={() => setMenu(false)}>
-                      {item.label}
-                      <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={1.8} />
-                    </Link>
-                  ))}
-                  <Link href="#open-source" onClick={() => setMenu(false)}>
-                    Open source
-                    <HugeiconsIcon icon={GithubIcon} size={16} strokeWidth={1.8} />
-                  </Link>
-                  <Link href="/docs/installation" onClick={() => setMenu(false)} className={buttonVariants()}>
-                    Get started
+
+                <nav aria-label="Mobile navigation" className="flex flex-col p-3 gap-1 overflow-y-auto flex-1">
+                  {navigation.map((item) => {
+                    const isActive =
+                      item.href === "/docs"
+                        ? pathname?.startsWith("/docs")
+                        : pathname === item.href
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMenu(false)}
+                        className={cn(
+                          "flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium transition-all group",
+                          isActive
+                            ? "bg-white/[0.08] text-white font-semibold is-active"
+                            : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                        )}
+                      >
+                        <span>{item.label}</span>
+                        <HugeiconsIcon
+                          icon={ArrowRight01Icon}
+                          size={14}
+                          strokeWidth={1.8}
+                          className="shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                        />
+                      </Link>
+                    )
+                  })}
+
+                  <div className="my-1.5 border-t border-white/[0.06]" />
+
+                  <Link
+                    href="#open-source"
+                    onClick={() => setMenu(false)}
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all group"
+                  >
+                    <span>Open source</span>
+                    <HugeiconsIcon
+                      icon={GithubIcon}
+                      size={15}
+                      strokeWidth={1.8}
+                      className="shrink-0 text-zinc-500 group-hover:text-zinc-300"
+                    />
                   </Link>
                 </nav>
+
+                <div className="p-3 pt-2.5 border-t border-white/[0.08] bg-[#0c0c0e]/80 backdrop-blur-sm">
+                  <Link
+                    href="/docs/installation"
+                    onClick={() => setMenu(false)}
+                    className={cn(
+                      buttonVariants({ size: "sm" }),
+                      "w-full justify-center text-xs font-medium h-9 bg-white text-black hover:bg-zinc-200 transition-colors shadow-sm flex items-center gap-1.5"
+                    )}
+                  >
+                    <span>Get started</span>
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={1.8} />
+                  </Link>
+                </div>
               </SheetContent>
             </Sheet>
           </div>

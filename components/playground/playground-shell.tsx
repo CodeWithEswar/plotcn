@@ -1,171 +1,38 @@
 "use client"
-
-import React, { useState } from "react"
-import { DynamicChartRenderer } from "@/components/chart-gallery/chart-renderer"
-import { EngineBadge } from "@/components/chart-detail/engine-badge"
-import type { ChartEngine } from "@/lib/charts/metadata"
-import { Play, Code, Sliders, Check, Copy } from "lucide-react"
-import { getInstallCommand } from "@/lib/registry/install-command"
-import { cn } from "@/lib/utils"
-
-const playgroundPresets: Array<{
-  id: string
-  name: string
-  engine: ChartEngine
-  registryName: string
-  description: string
-}> = [
-  {
-    id: "recharts-line",
-    name: "Recharts Spline Line",
-    engine: "recharts",
-    registryName: "line-basic",
-    description: "Approachable Cartesian line with dark theme styling.",
-  },
-  {
-    id: "recharts-area",
-    name: "Recharts Gradient Area",
-    engine: "recharts",
-    registryName: "area-basic",
-    description: "Volume metric distribution with vertical gradient fill.",
-  },
-  {
-    id: "d3-anim-line",
-    name: "D3 Precision Path",
-    engine: "d3",
-    registryName: "d3-animated-line",
-    description: "Direct SVG path calculation with stroke animation.",
-  },
-  {
-    id: "d3-force",
-    name: "D3 Force Simulation",
-    engine: "d3",
-    registryName: "d3-force-network",
-    description: "Interactive physics-driven network topology.",
-  },
-  {
-    id: "google-geo",
-    name: "Google GeoChart Map",
-    engine: "google",
-    registryName: "google-geochart",
-    description: "Global geographic choropleth vector map.",
-  },
-  {
-    id: "google-column",
-    name: "Google Column Chart",
-    engine: "google",
-    registryName: "google-bar",
-    description: "Hosted runtime ColumnChart with dark gridlines.",
-  },
-]
-
-export function PlaygroundShell() {
-  const [selectedId, setSelectedId] = useState(playgroundPresets[0].id)
-  const [height, setHeight] = useState(360)
-  const [copied, setCopied] = useState(false)
-
-  const activePreset = playgroundPresets.find((p) => p.id === selectedId) || playgroundPresets[0]
-  const installCmd = getInstallCommand(activePreset.registryName)
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(installCmd)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      {/* Sidebar Controls */}
-      <div className="lg:col-span-4 flex flex-col gap-4">
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-5 backdrop-blur-md">
-          <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/[0.06]">
-            <Sliders className="size-4 text-emerald-400" />
-            <h2 className="text-sm font-semibold text-white">Preset Selector</h2>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {playgroundPresets.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => setSelectedId(preset.id)}
-                className={cn(
-                  "flex flex-col text-left p-3 rounded-xl border transition-all",
-                  selectedId === preset.id
-                    ? "bg-white/10 border-white/20 text-white shadow-sm"
-                    : "border-white/[0.04] bg-white/[0.01] text-zinc-400 hover:bg-white/[0.04] hover:text-white"
-                )}
-              >
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-xs font-semibold">{preset.name}</span>
-                  <EngineBadge engine={preset.engine} size="sm" />
-                </div>
-                <span className="text-[11px] text-zinc-500 line-clamp-1">{preset.description}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Viewport Height Slider */}
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-5 backdrop-blur-md">
-          <div className="flex items-center justify-between text-xs font-mono text-zinc-400 mb-2">
-            <span>Container Height</span>
-            <span>{height}px</span>
-          </div>
-          <input
-            type="range"
-            min="260"
-            max="500"
-            step="20"
-            value={height}
-            onChange={(e) => setHeight(Number(e.target.value))}
-            className="w-full accent-emerald-400 cursor-pointer"
-          />
-        </div>
-      </div>
-
-      {/* Main Preview Stage */}
-      <div className="lg:col-span-8 flex flex-col gap-6">
-        <div className="flex flex-col rounded-2xl border border-white/[0.08] bg-zinc-950/80 overflow-hidden shadow-2xl backdrop-blur-md">
-          <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-3 bg-white/[0.02]">
-            <div className="flex items-center gap-3">
-              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-mono text-zinc-300 font-medium">
-                {activePreset.name}
-              </span>
-            </div>
-            <EngineBadge engine={activePreset.engine} size="sm" />
-          </div>
-
-          <div className="p-6 sm:p-10 flex items-center justify-center bg-zinc-950/40">
-            <div className="w-full" style={{ height }}>
-              <DynamicChartRenderer registryName={activePreset.registryName} height={height} />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between border-t border-white/[0.06] p-4 bg-white/[0.01]">
-            <div className="overflow-x-auto no-scrollbar font-mono text-xs text-zinc-300">
-              <span className="text-emerald-400 mr-2">$</span>
-              <span>{installCmd}</span>
-            </div>
-            <button
-              onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-mono shrink-0 ml-3 transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="size-3.5 text-emerald-400" />
-                  <span className="text-emerald-400">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="size-3.5" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+import { useState, type ReactNode } from "react"
+import { useSearchParams } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { RefreshIcon, Settings01Icon } from "@hugeicons/core-free-icons"
+import { getChartById } from "@/config/charts"
+import { playgroundIds,isPlaygroundId,playgroundDefaults,playgroundFixture,validatePlaygroundData,generatePlaygroundUsage,type PlaygroundId,type PlaygroundSettings } from "@/lib/playground/model"
+import { PreviewWorkspace } from "@/components/preview/preview-workspace"
+import { ChartPreviewBoundary } from "@/components/chart-gallery/chart-renderer"
+import { ChartInstall } from "@/components/chart-detail/chart-install"
+import { LiveCodeBlock } from "@/components/docs/live-code-block"
+import { PlaygroundChart } from "./playground-chart"
+import { PlaygroundDataEditor } from "./playground-data-editor"
+import { Button } from "@/components/ui/button"
+import { Select,SelectTrigger,SelectValue,SelectContent,SelectItem } from "@/components/ui/select"
+import { Tabs,TabsList,TabsTrigger,TabsContent } from "@/components/ui/tabs"
+import { Sheet,SheetTrigger,SheetContent,SheetHeader,SheetTitle,SheetDescription } from "@/components/ui/sheet"
+function Workbench({id,source}:{id:PlaygroundId;source:ReactNode}) {
+  const chart=getChartById(id)!
+  const [settings,setSettings]=useState(()=>playgroundDefaults(id))
+  const [data,setData]=useState(()=>playgroundFixture(id))
+  const [draft,setDraft]=useState(()=>JSON.stringify(playgroundFixture(id),null,2))
+  const [error,setError]=useState<string>()
+  function update(patch:Partial<PlaygroundSettings>){setSettings(s=>({...s,...patch}))}
+  function edit(text:string){setDraft(text);const result=validatePlaygroundData(text,id);setError(result.error);if(result.data)setData(result.data)}
+  const categorical=id!=="d3-animated-line",cartesian=id==="line-basic"||id==="bar-basic"
+  const selectControl=(key:"curve"|"grid"|"palette",label:string,options:string[]) => <label className="workbench-control">{label}<Select value={settings[key]} onValueChange={value=>{if(value)update({[key]:value})}}><SelectTrigger aria-label={label}><SelectValue/></SelectTrigger><SelectContent>{options.map(value=><SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select></label>
+  const toggle=(key:"showXAxis"|"showYAxis"|"tooltip"|"legend"|"motion"|"reducedMotion",label:string) => <label className="workbench-toggle"><span>{label}</span><input type="checkbox" checked={settings[key]} onChange={e=>update({[key]:e.target.checked})}/></label>
+  const range=(key:"height"|"width"|"innerRadius"|"duration",label:string,min:number,max:number,step=1) => <label className="workbench-range"><span>{label}<output>{settings[key]}{key==="duration"?"s":key==="innerRadius"?"%":"px"}</output></span><input aria-label={label} type="range" min={min} max={max} step={step} value={settings[key]} onChange={e=>update({[key]:Number(e.target.value)})}/></label>
+  const controls=<div className="workbench-controls"><fieldset><legend>Appearance</legend>{selectControl("palette","Palette",["default","mono"])}{(id==="line-basic"||!categorical)&&selectControl("curve","Curve",["linear","monotone","step"])}{id==="donut-basic"&&range("innerRadius","Inner radius",0,80)}</fieldset>{(cartesian||!categorical)&&<fieldset><legend>Axes & grid</legend>{cartesian&&<>{toggle("showXAxis","X axis")}{toggle("showYAxis","Y axis")}</>}{selectControl("grid","Grid",cartesian?["off","horizontal","both"]:["off","horizontal"])}</fieldset>}{categorical&&<fieldset><legend>Interaction</legend>{toggle("tooltip","Tooltip")}{toggle("legend","Legend")}{id==="line-basic"&&<p>Single-series legend is hidden by default.</p>}</fieldset>}<fieldset><legend>Motion</legend>{toggle("motion","Animation")}{settings.motion&&range("duration","Duration",.1,2,.1)}{toggle("reducedMotion","Simulate reduced motion")}</fieldset><fieldset><legend>Layout</legend>{range("width","Container width",280,1400,10)}{range("height","Chart height",180,600,10)}</fieldset><Button variant="outline" onClick={()=>setSettings(playgroundDefaults(id))}><HugeiconsIcon icon={RefreshIcon} size={15}/>Reset configuration</Button></div>
+  return <><div className="workbench-grid"><aside className="workbench-inspector"><div className="workbench-inspector-heading"><HugeiconsIcon icon={Settings01Icon} size={16}/>Configuration</div>{controls}</aside><div className="workbench-stage"><div className="workbench-stage-heading"><span>{chart.title}</span><span className="lens-eyebrow">{chart.engine} / SVG</span></div><PreviewWorkspace title={chart.title} width={settings.width} onWidthChange={width=>update({width})} height={settings.height} theme={settings.theme} onThemeChange={theme=>update({theme})} palette={settings.palette} reducedMotion={settings.reducedMotion} animate={settings.motion} inspector={({width,reducedMotion})=>`${chart.engine.toUpperCase()} / SVG / ${width} × ${settings.height} / ${width<480?"COMPACT":width<768?"MEDIUM":"WIDE"} / ${data.length} POINTS / MOTION ${settings.motion&&!reducedMotion?"ON":"OFF"}`}>{({width,reducedMotion,iteration})=><ChartPreviewBoundary key={id}><PlaygroundChart key={iteration} id={id} settings={settings} data={data} width={width} reducedMotion={reducedMotion}/></ChartPreviewBoundary>}</PreviewWorkspace>{error&&<p className="workbench-safe-note">Last valid data shown. Review the editor diagnostic below.</p>}<div className="workbench-mobile-config"><Sheet><SheetTrigger render={<Button variant="outline"/>}><HugeiconsIcon icon={Settings01Icon} size={16}/>Configure chart</SheetTrigger><SheetContent className="charts-surface workbench-sheet" data-theme="dark"><SheetHeader><SheetTitle>Configure {chart.title}</SheetTitle><SheetDescription>Only controls supported by this chart are shown.</SheetDescription></SheetHeader>{controls}</SheetContent></Sheet></div><div className="workbench-source"><Tabs defaultValue="usage"><TabsList variant="line" aria-label="Playground source"><TabsTrigger value="usage">Usage</TabsTrigger><TabsTrigger value="data">Data</TabsTrigger><TabsTrigger value="component">Component</TabsTrigger></TabsList><TabsContent value="usage"><LiveCodeBlock code={generatePlaygroundUsage(id,settings,data)}/></TabsContent><TabsContent value="data"><LiveCodeBlock code={JSON.stringify(data,null,2)} language="json" title="Last valid data"/></TabsContent><TabsContent value="component">{source}</TabsContent></Tabs></div></div></div><PlaygroundDataEditor id={id} draft={draft} onDraftChange={edit} error={error} onReset={()=>edit(JSON.stringify(playgroundFixture(id),null,2))}/><ChartInstall registryName={id}/><p className="workbench-own">Need more control? <Link href={`/charts/${chart.engine}/${chart.slug}`}>Inspect the chart</Link>, install its source, and edit it directly.</p></>
+}
+export function PlaygroundShell({sources}:{sources:Record<string,ReactNode>}) {
+  const params=useSearchParams(),query=params.get("chart"),id=isPlaygroundId(query)?query:"line-basic"
+  return <main id="main" tabIndex={-1} className="lens-shell product-shell"><header className="product-heading"><div><span className="lens-eyebrow">PLOTCN / PLAYGROUND</span><h1>A chart. Your controls.</h1><p>Change the data, inspect the behavior, take the source.</p></div><div className="workbench-selector"><Image src={`/brand/engines/${id.startsWith("d3")?"d3":"recharts"}.svg`} width={28} height={24} alt=""/><Select value={id} onValueChange={value=>{if(value&&isPlaygroundId(value))window.history.pushState(null,"",`/playground?chart=${value}`)}}><SelectTrigger aria-label="Choose chart"><SelectValue/></SelectTrigger><SelectContent>{playgroundIds.map(chart=><SelectItem key={chart} value={chart}>{getChartById(chart)!.title}</SelectItem>)}</SelectContent></Select></div></header>{query&&!isPlaygroundId(query)&&<p role="status">This chart is not available in the Playground. Showing Basic Line Chart.</p>}<Workbench key={id} id={id} source={sources[id]}/></main>
 }

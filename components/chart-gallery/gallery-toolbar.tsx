@@ -4,7 +4,8 @@ import React from "react"
 import type { ChartEngine, ChartCategory } from "@/lib/charts/metadata"
 import { EngineFilter } from "./engine-filter"
 import { GalleryFilter } from "./gallery-filter"
-import { Search, X } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Search01Icon, Cancel01Icon } from "@hugeicons/core-free-icons"
 
 export interface GalleryToolbarProps {
   engine: ChartEngine | "all"
@@ -35,22 +36,23 @@ export function GalleryToolbar({
 
         {/* Search Input */}
         <div className="relative w-full md:w-72">
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400">
-            <Search className="size-4" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+            <HugeiconsIcon icon={Search01Icon} size={15} />
           </div>
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search charts or tags..."
-            className="w-full rounded-xl border border-white/[0.08] bg-zinc-950/70 pl-9 pr-8 py-2 text-xs text-white placeholder-zinc-500 backdrop-blur-md focus:border-white/25 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all"
+            className="w-full rounded-xl border border-border/80 bg-background/80 pl-9 pr-8 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all font-mono"
           />
           {search && (
             <button
               onClick={() => onSearchChange("")}
-              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-zinc-400 hover:text-white"
+              className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-muted-foreground hover:text-foreground cursor-pointer"
+              aria-label="Clear search"
             >
-              <X className="size-3.5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={14} />
             </button>
           )}
         </div>

@@ -7,43 +7,62 @@ import type { GoogleChartBaseOptions, GoogleGeoChartOptions } from "./types"
 export function getGoogleChartTheme(
   userOptions: Partial<GoogleChartBaseOptions> = {}
 ): Record<string, unknown> {
+  let colors = ["#10b981", "#0ea5e9", "#8b5cf6", "#f59e0b", "#f43f5e"]
+  let axisColor = "#a1a1aa"
+  let gridColor = "rgba(255, 255, 255, 0.08)"
+  let baselineColor = "rgba(255, 255, 255, 0.16)"
+  let tooltipColor = "#fafafa"
+
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    const style = getComputedStyle(document.documentElement)
+    const read = (v: string) => style.getPropertyValue(v).trim()
+    const c1 = read("--chart-1")
+    const c2 = read("--chart-2")
+    const c3 = read("--chart-3")
+    const c4 = read("--chart-4")
+    const c5 = read("--chart-5")
+    if (c1) colors = [c1, c2 || "#0ea5e9", c3 || "#8b5cf6", c4 || "#f59e0b", c5 || "#f43f5e"]
+    const axis = read("--chart-axis")
+    if (axis) axisColor = axis
+    const grid = read("--chart-grid")
+    if (grid) gridColor = grid
+    const zero = read("--chart-zero-line")
+    if (zero) baselineColor = zero
+    const tt = read("--chart-tooltip-foreground")
+    if (tt) tooltipColor = tt
+  }
+
   const baseTheme: GoogleChartBaseOptions = {
     backgroundColor: "transparent",
-    colors: [
-      "#f4f4f5", // zinc-100 (primary)
-      "#a1a1aa", // zinc-400
-      "#71717a", // zinc-500
-      "#52525b", // zinc-600
-      "#3f3f46", // zinc-700
-    ],
+    colors,
     legend: {
       position: "bottom",
       textStyle: {
-        color: "#a1a1aa",
+        color: axisColor,
         fontSize: 11,
       },
     },
     hAxis: {
       textStyle: {
-        color: "#71717a",
+        color: axisColor,
         fontSize: 11,
       },
       gridlines: {
-        color: "rgba(255, 255, 255, 0.06)",
+        color: gridColor,
         count: 5,
       },
-      baselineColor: "rgba(255, 255, 255, 0.12)",
+      baselineColor,
     },
     vAxis: {
       textStyle: {
-        color: "#71717a",
+        color: axisColor,
         fontSize: 11,
       },
       gridlines: {
-        color: "rgba(255, 255, 255, 0.06)",
+        color: gridColor,
         count: 5,
       },
-      baselineColor: "rgba(255, 255, 255, 0.12)",
+      baselineColor,
     },
     chartArea: {
       left: 36,
@@ -55,7 +74,7 @@ export function getGoogleChartTheme(
       isHtml: true,
       ignoreBounds: false,
       textStyle: {
-        color: "#fafafa",
+        color: tooltipColor,
         fontSize: 12,
       },
     },

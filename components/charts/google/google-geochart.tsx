@@ -16,6 +16,9 @@ export interface GoogleGeoChartProps<T extends Record<string, unknown> = Record<
   region?: string
   displayMode?: "regions" | "markers" | "auto"
   resolution?: "countries" | "provinces" | "metros"
+  color?: string
+  colorMin?: string
+  colorMax?: string
   googleOptions?: Partial<GoogleGeoChartOptions>
   height?: number | string
   className?: string
@@ -33,6 +36,9 @@ export function GoogleGeoChart<T extends Record<string, unknown>>({
   region = "world",
   displayMode = "regions",
   resolution = "countries",
+  color,
+  colorMin = "#1e293b",
+  colorMax = "#10b981",
   googleOptions = {},
   height = 380,
   className = "",
@@ -81,16 +87,20 @@ export function GoogleGeoChart<T extends Record<string, unknown>>({
   }, [data, regionKey, valueKey, labelKey, tooltipFormatter])
 
   const mergedOptions: GoogleGeoChartOptions = useMemo(() => {
+    const activeMax = color || colorMax
     return {
       region,
       displayMode,
       resolution,
+      colorAxis: {
+        colors: [colorMin, activeMax],
+      },
       tooltip: {
         isHtml: true,
       },
       ...googleOptions,
     }
-  }, [region, displayMode, resolution, googleOptions])
+  }, [region, displayMode, resolution, color, colorMin, colorMax, googleOptions])
 
   const handleSelect = (selection: Array<{ row?: number; column?: number }>) => {
     if (!onRegionSelect || selection.length === 0 || selection[0].row === undefined) return

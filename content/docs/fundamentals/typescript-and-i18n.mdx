@@ -1,0 +1,249 @@
+---
+title: "TypeScript, Formatting & Internationalization"
+description: "How Plotcn achieves strict compile-time type safety, standards-based Intl formatting, and culturally neutral runtime internationalization without framework lock-in."
+section: "Fundamentals"
+---
+
+## Governing principle
+
+Plotcn treats **type safety, formatting, locale behavior, and directional layout** as foundational architecture rather than documentation polish added after the fact.
+
+The governing principle is:
+
+> [!IMPORTANT]
+> **"A Plotcn chart should be strongly typed at development time and culturally neutral at runtime."**
+>
+> Visualization components never silently assume:
+> - English language
+> - USD currency
+> - `MM/DD/YYYY` date format
+> - Western 3-digit grouping
+> - 12-hour time
+> - Left-to-right (LTR) layout
+>
+> unless the consumer application explicitly configures those conventions.
+
+---
+
+## Strict TypeScript architecture
+
+All public Plotcn chart APIs use strict TypeScript. `any` is forbidden in public prop contracts.
+
+```ts
+// ❌ Disallowed: untyped data and stringly-typed keys
+interface WeakChartProps {
+  data: any[]
+  seriesKey: string
+  formatter?: (val: any) => any
+}
+
+// ✅ Recommended: generic consumer model with inferred literal keys
+interface StrictChartProps<TData> {
+  data: readonly TData[]
+  xKey: keyof TData
+  series: readonly {
+    key: NumericKeyOf<TData>
+    label: string
+  }[]
+  valueFormatter?: (value: number, context: FormatterContext) => string
+}
+```
+
+### Generic data models
+
+Charts are generic over the consumer's existing data model (`Chart<TData>`). Rather than forcing consumers to transform objects into arbitrary `{ x, y }` structures, Plotcn reads domain properties directly:
+
+```tsx
+interface ServerMetric {
+  timestamp: string
+  latencyMs: number
+  p99Ms: number
+}
+
+// Autocompletes "timestamp", "latencyMs", and "p99Ms" directly
+<LineChart<ServerMetric>
+  data={metrics}
+  xKey="timestamp"
+  series={[
+    { key: "latencyMs", label: "Average Latency" },
+    { key: "p99Ms", label: "99th Percentile" },
+  ]}
+/>
+```
+
+### Typed accessors
+
+For deeply nested or computed values, charts support typed accessors alongside keys:
+
+```ts
+// Simple key path
+xKey="month"
+
+// Advanced accessor path
+x={(datum: ServerMetric) => new Date(datum.timestamp).getTime()}
+```
+
+### Literal series preservation
+
+Series definitions preserve exact string literals rather than widening to `string`:
+
+```ts
+const series = [
+  { key: "revenue", label: "Revenue" },
+  { key: "profit", label: "Profit" },
+] as const satisfies readonly ChartSeries<FinancialDatum>[]
+// Series keys inferred as: "revenue" | "profit"
+```
+
+---
+
+## Standards-based formatting
+
+Plotcn delegates formatting to native `Intl` standards (`Intl.NumberFormat`, `Intl.DateTimeFormat`, `Intl.RelativeTimeFormat`), eliminating bloated custom localization tables.
+
+### Core formatting utilities
+
+All formatting functions are pure, tree-shakeable, and renderer-neutral (`chart-core/formatting`):
+
+| Utility | Primary function | Key options |
+| :--- | :--- | :--- |
+| `formatNumber()` | Localized digit grouping & fractions | `locale`, `minimumFractionDigits`, `maximumFractionDigits` |
+| `formatCurrency()` | Currency values with explicit ISO code | `currency` (mandatory), `locale`, `currencyDisplay` |
+| `formatPercentage()` | Ratios & percentage points | `decimals`, `isRatio` (`0.42` vs `42`), `locale` |
+| `formatCompactNumber()` | Compact axis/badge notation | `locale`, `maximumFractionDigits` (`1.2M`, `4.5K`) |
+| `formatDate()` | Locale-aware calendar & time formatting | `dateStyle`, `timeStyle`, `timeZone`, `locale` |
+| `formatDuration()` | Human-readable elapsed durations | Total seconds to `"2h 15m"` / `"45s"` |
+
+### Explicit currency policy
+
+`formatCurrency()` strictly forbids defaulting to USD:
+
+```ts
+// Mandatory ISO currency code prevents accidental USD assumption
+formatCurrency(125000, { currency: "INR", locale: "en-IN" })
+// ──► "₹1,25,000.00" (Indian digit grouping)
+
+formatCurrency(125000, { currency: "EUR", locale: "de-DE" })
+// ──► "125.000,00 €" (German punctuation & suffix symbol)
+```
+
+### Explicit percentage semantics
+
+Never guess percentage scale based on `value <= 1`. Input semantics must be explicit:
+
+```ts
+// Ratio mode (0.0 to 1.0)
+formatPercentage(0.428, 1, true)  // ──► "42.8%"
+
+// Direct percentage-point mode
+formatPercentage(42.8, 1, false)  // ──► "42.8%"
+```
+
+### Keep raw values raw
+
+Formatting occurs strictly at presentation boundaries (axis ticks, tooltips, data tables). Data arrays and scale domains always preserve raw numeric and date values:
+
+```text
+Raw Semantic Data (number | Date)
+               │
+      ┌────────┴────────┐
+      ▼                 ▼
+Geometry Scales    Formatters (on demand)
+(Calculations)     (Ticks & Tooltips)
+```
+
+---
+
+## Directionality & Internationalization (RTL)
+
+Plotcn supports right-to-left (RTL) interfaces without distorting mathematical coordinates.
+
+### Separating UI chrome from data domains
+
+> [!IMPORTANT]
+> **RTL does not mean reversing numerical data axes.**
+>
+> Chronological time and positive numbers naturally flow left-to-right across standard financial and scientific charts regardless of language direction. Plotcn separates:
+> 1. **UI Chrome Direction**: Toolbars, legends, tooltips, action buttons, and breadcrumbs mirror in RTL.
+> 2. **Data Domain Direction**: Coordinate mathematics follow explicit chart semantic policy.
+
+### CSS logical properties
+
+All layout rules prioritize logical properties over physical left/right rules:
+
+```css
+/* ❌ Physical properties */
+margin-left: 1rem;
+padding-right: 1.5rem;
+text-align: left;
+
+/* ✅ Logical properties */
+margin-inline-start: 1rem;
+padding-inline-end: 1.5rem;
+text-align: start;
+```
+
+### Unicode safety & label typography
+
+Plotcn respects diverse writing systems:
+
+- **Arabic & Hebrew**: Never letter-spaced; rendered with natural ligatures.
+- **Devanagari & Thai**: Accommodates tall ascenders and complex diacritics in container padding.
+- **CJK Scripts**: Supports natural ideograph wrapping without requiring space separators.
+- **Bidi Isolation**: Mixed-direction labels (e.g., Hebrew category with USD currency) wrap with `<bdi>` or directional isolation.
+- **No Forced Uppercasing**: Consumer-provided localized strings are never transformed with `text-transform: uppercase`.
+
+---
+
+## Summary of architectural invariants
+
+### 15 Core TypeScript invariants
+
+1. Public APIs never use `any`.
+2. Consumer datum types remain generic (`Chart<TData>`).
+3. Key-based APIs infer valid keys from `TData`.
+4. Numeric fields are constrained at compile-time.
+5. Accessors remain strongly typed `(d: TData) => number`.
+6. Literal series keys are preserved using `as const`.
+7. Readonly arrays and configs are accepted (`readonly TData[]`).
+8. Runtime boundary inputs use `unknown` before validation.
+9. Public event payloads are typed with domain semantics.
+10. Engine-specific types remain narrow and intentional.
+11. Internal normalized types are never leaked publicly.
+12. Empty/loading arrays do not require weakening types to `any[]`.
+13. Nullability reflects actual gaps (`number | null`).
+14. Compile-time type behavior is verified in automated tests.
+15. Type sophistication never degrades developer ergonomics.
+
+### 15 Core formatting invariants
+
+1. Formatting operates on raw semantic values.
+2. Native `Intl` APIs are preferred over custom tables.
+3. USD is never globally assumed.
+4. `en-US` is never globally assumed.
+5. Percentage input semantics (ratio vs. point) are explicit.
+6. Dates and timestamps are validated before formatting.
+7. Reporting time zones can be explicitly specified.
+8. Compact formatting (`1.2M`, `45K`) is locale-aware.
+9. Axis precision and tooltip precision can differ intentionally.
+10. Missing values (`null`, `NaN`) bypass normal formatters.
+11. Currency codes are explicit and never inferred from locale.
+12. Formatting operations never mutate underlying data.
+13. Accessible screen-reader summaries share identical locale semantics.
+14. Formatting utilities remain renderer-neutral and pure.
+15. All chart engines share unified formatting contracts.
+
+### 12 Core internationalization invariants
+
+1. Plotcn does not assume left-to-right UI layouts.
+2. CSS logical properties (`*-inline`) are enforced.
+3. UI chrome direction and data-domain direction remain distinct.
+4. Consumer labels are never forcibly uppercased.
+5. Long translated strings are supported with flexible containers.
+6. Unicode text renders naturally in ticks, legends, and tooltips.
+7. Mixed-direction text remains readable with bidirectional isolation.
+8. Brand names and registry IDs remain stable ASCII identifiers.
+9. Components integrate with application i18n frameworks (`next-intl`, `react-intl`).
+10. Plotcn does not ship a mandatory translation catalog.
+11. Server-side rendering (SSR) formatting remains deterministic.
+12. Localization support is verified through representative tests.

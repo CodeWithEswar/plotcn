@@ -56,6 +56,7 @@
 }
 
 :root {
+  color-scheme: light;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -117,18 +118,14 @@
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --scrollbar-track: transparent;
-  --scrollbar-thumb: oklch(1 0 0 / 16%);
-  --scrollbar-thumb-hover: oklch(1 0 0 / 28%);
-  --scrollbar-thumb-active: oklch(1 0 0 / 42%);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+  --scrollbar-thumb-active: rgba(0, 0, 0, 0.5);
 }
 
-:root:not(.dark) {
-  --scrollbar-thumb: oklch(0.2 0 0 / 20%);
-  --scrollbar-thumb-hover: oklch(0.2 0 0 / 35%);
-  --scrollbar-thumb-active: oklch(0.2 0 0 / 50%);
-}
-
-.dark {
+.dark,
+:root.dark {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -189,20 +186,25 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   --scrollbar-track: transparent;
-  --scrollbar-thumb: oklch(1 0 0 / 16%);
-  --scrollbar-thumb-hover: oklch(1 0 0 / 28%);
-  --scrollbar-thumb-active: oklch(1 0 0 / 42%);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.18);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
+  --scrollbar-thumb-active: rgba(255, 255, 255, 0.48);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  html.dark {
+    color-scheme: dark;
   }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -214,47 +216,59 @@
    Replaces default browser scrollbars with a theme-adaptive, rounded floating scrollbar.
    ========================================================================== */
 
+/* WebKit / Chromium - Completely eliminate Windows default arrow buttons */
+*::-webkit-scrollbar-button,
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Base WebKit scrollbar dimension */
+*::-webkit-scrollbar,
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+/* Transparent track & track-piece (prevents solid background on Windows) */
+*::-webkit-scrollbar-track,
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-track-piece {
+  background: transparent !important;
+  border: none !important;
 }
 
+/* Floating rounded pill thumb */
+*::-webkit-scrollbar-thumb,
 ::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
   border-radius: 9999px;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   background-clip: padding-box;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+*::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
 }
 
+*::-webkit-scrollbar-thumb:active,
 ::-webkit-scrollbar-thumb:active {
   background-color: var(--scrollbar-thumb-active);
 }
 
+*::-webkit-scrollbar-corner,
 ::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-/* Standalone Firefox scrollbar support */
-@supports not selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-  }
+  background: transparent !important;
 }
 
 /* Scrollbar utility classes */
 .no-scrollbar::-webkit-scrollbar,
 .scrollbar-none::-webkit-scrollbar {
-  display: none;
+  display: none !important;
 }
 
 .no-scrollbar,
@@ -263,13 +277,40 @@
   scrollbar-width: none;
 }
 
+/* Ultra-thin theme scrollbar for code blocks, terminal lines, and compact cards */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track,
+.scrollbar-thin::-webkit-scrollbar-track-piece {
+  background: transparent !important;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  border-width: 1px;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
 }
 
 /* ==========================================================================
@@ -294,15 +335,17 @@
 }
 
 .plotcn-code-content code {
-  display: grid;
+  display: block !important;
   font-family: inherit !important;
   font-size: inherit !important;
   line-height: 1.6 !important;
   min-width: 100%;
+  width: max-content;
 }
 
 .plotcn-code-content .line {
-  display: inline-block;
+  display: block !important;
+  width: 100%;
   min-height: 1.6em;
   line-height: 1.6;
 }
@@ -360,31 +403,52 @@
 .plotcn-code-content.plotcn-code-wrapped {
   white-space: pre-wrap !important;
   overflow-x: hidden !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
 }
 
-.plotcn-code-content.plotcn-code-wrapped pre.shiki,
-.plotcn-code-content.plotcn-code-wrapped code {
+.plotcn-code-content.plotcn-code-wrapped pre.shiki {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
   white-space: pre-wrap !important;
+  word-break: break-word !important;
   overflow-wrap: anywhere !important;
-  word-break: normal !important;
+  overflow-x: hidden !important;
+}
+
+.plotcn-code-content.plotcn-code-wrapped code {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
 }
 
 .plotcn-code-content.plotcn-code-wrapped .line {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   white-space: pre-wrap !important;
+  word-break: break-word !important;
   overflow-wrap: anywhere !important;
-  word-break: normal !important;
 }
 
 /* Wrapped lines in line-numbered blocks: stay cleanly on the code side of the gutter with continuation indent */
 .plotcn-code-content.has-line-numbers.plotcn-code-wrapped .line {
-  padding-left: 4.25rem;
-  text-indent: -0.75rem;
+  padding-left: 4.25rem !important;
+  text-indent: -0.75rem !important;
 }
 
 /* Wrapped lines in plain blocks (no line numbers): subtle continuation indent */
 .plotcn-code-content:not(.has-line-numbers).plotcn-code-wrapped .line {
-  padding-left: 1.25rem;
-  text-indent: -1.25rem;
+  padding-left: 1.25rem !important;
+  text-indent: -1.25rem !important;
 }
 
 /* ==========================================================================
@@ -481,57 +545,66 @@ div.google-visualization-tooltip:has(.plotcn-tooltip-card) .google-visualization
   display: none !important;
 }
 
+div.google-visualization-tooltip table,
+div.google-visualization-tooltip tbody,
+div.google-visualization-tooltip tr,
+div.google-visualization-tooltip td {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
 /* Dedicated Plotcn Custom Tooltip Card */
 .plotcn-tooltip-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 130px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  min-width: 130px !important;
 }
 
 .plotcn-tooltip-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 4px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding-bottom: 4px !important;
 }
 
 .plotcn-tooltip-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  background-color: #ffffff;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-  display: inline-block;
-  flex-shrink: 0;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 9999px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
 }
 
 .plotcn-tooltip-title {
-  font-family: var(--font-sans), -apple-system, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #ffffff;
-  letter-spacing: -0.01em;
+  font-family: var(--font-sans), -apple-system, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.01em !important;
 }
 
 .plotcn-tooltip-metric {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  font-size: 11px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  font-size: 11px !important;
 }
 
 .plotcn-tooltip-label {
-  color: #a1a1aa;
-  text-transform: capitalize;
-  font-size: 11px;
+  color: #a1a1aa !important;
+  text-transform: capitalize !important;
+  font-size: 11px !important;
+  font-family: var(--font-sans), sans-serif !important;
 }
 
 .plotcn-tooltip-value {
-  font-family: var(--font-geist-mono), monospace;
-  font-weight: 600;
-  color: #f4f4f5;
-  letter-spacing: 0.02em;
+  font-family: var(--font-geist-mono), monospace !important;
+  font-weight: 600 !important;
+  color: #f4f4f5 !important;
+  letter-spacing: 0.02em !important;
 }

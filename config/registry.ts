@@ -38,7 +38,7 @@ export const plotcnRegistry: PlotcnRegistryConfig = {
       case "pnpm":
         return `pnpm dlx shadcn@latest add ${url}`
       case "yarn":
-        return `npx shadcn@latest add ${url}`
+        return `yarn dlx shadcn@latest add ${url}`
       case "bun":
         return `bunx --bun shadcn@latest add ${url}`
       default:
@@ -50,7 +50,7 @@ export const plotcnRegistry: PlotcnRegistryConfig = {
       case "pnpm":
         return `pnpm dlx shadcn@latest add ${this.namespace}/${name}`
       case "yarn":
-        return `npx shadcn@latest add ${this.namespace}/${name}`
+        return `yarn dlx shadcn@latest add ${this.namespace}/${name}`
       case "bun":
         return `bunx --bun shadcn@latest add ${this.namespace}/${name}`
       default:

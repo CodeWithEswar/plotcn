@@ -7,8 +7,8 @@ export interface AccessibleChartProps {
   title: string
   description?: string
   summary?: string
-  data?: Array<Record<string, any>>
-  columns?: Array<{ key: string; label: string; format?: (val: any) => string }>
+  data?: Array<Record<string, unknown>>
+  columns?: Array<{ key: string; label: string; format?: (val: unknown) => string }>
   children: React.ReactNode
   className?: string
 }

@@ -43,3 +43,9 @@ next-env.d.ts
 # local artifacts & logs
 brand-validation.png
 *.log
+
+# local scratch & test directories
+/scratch/
+/.tmp/
+scratch/
+.tmp/

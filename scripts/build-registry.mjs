@@ -23,6 +23,20 @@ if (!catalog.items || !Array.isArray(catalog.items)) {
   process.exit(1)
 }
 
+// Clean stale files from public/r
+const validFileNames = new Set([
+  "registry.json",
+  ...catalog.items.map((i) => `${i.name}.json`)
+])
+if (fs.existsSync(PUBLIC_R)) {
+  for (const existingFile of fs.readdirSync(PUBLIC_R)) {
+    if (existingFile.endsWith(".json") && !validFileNames.has(existingFile)) {
+      fs.unlinkSync(path.join(PUBLIC_R, existingFile))
+      console.log(`[build-registry] Removed stale file: ${existingFile}`)
+    }
+  }
+}
+
 console.log(`[build-registry] Building ${catalog.items.length} items from canonical registry.json...`)
 
 let builtCount = 0
@@ -49,7 +63,7 @@ for (const item of catalog.items) {
   const registryItem = {
     $schema: "https://ui.shadcn.com/schema/registry-item.json",
     name: item.name,
-    type: item.type || "registry:block",
+    type: item.type || "registry:component",
     title: item.title || item.name,
     description: item.description || "",
     dependencies: item.dependencies || [],
@@ -71,3 +85,4 @@ fs.writeFileSync(
 )
 
 console.log(`[build-registry] Successfully generated ${builtCount} registry items into public/r/`)
+

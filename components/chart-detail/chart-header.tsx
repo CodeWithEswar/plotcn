@@ -1,8 +1,10 @@
 import React from "react"
 import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons"
 import type { ChartMetadata } from "@/lib/charts/metadata"
 import { EngineBadge } from "./engine-badge"
-import { ArrowLeft } from "lucide-react"
+import { RendererBadge } from "./renderer-badge"
 
 export interface ChartHeaderProps {
   chart: ChartMetadata
@@ -15,30 +17,33 @@ export function ChartHeader({ chart }: ChartHeaderProps) {
       <div>
         <Link
           href="/charts"
-          className="inline-flex items-center gap-1.5 text-xs font-mono text-zinc-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="size-3.5" />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
           <span>Back to Gallery</span>
         </Link>
       </div>
 
-      {/* Badges */}
+      {/* Standard Badges (Section 64, 65, 66) */}
       <div className="flex items-center gap-2.5 flex-wrap">
         <EngineBadge engine={chart.engine} />
-        <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 bg-white/[0.04] px-2.5 py-1 rounded-full border border-white/[0.08]">
+        <RendererBadge renderer={chart.renderer} />
+        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/80 bg-muted/30 px-2 py-0.5 rounded border border-border/50">
           {chart.category}
         </span>
-        <span className="text-xs font-mono text-zinc-400 bg-white/[0.02] px-2 py-0.5 rounded border border-white/[0.04]">
-          shadcn registry item
-        </span>
+        {chart.status && chart.status !== "stable" && (
+          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            {chart.status}
+          </span>
+        )}
       </div>
 
       {/* Title & Description */}
       <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
           {chart.title}
         </h1>
-        <p className="text-base sm:text-lg text-zinc-400 max-w-3xl leading-relaxed">
+        <p className="text-base sm:text-lg text-muted-foreground max-w-3xl leading-relaxed">
           {chart.description}
         </p>
       </div>

@@ -3,9 +3,54 @@
  * Handles script injection, concurrent request deduplication, on-demand package loading, and SSR safety.
  */
 
+export interface GoogleDataTableColumn {
+  type: string
+  id?: string
+  label?: string
+  role?: string
+  p?: Record<string, unknown>
+}
+
+export interface GoogleVisualizationDataTable {
+  addColumn: (typeOrCol: string | GoogleDataTableColumn, label?: string, id?: string) => number | void
+  addRow: (cellValues: unknown[]) => number | void
+  addRows: (numOrArray: number | unknown[][]) => number | void
+  getNumberOfRows?: () => number
+  getNumberOfColumns?: () => number
+  getValue?: (rowIndex: number, columnIndex: number) => unknown
+  getFormattedValue?: (rowIndex: number, columnIndex: number) => string
+}
+
+export interface GoogleVisualizationChart {
+  draw: (data: GoogleVisualizationDataTable, options?: Record<string, unknown>) => void
+  clearChart?: () => void
+  getSelection?: () => Array<{ row?: number; column?: number }>
+  setSelection?: (selection: Array<{ row?: number; column?: number }>) => void
+}
+
+export interface GoogleChartsApi {
+  charts: {
+    load: (version: string, options: { packages: readonly string[]; language?: string }) => Promise<void> | void
+    setOnLoadCallback: (callback: () => void) => void
+  }
+  visualization: {
+    DataTable: new (data?: unknown) => GoogleVisualizationDataTable
+    arrayToDataTable?: (rows: unknown[][], opt_firstRowIsData?: boolean) => GoogleVisualizationDataTable
+    LineChart: new (element: HTMLElement) => GoogleVisualizationChart
+    ColumnChart: new (element: HTMLElement) => GoogleVisualizationChart
+    GeoChart: new (element: HTMLElement) => GoogleVisualizationChart
+    events: {
+      addListener: (target: unknown, eventName: string, handler: (event?: unknown) => void) => unknown
+      removeListener?: (listener: unknown) => void
+      removeAllListeners?: (target: unknown) => void
+    }
+    [key: string]: unknown
+  }
+}
+
 declare global {
   interface Window {
-    google?: any
+    google?: GoogleChartsApi
   }
 }
 
@@ -105,4 +150,58 @@ export async function loadGoogleChartsPackages(packages: readonly string[]): Pro
       resolve()
     })
   })
+}
+
+/**
+ * Resolves any CSS color string (hex, rgb, hsl, oklch, CSS variable)
+ * to a concrete color format that Google Charts SVG engine can render reliably.
+ */
+export function resolveGoogleColor(
+  colorStr: string | undefined,
+  element?: HTMLElement | null,
+  fallback = "#10b981"
+): string {
+  if (!colorStr) return fallback
+
+  let current = colorStr.trim()
+
+  // 1. If it's already a standard hex color, return directly
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(current)) {
+    return current
+  }
+
+  // 2. If it's a CSS variable e.g. var(--chart-1, #10b981)
+  if (current.startsWith("var(")) {
+    const inside = current.slice(4, -1).trim()
+    const parts = inside.split(",")
+    const varName = parts[0].trim()
+    const defaultVal = parts[1]?.trim() || fallback
+
+    if (element && typeof window !== "undefined") {
+      const computed = getComputedStyle(element).getPropertyValue(varName).trim()
+      current = computed || defaultVal
+    } else {
+      current = defaultVal
+    }
+
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(current)) {
+      return current
+    }
+  }
+
+  // 3. Resolve named colors, hsl, oklch, or rgb via browser canvas
+  if (typeof document !== "undefined") {
+    try {
+      const ctx = document.createElement("canvas").getContext("2d")
+      if (ctx) {
+        ctx.fillStyle = current
+        const resolved = ctx.fillStyle
+        if (resolved) return resolved
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  return current || fallback
 }

@@ -91,6 +91,18 @@ export const docsConfig: DocsConfig = {
           description: "Visual communication layer, semantic presets, coordinate interpolation, and reduced motion.",
           section: "Fundamentals",
         },
+        {
+          title: "Performance",
+          href: "/docs/performance",
+          description: "Rendering strategy, SVG default, Canvas/WebGL roadmap, modular D3, and resource lifecycle.",
+          section: "Fundamentals",
+        },
+        {
+          title: "TypeScript & I18n",
+          href: "/docs/typescript-and-i18n",
+          description: "Strict public types, Intl formatting, currency handling, and RTL layout principles.",
+          section: "Fundamentals",
+        },
       ],
     },
     {

@@ -1,0 +1,300 @@
+---
+title: "Performance & Rendering Strategy"
+description: "How Plotcn delivers simple, fast default paths with SVG-first rendering, modular D3 engines, lazy Google Chart runtimes, narrow client islands, and an incremental large-data architecture."
+section: "Fundamentals"
+---
+
+## Governing principle
+
+Plotcn is designed so that the **default path remains simple and fast**, while the architecture can scale toward dense and computationally expensive visualizations later without forcing every V1 chart to carry that complexity.
+
+The governing principle is:
+
+> [!IMPORTANT]
+> **"Use the simplest renderer and execution model that can preserve clarity, interaction quality, and performance for the actual visualization."**
+>
+> Plotcn does not introduce Canvas, WebGL, Web Workers, downsampling, or virtualization merely because they are technically advanced. Each optimization must exist because a real chart and data-density requirement mandates it.
+
+---
+
+## Architectural rendering hierarchy
+
+Plotcn supports three rendering strategies over time:
+
+| Renderer | Primary role | Recommended scope |
+| :--- | :--- | :--- |
+| **SVG** | Default renderer for standard interactive charts, dashboards, and moderate data sizes | **V1 Default** |
+| **Canvas** | Dense scatter, dense time-series, heatmaps, high-frequency updates, and very large mark counts | Later / Selective |
+| **WebGL** | Extremely large datasets (100k+), GPU-oriented point clouds, advanced spatial/scientific workloads | Long-term specialization |
+| **Google Runtime** | Host-executed, engine-owned enterprise charts (GeoChart, OrgChart, Timelines) | Dedicated singleton loader |
+
+The architectural decision flow:
+
+```text
+Visualization requirement
+        │
+        ▼
+Can SVG satisfy it well?
+        │
+   ┌────┴────┐
+   │         │
+  yes        no
+   │         │
+   ▼         ▼
+  SVG      Is Canvas sufficient?
+              │
+         ┌────┴────┐
+         │         │
+        yes        no
+         │         │
+         ▼         ▼
+      Canvas    Consider WebGL
+```
+
+> [!NOTE]
+> The default is always **SVG** unless rigorous profiling proves that an alternate renderer materially improves the user experience.
+
+---
+
+## SVG as the primary default
+
+SVG remains the primary Plotcn renderer for:
+
+- **Line & Area charts** (single and multi-series)
+- **Bar & Column charts** (grouped and stacked)
+- **Pie & Donut charts**
+- **Radar & Radial charts**
+- **Scatter plots** with moderate mark counts (< 1,000 points)
+- **Composed dashboard charts**
+- **Hierarchy and tree views**
+- **Most financial & analytical dashboard cards**
+
+### Why SVG aligns with source-first ownership
+
+```text
+✓ Native DOM semantics and screen-reader accessibility
+✓ Effortless CSS variable theming (oklch, hsl, dark mode)
+✓ Simple event handling and pointer hit-testing
+✓ Tight, idiomatic React reconciliation
+✓ Effortless DevTools inspection and debugging
+✓ Full source code transparency after shadcn CLI installation
+```
+
+SVG aligns especially well with Plotcn's source-first philosophy because the installed component remains concise, readable, and directly editable by developers.
+
+---
+
+## Mark count discipline
+
+SVG should not be treated as infinitely scalable. Performance degrades rapidly when rendering:
+
+- Thousands of individual `<circle>` or `<rect>` nodes
+- Thousands of distinct path segments
+- Deeply nested node-link graphs
+- Massive heatmaps with un-virtualized DOM cells
+- Excessive static annotations and tick labels
+
+### One path vs. many marks
+
+For time-series visualizations, always prefer **one continuous SVG path** over thousands of individual segment elements:
+
+```text
+Area series ──► one <path>
+Line series ──► one <path>
+```
+
+Rather than rendering element-per-segment, generating a single bezier or linear path element reduces DOM node count from thousands down to one.
+
+### Point marker discipline
+
+Do not render a marker for every point by default on dense lines. A line with 2,000 observations does not need 2,000 circles:
+
+- **Default**: Clean SVG line path only.
+- **On hover**: Active point cursor and crosshair marker.
+- **Optional**: Sparse milestone markers at significant intervals.
+
+---
+
+## Next.js server-first rendering model
+
+Plotcn's website and consumer integrations remain primarily server-rendered.
+
+```text
+Server Components (Static / Streaming)
+├── Docs prose and technical guides
+├── SEO metadata and OpenGraph cards
+├── Component catalogs and registry manifests
+├── Static code examples (Shiki syntax highlighted on server)
+└── Architecture diagrams
+
+Client Components (Narrow Interactive Islands)
+├── Live chart preview canvas
+├── Dynamic tooltip and crosshair tracking
+├── Responsive preview lab
+├── Props explorer and interactive playground
+└── D3 simulation and Google Chart runtimes
+```
+
+> [!TIP]
+> **Narrow Client Islands**: Avoid marking an entire page or route with `"use client"` because one chart inside it is interactive. Keep the page a Server Component, isolate `<ChartPreview>` as a leaf client island, and maintain rapid initial page loads.
+
+---
+
+## Gallery rendering & lifecycle strategy
+
+The `/charts` catalog and showcase galleries must remain lightweight. Cards entering the viewport are loaded progressively:
+
+```text
+Gallery card enters / approaches viewport
+                    │
+           Is it lightweight?
+              ┌─────┴─────┐
+              │           │
+             yes          no
+              │           │
+              ▼           ▼
+        Render directly   Lazy dynamic import
+                          Initialize near viewport
+```
+
+### Stopping offscreen simulations
+
+Never run active D3 force simulations across multiple gallery cards simultaneously:
+
+1. **Static previews**: For `/charts` cards, show a settled, precalculated layout snapshot.
+2. **Viewport activation**: Simulations start only when the card scrolls near the viewport.
+3. **Timed settling**: Simulations run briefly (e.g., 300 ticks) and then call `simulation.stop()`.
+4. **Document visibility**: When the browser tab is hidden, background simulations and animations pause automatically.
+
+---
+
+## D3 module discipline
+
+Plotcn strictly enforces focused, modular D3 imports. Never import the entire monolithic `d3` package:
+
+```ts
+// ❌ Disallowed: pulls the entire 500KB+ D3 umbrella
+import * as d3 from "d3"
+
+// ✅ Recommended: import only the required algorithmic primitives
+import { scaleLinear, scaleTime } from "d3-scale"
+import { line, curveMonotoneX } from "d3-shape"
+import { extent, max } from "d3-array"
+```
+
+Each registry component item declares only the specific sub-modules it requires (`d3-scale`, `d3-shape`, `d3-array`, `d3-force`, etc.), preserving tree-shaking and preventing cross-engine dependency leakage.
+
+---
+
+## Shared Google Charts runtime
+
+Google Charts relies on an external runtime script. Plotcn wraps Google Charts in a **singleton deduplicated loader**:
+
+- **Single script tag**: Multiple Google charts on the same page share one loader instance.
+- **Targeted package loading**: Only requested packages (`corechart`, `geochart`, `timeline`) are loaded on demand.
+- **Decoupled draw cycle**: Redraws on resize or prop updates occur in place without destroying and recreating the internal Google chart DOM.
+- **Unmount cleanup**: Listeners and chart instances are disposed only when the React component unmounts.
+
+---
+
+## State isolation and memoization
+
+Memoization should be applied with evidence, not blanketed across every component.
+
+### Good candidates for memoization
+
+- Heavy D3 domain calculations and scales (`useMemo`)
+- Hierarchy and pack tree layouts
+- Complex path generator calculations
+- Spatial index constructions
+
+### Bad candidates for memoization
+
+- Tiny arrays (< 20 elements)
+- Static label strings or className strings
+- Simple click handlers without downstream dependencies
+
+### Tooltip state isolation
+
+Pointer motion fires up to 120 times per second. **Updating tooltip state must never trigger geometry recalculation**:
+
+```text
+Pointer Move ──► Update lightweight tooltip coords
+                 (Does NOT recompute scales, curves, or layouts)
+```
+
+By decoupling tooltip coordinates and active datum state from the primary geometry pipeline, interaction remains buttery smooth at 60+ FPS.
+
+---
+
+## Container-driven responsiveness
+
+Plotcn charts are responsive to their **parent container**, not the global browser window:
+
+1. **`ResizeObserver`**: Measures container width and height directly.
+2. **`requestAnimationFrame` Scheduling**: Sub-pixel noise and rapid resizes are coalesced to redraw once per frame.
+3. **Zero-Dimension Protection**: If a chart is mounted inside a collapsed tab or hidden drawer, rendering pauses until non-zero dimensions are reported.
+4. **Layout Stability**: Parent shells reserve minimum aspect ratios or heights to prevent Cumulative Layout Shift (CLS).
+
+---
+
+## Resource cleanup invariants
+
+Every chart with subscriptions must clean up its resources on unmount:
+
+- `ResizeObserver.disconnect()`
+- Window and document event listeners removed
+- Active `requestAnimationFrame` IDs cancelled
+- D3 force simulations stopped (`simulation.stop()`)
+- Google Chart event listeners cleared (`google.visualization.events.removeAllListeners(chart)`)
+- Web Workers terminated if spawned
+
+> [!CAUTION]
+> Uncollected listeners, running simulations, or uncancelled animation frames in single-page applications cause memory leaks that degrade browser performance over time.
+
+---
+
+## Large-data roadmap
+
+While V1 prioritizes SVG-first clarity, Plotcn is architected to scale smoothly as data density increases:
+
+```text
+Stage 1 (V1)         Stage 2              Stage 3              Stage 4
+SVG Default    ──►   Canvas Escape  ──►   Web Workers    ──►   WebGL Specialization
+Readable code        Dense scatter        Large binning        100k+ point clouds
+Accessible           Heatmaps             Off-thread layout    GPU heatmaps
+```
+
+### Future large-data capabilities
+
+1. **LTTB Downsampling**: Largest-Triangle-Three-Buckets downsampling for dense time-series (e.g., reducing 50,000 telemetry samples to 1,200 rendered points while preserving visual extrema).
+2. **Canvas Renderers**: Targeted Canvas components for high-frequency financial tickers and correlation matrices.
+3. **Viewport Windowing**: Rendering only the visible domain during pan and zoom interactions, skipping marks outside the viewport.
+4. **Web Workers**: Offloading heavy layout computation, GeoJSON parsing, and statistical binning off the main browser thread.
+
+---
+
+## The 20 Architectural Performance Invariants
+
+Plotcn enforces twenty non-negotiable performance invariants:
+
+1. **SVG is the default renderer** for all standard visualizations.
+2. **Canvas is introduced only** when density or frame-rate requirements justify it.
+3. **WebGL is a specialized long-term path**, not a V1 requirement.
+4. **Documentation remains server-first** with Server Components.
+5. **Interactive charts remain narrow client islands**.
+6. **Gallery previews do not initialize heavy offscreen work**.
+7. **D3 imports remain modular** (`d3-scale`, `d3-shape`, not `* as d3`).
+8. **Google runtime is lazy, deduplicated, and shared**.
+9. **Tooltip movement never recomputes chart geometry**.
+10. **Theme switching does not recompute geometry** when only color tokens change.
+11. **Resize handling is container-driven** and scheduled with `requestAnimationFrame`.
+12. **Expensive transforms run once** per meaningful data or prop change.
+13. **Memoization is evidence-driven**, never blanket applied.
+14. **Large-data downsampling remains separate** from the original source data.
+15. **Canvas and WebGL never weaken accessibility** contracts (text summaries and data tables remain).
+16. **Force simulations stop** when settled or unmounted.
+17. **All observers, listeners, and animation frames are cleaned up** on unmount.
+18. **A 100+ component catalog does not imply 100+ eager preview bundles**.
+19. **Detail page prop preview labs can mount lazily**.
+20. **Performance optimization must preserve source readability** for developers who install the code.

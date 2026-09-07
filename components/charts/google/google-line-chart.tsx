@@ -13,6 +13,7 @@ export interface GoogleLineChartProps<T extends Record<string, unknown> = Record
   smooth?: boolean
   lineWidth?: number
   pointSize?: number
+  color?: string
   options?: Partial<GoogleChartBaseOptions & { curveType?: "function" | "none"; lineWidth?: number; pointSize?: number }>
   height?: number | string
   className?: string
@@ -26,6 +27,7 @@ export function GoogleLineChart<T extends Record<string, unknown>>({
   smooth = true,
   lineWidth = 2.5,
   pointSize = 4,
+  color,
   options = {},
   height = 320,
   className = "",
@@ -38,9 +40,10 @@ export function GoogleLineChart<T extends Record<string, unknown>>({
       curveType: smooth ? "function" : "none",
       lineWidth,
       pointSize,
+      ...(color ? { colors: [color] } : {}),
       ...options,
     }
-  }, [smooth, lineWidth, pointSize, options])
+  }, [smooth, lineWidth, pointSize, color, options])
 
   return (
     <GoogleChart

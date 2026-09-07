@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-motion",
+  "type": "registry:hook",
+  "title": "Reduced motion preference",
+  "description": "",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/shared/use-chart-reduced-motion.ts",
+      "content": "\"use client\"\nimport { useSyncExternalStore } from \"react\"\nfunction subscribe(listener: () => void) { const media = window.matchMedia(\"(prefers-reduced-motion: reduce)\"); media.addEventListener(\"change\", listener); return () => media.removeEventListener(\"change\", listener) }\nfunction snapshot() { return window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches }\nexport function useChartReducedMotion() { return useSyncExternalStore(subscribe, snapshot, () => true) }\r\n",
+      "type": "registry:hook",
+      "target": "components/charts/shared/use-chart-reduced-motion.ts"
+    }
+  ],
+  "categories": [
+    "primitives"
+  ]
+}

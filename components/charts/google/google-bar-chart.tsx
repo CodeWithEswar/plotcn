@@ -12,6 +12,7 @@ export interface GoogleBarChartProps<T extends Record<string, unknown> = Record<
   data: TabularData | readonly T[]
   horizontal?: boolean
   barWidth?: string | number
+  color?: string
   options?: Partial<GoogleChartBaseOptions & { bar?: { groupWidth?: string | number } }>
   height?: number | string
   className?: string
@@ -24,6 +25,7 @@ export function GoogleBarChart<T extends Record<string, unknown>>({
   data,
   horizontal = false,
   barWidth = "60%",
+  color,
   options = {},
   height = 320,
   className = "",
@@ -34,9 +36,10 @@ export function GoogleBarChart<T extends Record<string, unknown>>({
   const mergedOptions = useMemo(() => {
     return {
       bar: { groupWidth: barWidth },
+      ...(color ? { colors: [color] } : {}),
       ...options,
     }
-  }, [barWidth, options])
+  }, [barWidth, color, options])
 
   return (
     <GoogleChart

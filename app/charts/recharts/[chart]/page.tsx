@@ -6,6 +6,7 @@ import { getChartsByEngine, getChartByEngineAndSlug } from "@/config/charts"
 import { getRelatedCharts } from "@/lib/charts/get-charts"
 import { ChartDetailView } from "@/components/chart-detail/chart-detail-view"
 import { constructPageMetadata } from "@/lib/seo/metadata"
+import { highlightCode } from "@/lib/shiki"
 
 interface PageProps {
   params: Promise<{ chart: string }>
@@ -37,10 +38,12 @@ export default async function RechartsChartPage({ params }: PageProps) {
   }
 
   let sourceCode = ""
+  let highlightedSourceCode = ""
   try {
     const fullPath = path.join(process.cwd(), chart.componentPath)
     if (fs.existsSync(fullPath)) {
       sourceCode = fs.readFileSync(fullPath, "utf-8")
+      highlightedSourceCode = await highlightCode(sourceCode, "tsx")
     }
   } catch (err) {
     console.error(`Failed to read source for ${chart.slug}:`, err)
@@ -48,5 +51,12 @@ export default async function RechartsChartPage({ params }: PageProps) {
 
   const related = getRelatedCharts(chart, 3)
 
-  return <ChartDetailView chart={chart} sourceCode={sourceCode} relatedCharts={related} />
+  return (
+    <ChartDetailView
+      chart={chart}
+      sourceCode={sourceCode}
+      highlightedSourceCode={highlightedSourceCode}
+      relatedCharts={related}
+    />
+  )
 }

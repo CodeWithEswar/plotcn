@@ -12,6 +12,7 @@ import {
   type GoogleChartAccessibility,
   type GoogleChartInstance,
   type TabularData,
+  type GoogleGlobal,
 } from "@/lib/google-charts"
 import { GoogleChartContainer } from "./google-chart-container"
 
@@ -50,7 +51,7 @@ export function GoogleChart({
     if (!window.google?.visualization || !chartRef.current || isEmpty) return
 
     try {
-      const dataTable = buildDataTable(window.google, data)
+      const dataTable = buildDataTable(window.google as unknown as GoogleGlobal, data)
 
       // Create instance if not already existing
       if (!chartInstanceRef.current) {
@@ -63,7 +64,7 @@ export function GoogleChart({
         // Event listener for user selection
         if (onSelect && window.google.visualization.events) {
           window.google.visualization.events.addListener(
-            chartInstanceRef.current,
+            chartInstanceRef.current!,
             "select",
             () => {
               const selection = chartInstanceRef.current?.getSelection?.() || []
@@ -165,7 +166,7 @@ export function GoogleChart({
   useEffect(() => {
     return () => {
       if (chartInstanceRef.current && window.google?.visualization?.events) {
-        window.google.visualization.events.removeAllListeners(chartInstanceRef.current)
+        window.google.visualization.events.removeAllListeners?.(chartInstanceRef.current)
         chartInstanceRef.current.clearChart?.()
         chartInstanceRef.current = null
       }
