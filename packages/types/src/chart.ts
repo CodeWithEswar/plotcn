@@ -469,6 +469,87 @@ export interface ChartAccessibilityConfig<TData = unknown> {
   keyboard?: boolean
 }
 
+/**
+ * Complete runtime state model for Plotcn visualizations.
+ * Section 12.1, 12.156.
+ */
+export type ChartRuntimeState =
+  | "error"
+  | "unavailable"
+  | "loading"
+  | "invalid"
+  | "empty"
+  | "ready"
+
+/**
+ * Diagnostic issue emitted during data validation.
+ * Section 12.24.
+ */
+export interface ValidationIssue {
+  code: string
+  message: string
+  index?: number
+  field?: string
+}
+
+/**
+ * Structured validation outcome for visualization datasets.
+ * Section 12.24.
+ */
+export type ValidationResult<T = unknown> =
+  | {
+      valid: true
+      data: readonly T[]
+      issues: readonly ValidationIssue[]
+    }
+  | {
+      valid: false
+      data: readonly T[]
+      issues: readonly ValidationIssue[]
+    }
+
+/**
+ * Pure numeric domain calculation result distinguishing empty from invalid datasets.
+ * Section 12.51, 12.134.
+ */
+export type NumericDomainResult =
+  | { status: "valid"; domain: readonly [number, number] }
+  | { status: "empty" }
+  | { status: "invalid"; reason: string }
+
+/**
+ * Evaluates deterministic state precedence:
+ * explicit error -> explicit unavailable -> loading -> validation failure -> empty -> ready.
+ * Section 12.6, 12.7.
+ */
+export function resolveChartRuntimeState(options: {
+  loading?: boolean
+  error?: Error | string | null
+  unavailable?: boolean | string | null
+  validation?: ValidationResult | null
+  dataLength: number
+  hasExistingData?: boolean
+}): ChartRuntimeState {
+  // 1. Explicit error takes highest precedence
+  if (options.error) return "error"
+
+  // 2. Explicit unavailable condition
+  if (options.unavailable) return "unavailable"
+
+  // 3. Loading condition (with background refresh check - Section 12.7)
+  if (options.loading && !options.hasExistingData) return "loading"
+
+  // 4. Validation failure (malformed data is not silently empty - Section 12.22)
+  if (options.validation && !options.validation.valid) return "invalid"
+
+  // 5. Empty observations (data is valid but has zero rows - Section 12.25)
+  if (options.dataLength === 0) return "empty"
+
+  // 6. Ready to render
+  return "ready"
+}
+
+
 
 
 

@@ -1,9 +1,4 @@
-/**
- * Pure type-guard checking if a value is a valid, finite number (not NaN, not Infinity).
- */
-export function isFiniteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value)
-}
+export { isFiniteNumber } from "./finite"
 
 /**
  * Pure type-guard checking if a value is a valid Date instance.

@@ -84,7 +84,8 @@
         "recharts"
       ],
       "registryDependencies": [
-        "chart-container"
+        "chart-container",
+        "chart-state"
       ],
       "files": [
         {

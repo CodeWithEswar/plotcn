@@ -69,7 +69,7 @@
       "title": "Basic Line Chart",
       "description": "Approachable Cartesian line chart built with Recharts and theme tokens.",
       "dependencies": ["recharts"],
-      "registryDependencies": ["chart-container"],
+      "registryDependencies": ["chart-container", "chart-state"],
       "files": [
         {
           "path": "registry/recharts/line-basic.tsx",

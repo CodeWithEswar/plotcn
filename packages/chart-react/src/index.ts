@@ -19,6 +19,9 @@ export * from "./interaction"
 export * from "./legend"
 export * from "./annotations"
 export * from "./accessibility"
+export * from "./state"
+
+import { ChartLoading, ChartEmpty, ChartError, ChartUnavailable, ChartStateShell } from "./state"
 
 /**
  * Compound Chart namespace providing composable primitives for custom Plotcn/D3 charts (section 6.47 & 6.73).
@@ -68,5 +71,11 @@ export const Chart = {
   Title: ChartTitle,
   Description: ChartDescription,
   Summary: ChartSummary,
+  Loading: ChartLoading,
+  Empty: ChartEmpty,
+  Error: ChartError,
+  Unavailable: ChartUnavailable,
+  StateShell: ChartStateShell,
 } as const
+
 
