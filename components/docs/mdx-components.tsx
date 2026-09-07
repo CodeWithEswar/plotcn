@@ -17,6 +17,17 @@ import {
   PlotcnArchitecture,
   ProjectStatus,
   DocsNextSteps,
+  PlotcnEcosystemMap,
+  ProductDeliveryFlow,
+  D3BoundaryCard,
+  GoogleChartsTaxonomy,
+  EngineIsolationOverview,
+  GoogleRuntimePipeline,
+  TargetDeveloperJourney,
+  FullProductModel,
+  GoogleChartsArchDiagram,
+  GeoChartFeatureFlow,
+  InstalledFilesCard,
 } from "./intro-components"
 import {
   InstallationProvider,
@@ -373,6 +384,105 @@ async function parseMarkdownToReact(
       }
       i++
       elements.push(<PlotcnArchitecture key={`arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PlotcnEcosystemMap")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PlotcnEcosystemMap>")) {
+        i++
+      }
+      i++
+      elements.push(<PlotcnEcosystemMap key={`eco-map-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ProductDeliveryFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ProductDeliveryFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ProductDeliveryFlow key={`prod-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<D3BoundaryCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</D3BoundaryCard>")) {
+        i++
+      }
+      i++
+      elements.push(<D3BoundaryCard key={`d3-bound-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleChartsTaxonomy")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleChartsTaxonomy>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleChartsTaxonomy key={`gc-tax-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<EngineIsolationOverview")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</EngineIsolationOverview>")) {
+        i++
+      }
+      i++
+      elements.push(<EngineIsolationOverview key={`iso-over-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleRuntimePipeline")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleRuntimePipeline>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleRuntimePipeline key={`gc-pipe-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<TargetDeveloperJourney")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</TargetDeveloperJourney>")) {
+        i++
+      }
+      i++
+      elements.push(<TargetDeveloperJourney key={`dev-journ-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FullProductModel")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FullProductModel>")) {
+        i++
+      }
+      i++
+      elements.push(<FullProductModel key={`full-prod-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GoogleChartsArchDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GoogleChartsArchDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GoogleChartsArchDiagram key={`gc-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GeoChartFeatureFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GeoChartFeatureFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<GeoChartFeatureFlow key={`gc-feat-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InstalledFilesCard")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InstalledFilesCard>")) {
+        i++
+      }
+      i++
+      elements.push(<InstalledFilesCard key={`inst-files-${i}`} />)
       continue
     }
 

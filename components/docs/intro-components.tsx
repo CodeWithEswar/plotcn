@@ -12,6 +12,8 @@ import {
   ComputerTerminal01Icon,
   SourceCodeIcon,
   Package01Icon,
+  Search01Icon,
+  Shield01Icon,
 } from "@hugeicons/core-free-icons"
 import { PlotcnMark } from "@/components/brand"
 import {
@@ -582,3 +584,667 @@ export function DocsNextSteps({
     </div>
   )
 }
+
+/**
+ * Visual Ecosystem Hierarchy Map
+ */
+export function PlotcnEcosystemMap() {
+  const sections = [
+    {
+      category: "01 / THREE VISUALIZATION ENGINES",
+      badge: "Engines",
+      items: [
+        { name: "Recharts Collection", desc: "Dashboard, business analytics, Cartesian & radial metrics.", icon: ChartBarLineIcon, tag: "React-First" },
+        { name: "D3.js Collection", desc: "Advanced custom geometry, scales, force layouts & hierarchies.", icon: Layers01Icon, tag: "Math & Layout" },
+        { name: "Google Charts Collection", desc: "Core charts, Timeline, Sankey, TreeMap, Table & GeoChart.", icon: Globe02Icon, tag: "Geo & Enterprise" },
+      ],
+    },
+    {
+      category: "02 / SHARED VISUALIZATION EXPERIENCE",
+      badge: "Shared Layer",
+      items: [
+        { name: "Theme & Tokens", desc: "Semantic CSS variables with dark-mode adaptation.", icon: Layers01Icon, tag: "Theme Native" },
+        { name: "Adaptive Responsiveness", desc: "Container-driven resizing with fluid decluttering.", icon: ChartBarLineIcon, tag: "Container Query" },
+        { name: "Accessible By Default", desc: "ARIA roles, live regions, and natural-language summaries.", icon: Shield01Icon, tag: "WCAG 2.2 AA" },
+        { name: "Truthful States", desc: "Explicit loading, empty, and actionable error states.", icon: CheckmarkCircle02Icon, tag: "State Machine" },
+      ],
+    },
+    {
+      category: "03 / DISTRIBUTION & ECOSYSTEM",
+      badge: "Delivery",
+      items: [
+        { name: "shadcn Registry", desc: "Direct source delivery via CLI — zero runtime lock-in.", icon: Package01Icon, tag: "@plotcn" },
+        { name: "Blocks & Templates", desc: "Complete analytics, dashboards, and reporting sections.", icon: Folder01Icon, tag: "Pre-Built" },
+        { name: "Interactive Docs & Playground", desc: "Live preview, theme toggling, and code generation.", icon: ComputerTerminal01Icon, tag: "Zero-Lag" },
+      ],
+    },
+  ]
+
+  return (
+    <div className="my-6 space-y-4 not-prose">
+      {sections.map((section) => (
+        <div key={section.category} className="rounded-xl border border-white/[0.08] bg-zinc-950/60 p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-3 border-b border-white/[0.04] pb-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-semibold">{section.category}</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-300">{section.badge}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {section.items.map((item) => {
+              const Icon = item.icon
+              return (
+                <div key={item.name} className="p-3 rounded-lg border border-white/[0.05] bg-zinc-900/40 hover:bg-zinc-900/70 transition-colors">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <HugeiconsIcon icon={Icon} size={15} className="text-emerald-400" />
+                      <h5 className="text-xs font-semibold text-white tracking-tight">{item.name}</h5>
+                    </div>
+                    <span className="text-[9px] font-mono text-zinc-500">{item.tag}</span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">{item.desc}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Product Delivery Architecture Timeline
+ */
+export function ProductDeliveryFlow() {
+  const steps = [
+    {
+      step: 1,
+      title: "Three Visualization Engines",
+      description: "Recharts (React), D3.js (Math/Geometry), Google Charts (Geo & Enterprise).",
+      icon: Layers01Icon,
+      status: "completed" as const,
+      tag: "ENGINES",
+    },
+    {
+      step: 2,
+      title: "Plotcn Shared Layer",
+      description: "Standardizes theme tokens, responsiveness, accessibility summaries, and interaction conventions.",
+      icon: Shield01Icon,
+      status: "completed" as const,
+      tag: "SHARED SYSTEM",
+    },
+    {
+      step: 3,
+      title: "Plotcn Registry",
+      description: "Distributes static JSON item manifests conforming to official shadcn registry schema.",
+      icon: Package01Icon,
+      status: "completed" as const,
+      tag: "REGISTRY",
+    },
+    {
+      step: 4,
+      title: "Developer-Owned Source",
+      description: "Source code copied directly into your components/charts/ directory under Git control.",
+      icon: SourceCodeIcon,
+      status: "active" as const,
+      tag: "LOCAL CODE",
+    },
+    {
+      step: 5,
+      title: "Consumer Application",
+      description: "Direct compilation inside Next.js, Vite, or Remix with zero third-party runtime package lock-in.",
+      icon: ComputerTerminal01Icon,
+      status: "completed" as const,
+      tag: "YOUR APP",
+    },
+  ]
+
+  return (
+    <FlowDiagram
+      title="Product Delivery Architecture"
+      eyebrow="Delivery Pipeline"
+      description="How visualization engines flow through Plotcn's shared system and registry directly into your codebase."
+      ariaLabel="Product delivery flow diagram"
+    >
+      <FlowTimeline steps={steps} activeStep="04" />
+    </FlowDiagram>
+  )
+}
+
+/**
+ * D3.js vs React Responsibility Boundary
+ */
+export function D3BoundaryCard() {
+  return (
+    <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4 not-prose">
+      {/* Left: D3 Responsibilities */}
+      <div className="rounded-xl border border-white/[0.08] bg-zinc-950/60 p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={Layers01Icon} size={16} className="text-amber-400" />
+            <span className="text-xs font-mono uppercase tracking-wider text-white font-semibold">D3.js Domain</span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">Math & Layout</span>
+        </div>
+        <ul className="space-y-2 text-xs text-zinc-300">
+          <li className="flex items-start gap-2"><span className="text-amber-400 font-mono">→</span><span><strong>Scales & Domains</strong>: Linear, logarithmic, time, and ordinal mappings</span></li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 font-mono">→</span><span><strong>Geometric Curves</strong>: Spline curves, areas, arc math, voronoi tessellation</span></li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 font-mono">→</span><span><strong>Complex Layouts</strong>: Force-directed physics simulations, hierarchical trees</span></li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 font-mono">→</span><span><strong>Data Transformations</strong>: Bins, cross-filtering, and geographic projections</span></li>
+        </ul>
+      </div>
+
+      {/* Right: React Responsibilities */}
+      <div className="rounded-xl border border-white/[0.08] bg-zinc-950/60 p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={SourceCodeIcon} size={16} className="text-emerald-400" />
+            <span className="text-xs font-mono uppercase tracking-wider text-white font-semibold">React Domain</span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">DOM & Lifecycle</span>
+        </div>
+        <ul className="space-y-2 text-xs text-zinc-300">
+          <li className="flex items-start gap-2"><span className="text-emerald-400 font-mono">→</span><span><strong>SVG Element Rendering</strong>: Declarative JSX &lt;path&gt;, &lt;rect&gt;, &lt;circle&gt; nodes</span></li>
+          <li className="flex items-start gap-2"><span className="text-emerald-400 font-mono">→</span><span><strong>Component Lifecycle</strong>: State hooks, props reactivity, and resize observers</span></li>
+          <li className="flex items-start gap-2"><span className="text-emerald-400 font-mono">→</span><span><strong>Accessibility (a11y)</strong>: ARIA attributes, live regions, table disclosures</span></li>
+          <li className="flex items-start gap-2"><span className="text-emerald-400 font-mono">→</span><span><strong>Interactive Events</strong>: React onClick, hover states, keyboard :focus-visible</span></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Google Charts Taxonomy (Core, Specialized, Geo)
+ */
+export function GoogleChartsTaxonomy() {
+  const groups = [
+    {
+      title: "Core Charts",
+      subtitle: "Mature standard charts",
+      badge: "corechart",
+      badgeColor: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+      items: ["Line Chart", "Area Chart", "Bar & Column", "Combo Chart", "Pie & Donut", "Scatter Plot", "Bubble Chart", "Histogram", "Stepped Area"],
+    },
+    {
+      title: "Specialized Visualizations",
+      subtitle: "Time, flow & hierarchy",
+      badge: "specialized",
+      badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+      items: ["Timeline / Gantt", "Sankey Diagram", "TreeMap Density", "Gauge Metrics", "Org Hierarchy", "Interactive Data Table"],
+    },
+    {
+      title: "Geographic Visualization",
+      subtitle: "Statistical choropleths",
+      badge: "geochart",
+      badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+      items: ["World Regional Maps", "Country Breakdown", "State / Province Level", "Marker Bubble Maps", "Color Scale Gradients", "Region Select Handlers"],
+    },
+  ]
+
+  return (
+    <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
+      {groups.map((group) => (
+        <div key={group.title} className="rounded-xl border border-white/[0.08] bg-zinc-950/60 p-4 sm:p-5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5 mb-3">
+              <div>
+                <h4 className="text-xs font-semibold text-white tracking-tight">{group.title}</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5">{group.subtitle}</p>
+              </div>
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${group.badgeColor}`}>{group.badge}</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {group.items.map((item) => (
+                <span key={item} className="px-2 py-1 rounded bg-zinc-900 border border-white/[0.05] text-[11px] text-zinc-300 font-sans">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Engine Isolation Overview
+ */
+export function EngineIsolationOverview() {
+  const items = [
+    {
+      pkg: "@plotcn/line-basic",
+      engine: "Recharts",
+      installs: ["recharts"],
+      isolation: "Zero D3 or Google code installed",
+    },
+    {
+      pkg: "@plotcn/d3-force-network",
+      engine: "D3.js",
+      installs: ["d3-force", "d3-scale"],
+      isolation: "Modular micro-packages only; zero Recharts or Google code",
+    },
+    {
+      pkg: "@plotcn/google-geochart",
+      engine: "Google Charts",
+      installs: ["Plotcn Google loader"],
+      isolation: "Zero npm bundle bloat; loads runtime from Google CDN on demand",
+    },
+  ]
+
+  return (
+    <div className="my-6 space-y-3 not-prose">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {items.map((item) => (
+          <div key={item.pkg} className="p-4 rounded-xl border border-white/[0.08] bg-zinc-950/60 space-y-2.5">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+              <span className="font-mono text-xs text-white font-semibold">{item.pkg}</span>
+              <span className="text-[10px] font-mono text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-900 border border-white/[0.06]">{item.engine}</span>
+            </div>
+            <div>
+              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block mb-1">Installed Dependencies</span>
+              <div className="flex flex-wrap gap-1">
+                {item.installs.map((dep) => (
+                  <span key={dep} className="px-1.5 py-0.5 rounded bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 font-mono text-[10px]">
+                    {dep}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <p className="text-[11px] text-zinc-400 leading-snug pt-1 border-t border-white/[0.04]">{item.isolation}</p>
+          </div>
+        ))}
+      </div>
+      <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-950/10 flex items-center gap-2 text-xs text-emerald-300">
+        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="shrink-0 text-emerald-400" />
+        <span><strong>Bundle Cleanliness</strong>: Plotcn components never install monolithic packages or cross-engine code. Your production bundle only pays for the exact charts you mount.</span>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Google Runtime Pipeline
+ */
+export function GoogleRuntimePipeline() {
+  const steps = [
+    { step: 1, title: "Plotcn Installed Source", description: "Your local component in components/charts/google/ with full customization freedom.", icon: SourceCodeIcon, status: "completed" as const, tag: "LOCAL REPO" },
+    { step: 2, title: "React Chart Wrapper", description: "Manages container ref, resize observers, theme token mapping, and loading/error states.", icon: Folder01Icon, status: "completed" as const, tag: "WRAPPER" },
+    { step: 3, title: "Shared Google Loader", description: "Singleton script injector deduplicating CDN requests and managing package promises.", icon: Package01Icon, status: "completed" as const, tag: "SINGLETON" },
+    { step: 4, title: "Google Charts Runtime", description: "External google.visualization library loaded securely from gstatic CDN.", icon: Globe02Icon, status: "completed" as const, tag: "GOOGLE CDN" },
+    { step: 5, title: "Rendered Visualization", description: "Hardware-accelerated SVG or Canvas rendered into the accessible Plotcn container.", icon: ChartBarLineIcon, status: "active" as const, tag: "BROWSER" },
+  ]
+
+  return (
+    <FlowDiagram
+      title="Google Charts Hosted Runtime Architecture"
+      eyebrow="Runtime Pipeline"
+      description="How Plotcn coordinates local React wrapper source with Google's externally hosted charting engine."
+      ariaLabel="Google Charts runtime pipeline diagram"
+    >
+      <FlowTimeline steps={steps} activeStep="01" />
+    </FlowDiagram>
+  )
+}
+
+/**
+ * Target Developer Journey
+ */
+export function TargetDeveloperJourney() {
+  const steps = [
+    { step: 1, title: "Discover Visualization", description: "Browse catalog for Cartesian, statistical, network, or geographic charts.", icon: Search01Icon, status: "completed" as const, tag: "BROWSE" },
+    { step: 2, title: "Choose Engine", description: "Select Recharts (React), D3.js (custom geometry), or Google Charts (Geo/enterprise).", icon: Layers01Icon, status: "completed" as const, tag: "ENGINE" },
+    { step: 3, title: "Inspect Source", description: "Review raw TypeScript file, theme tokens, dependencies, and a11y disclosure tables.", icon: SourceCodeIcon, status: "completed" as const, tag: "INSPECT" },
+    { step: 4, title: "Install via shadcn CLI", description: "Run shadcn add @plotcn/<item> to pull source directly into your codebase.", icon: ComputerTerminal01Icon, status: "active" as const, tag: "CLI ADD" },
+    { step: 5, title: "Import & Connect Data", description: "Import the local component, pass typed props, and customize styling to match your brand.", icon: Package01Icon, status: "completed" as const, tag: "CONNECT" },
+    { step: 6, title: "Ship with Ownership", description: "Deploy with zero third-party chart package runtime lock-in or recurring dependencies.", icon: CheckmarkCircle02Icon, status: "completed" as const, tag: "SHIP" },
+  ]
+
+  return (
+    <FlowDiagram
+      title="Target Developer Journey"
+      eyebrow="Developer Experience"
+      description="The 6-stage lifecycle from discovering a chart to shipping customizable source code."
+      ariaLabel="Target developer journey diagram"
+    >
+      <FlowTimeline steps={steps} activeStep="04" />
+    </FlowDiagram>
+  )
+}
+
+/**
+ * Full Product Architecture & Mental Model
+ */
+export function FullProductModel() {
+  return (
+    <FlowDiagram
+      title="Full Product Architecture & Mental Model"
+      eyebrow="Ecosystem Architecture"
+      description="Three visualization engines. One coherent ecosystem. Source you own."
+      ariaLabel="Full product architecture diagram"
+    >
+      <div className="space-y-4">
+        {/* Top: Plotcn Ecosystem Brand */}
+        <FlowNode
+          variant="primary"
+          icon={<PlotcnMark className="size-4 text-white" />}
+          eyebrow="PLOTCN ECOSYSTEM"
+          title="Plotcn Visualization Platform"
+          description="Source-first visualization architecture for modern React applications."
+          badge="ROOT"
+          badgeVariant="accent"
+        />
+
+        <FlowConnector direction="down" label="branches into three specialized engine collections" />
+
+        {/* Level 2: Three Engine Collections */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <FlowNode
+            variant="runtime"
+            icon={ChartBarLineIcon}
+            eyebrow="COLLECTION 01"
+            title="Recharts Collection"
+            description="Declarative dashboard & business charts. Line, Area, Bar, Pie, Radar."
+            badge="React-First"
+            metadata="Standard Dashboards"
+          />
+          <FlowNode
+            variant="runtime"
+            icon={Layers01Icon}
+            eyebrow="COLLECTION 02"
+            title="D3.js Collection"
+            description="Advanced custom geometry, force networks, hierarchies, custom continuous scales."
+            badge="Bespoke Math"
+            metadata="Geometric Control"
+          />
+          <FlowNode
+            variant="runtime"
+            icon={Globe02Icon}
+            eyebrow="COLLECTION 03"
+            title="Google Charts Collection"
+            description="Core enterprise charts, Timeline, Sankey, TreeMap, Table, and GeoChart."
+            badge="External CDN"
+            metadata="Geo & Enterprise"
+          />
+        </div>
+
+        <FlowConnector direction="down" label="unified through shared chart layer" />
+
+        {/* Level 3: Shared Chart Experience */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <FlowNode
+            variant="secondary"
+            icon={Layers01Icon}
+            eyebrow="SHARED CAPABILITY"
+            title="Theme & Tokens"
+            description="Semantic CSS variables with dark-mode adaptation."
+            metadata="CSS Custom Properties"
+          />
+          <FlowNode
+            variant="secondary"
+            icon={ChartBarLineIcon}
+            eyebrow="SHARED CAPABILITY"
+            title="Fluid Responsiveness"
+            description="Container-driven resizing with automatic tick & label decluttering."
+            metadata="ResizeObserver Container"
+          />
+          <FlowNode
+            variant="secondary"
+            icon={Shield01Icon}
+            eyebrow="SHARED CAPABILITY"
+            title="Built-In Accessibility"
+            description="Screen-reader data tables, ARIA roles, and reduced-motion enforcement."
+            metadata="WCAG 2.2 AA Compliant"
+          />
+        </div>
+
+        <FlowConnector direction="down" label="distributed through open registry" />
+
+        {/* Level 4: Registry & Local Source */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FlowNode
+            variant="registry"
+            icon={Package01Icon}
+            eyebrow="DISTRIBUTION LAYER"
+            title="Plotcn Registry (@plotcn)"
+            description="Static JSON item manifests containing verified source files and dependencies."
+            badge="shadcn Registry"
+            metadata="https://plotcn.vercel.app/r"
+          />
+          <FlowNode
+            variant="output"
+            icon={SourceCodeIcon}
+            eyebrow="DEVELOPER CODEBASE"
+            title="Direct Source Ownership"
+            description="Raw TypeScript code copied into components/charts/ under full Git control."
+            badge="100% Editable"
+            badgeVariant="success"
+            metadata="Zero Runtime Lock-In"
+          />
+        </div>
+      </div>
+    </FlowDiagram>
+  )
+}
+
+/**
+ * Google Charts Engine Architecture SVG Flow Diagram
+ */
+export function GoogleChartsArchDiagram() {
+  return (
+    <FlowDiagram
+      title="Three-Engine Unified Architecture"
+      eyebrow="Engine Architecture"
+      description="Plotcn isolates visualization engines while standardizing container shells, themes, and accessibility."
+      ariaLabel="Google Charts architecture flow diagram"
+    >
+      <div className="space-y-4">
+        {/* Level 1: Root System */}
+        <FlowNode
+          variant="primary"
+          icon={<PlotcnMark className="size-4 text-white" />}
+          eyebrow="VISUALIZATION SYSTEM"
+          title="Plotcn Multi-Engine Foundation"
+          description="Shared container shell, token adapters, ResizeObserver, and accessibility summaries."
+          badge="SHARED"
+          badgeVariant="accent"
+        />
+
+        <FlowConnector direction="down" label="strictly isolated engine branches" />
+
+        {/* Level 2: Three Engines */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <FlowNode
+            variant="runtime"
+            icon={ChartBarLineIcon}
+            eyebrow="ENGINE 01"
+            title="Recharts"
+            description="Composable React SVG charts for dashboard & business KPIs."
+            badge="React Native"
+            metadata="Bundled npm"
+          />
+          <FlowNode
+            variant="runtime"
+            icon={Layers01Icon}
+            eyebrow="ENGINE 02"
+            title="D3.js"
+            description="Custom geometric calculations, layouts, and continuous scales."
+            badge="Custom Math"
+            metadata="Micro-packages"
+          />
+          <FlowNode
+            variant="runtime"
+            icon={Globe02Icon}
+            eyebrow="ENGINE 03"
+            title="Google Charts"
+            description="Mature Google-powered standard charts and geographic choropleths."
+            badge="External CDN"
+            metadata="GeoChart + Core"
+          />
+        </div>
+
+        <FlowConnector direction="down" label="Google Charts package categories" />
+
+        {/* Level 3: Google Sub-branches */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <FlowNode
+            variant="secondary"
+            icon={ChartBarLineIcon}
+            eyebrow="PACKAGE: corechart"
+            title="Core Standard Charts"
+            description="Line, Bar, Column, Area, Combo, Pie, Donut, Scatter, and Stepped Area."
+            badge="Standard"
+            metadata="google.charts.load('corechart')"
+          />
+          <FlowNode
+            variant="secondary"
+            icon={Globe02Icon}
+            eyebrow="PACKAGE: geochart"
+            title="GeoChart Choropleths"
+            description="World regions, countries, states/provinces, and statistical color scales."
+            badge="Choropleth"
+            metadata="google.charts.load('geochart')"
+          />
+        </div>
+      </div>
+    </FlowDiagram>
+  )
+}
+
+/**
+ * Google GeoChart Features SVG Flow Diagram
+ */
+export function GeoChartFeatureFlow() {
+  return (
+    <FlowDiagram
+      title="Google GeoChart Capabilities"
+      eyebrow="Engine Features"
+      description="Statistical SVG choropleth mapping powered by Google Charts' built-in geographic boundary datasets."
+      ariaLabel="GeoChart feature flow diagram"
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <FlowNode
+          variant="runtime"
+          icon={Globe02Icon}
+          eyebrow="CHOROPLETH MAPS"
+          title="Statistical Heatmaps"
+          description="Values mapped proportionally to regional color spectrums with dataless region fallbacks."
+          badge="Color Scales"
+          metadata="SVG Gradient Rendering"
+        />
+        <FlowNode
+          variant="runtime"
+          icon={Layers01Icon}
+          eyebrow="MULTI-REGION RESOLUTION"
+          title="World, Countries & Provinces"
+          description="Zoom into continents (UN M.49), countries (ISO-3166-1), or state/provincial territories."
+          badge="Hierarchical"
+          metadata="resolution='provinces'"
+        />
+        <FlowNode
+          variant="runtime"
+          icon={SourceCodeIcon}
+          eyebrow="TYPED REACT INTEGRATION"
+          title="Typed Object Arrays"
+          description="Pass standard JavaScript arrays with regionKey, valueKey, and typed onRegionSelect callbacks."
+          badge="React API"
+          metadata="data={userRecords}"
+        />
+        <FlowNode
+          variant="runtime"
+          icon={Shield01Icon}
+          eyebrow="ACCESSIBILITY & SEMANTICS"
+          title="Accessible Screen-Reader Shell"
+          description="Automatic data table disclosure, ARIA labeling, and keyboard region navigation."
+          badge="WCAG 2.2"
+          metadata="Accessible Data Table"
+        />
+      </div>
+    </FlowDiagram>
+  )
+}
+
+/**
+ * Installed Components File Placement Flow
+ */
+export function InstalledFilesCard() {
+  const files = [
+    {
+      engine: "Recharts",
+      path: "components/charts/recharts/line-chart-basic.tsx",
+      badge: "recharts",
+      badgeColor: "text-sky-400 bg-sky-950/40 border-sky-800/30",
+      description: "Local editable component source for standard business line chart.",
+      icon: SourceCodeIcon,
+    },
+    {
+      engine: "Google Charts",
+      path: "components/charts/google/google-geochart.tsx",
+      badge: "google",
+      badgeColor: "text-amber-400 bg-amber-950/40 border-amber-800/30",
+      description: "Local editable choropleth component for regional heatmaps.",
+      icon: SourceCodeIcon,
+    },
+    {
+      engine: "Google Charts Runtime",
+      path: "components/charts/google/google-chart-container.tsx",
+      badge: "runtime wrapper",
+      badgeColor: "text-amber-400 bg-amber-950/40 border-amber-800/30",
+      description: "Singleton loader and client-side lifecycle container.",
+      icon: Layers01Icon,
+    },
+    {
+      engine: "Shared System",
+      path: "components/charts/shared/chart-container.tsx",
+      badge: "shared / a11y",
+      badgeColor: "text-emerald-400 bg-emerald-950/40 border-emerald-800/30",
+      description: "Engine-independent responsive wrapper, theme tokens, and accessible summary.",
+      icon: Shield01Icon,
+    },
+  ]
+
+  return (
+    <div className="my-6 rounded-xl border border-white/[0.08] bg-zinc-950/70 p-4 sm:p-5 not-prose">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-white/[0.06] pb-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <HugeiconsIcon icon={Folder01Icon} size={16} />
+          </div>
+          <div>
+            <h4 className="text-xs sm:text-sm font-semibold text-white tracking-tight">Local File Tree Structure</h4>
+            <p className="text-[11px] text-zinc-400">Example placement inside your project after installation</p>
+          </div>
+        </div>
+        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-300">
+          Source In Your Repo
+        </span>
+      </div>
+
+      <div className="space-y-2.5">
+        {files.map((file) => {
+          const Icon = file.icon
+          return (
+            <div
+              key={file.path}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-white/[0.06] bg-zinc-900/40 hover:bg-zinc-900/70 transition-colors"
+            >
+              <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+                <HugeiconsIcon icon={Icon} size={15} className="text-zinc-400 mt-0.5 sm:mt-0 shrink-0" />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-mono font-medium text-emerald-300 truncate">{file.path}</span>
+                    <span className={cn("text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase", file.badgeColor)}>
+                      {file.badge}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-zinc-400 mt-0.5">{file.description}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+

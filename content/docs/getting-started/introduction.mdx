@@ -26,59 +26,11 @@ The Plotcn Registry distributes complete, editable source code that developers c
 
 Recharts, D3.js, and Google Charts remain distinct visualization engines, while Plotcn owns the shared visual language, responsive behavior, accessibility patterns, interaction conventions, documentation, source distribution, and overall developer experience.
 
-```text
-Plotcn
-│
-├── Recharts Collection
-│   └── Standard dashboard, business, analytics, and application charts
-│
-├── D3.js Collection
-│   └── Advanced, custom, highly interactive, and bespoke visualizations
-│
-├── Google Charts Collection
-│   ├── Core Charts
-│   ├── Timeline
-│   ├── Sankey
-│   ├── TreeMap
-│   ├── Table
-│   └── GeoChart
-│
-├── Shared Chart Experience
-│   ├── Theme
-│   ├── Responsiveness
-│   ├── Tooltip
-│   ├── Legend
-│   ├── Loading / Empty / Error states
-│   ├── Accessibility
-│   ├── Interaction conventions
-│   └── Motion conventions
-│
-├── Registry
-│   └── Source-code distribution through the shadcn Registry model
-│
-├── Blocks
-│   └── Complete analytics, dashboard, reporting, and visualization sections
-│
-├── Documentation
-│
-└── Playground
-```
+<PlotcnEcosystemMap />
 
-The core product model is:
+The core product model flows directly from specialized visualization engines through Plotcn's shared visual and interaction standards into your Git repository:
 
-```text
-Visualization engines
-        ↓
-Recharts / D3.js / Google Charts
-        ↓
-Plotcn visual + interaction system
-        ↓
-Plotcn Registry
-        ↓
-Developer-owned source
-        ↓
-Application
-```
+<ProductDeliveryFlow />
 
 Plotcn does not try to hide the underlying visualization engines behind one universal API.
 
@@ -107,17 +59,12 @@ Use Recharts for:
 
 Typical components include:
 
-```text
-Line
-Area
-Bar
-Pie
-Donut
-Scatter
-Radar
-Radial
-Composed charts
-```
+- **Line & Area**: Continuous time-series metrics, trends, and filled volume distributions
+- **Bar & Column**: Categorical comparisons, grouped bars, and stacked financial metrics
+- **Pie & Donut**: Proportional breakdowns, category shares, and center-stat KPI cards
+- **Scatter & Bubble**: Two-dimensional correlation plots and distribution clusters
+- **Radar & Radial**: Multi-axis capability scoring and circular progress metrics
+- **Composed Charts**: Combined line and bar charts sharing a unified time axis
 
 Recharts is the default starting point when a developer needs a polished, conventional React chart.
 
@@ -133,21 +80,9 @@ Use D3.js for:
 - Complex data exploration and brush/zoom interactions
 - Highly specialized visualization behaviors
 
-Plotcn structures D3 implementations with a clear boundary:
+Plotcn structures D3 implementations with a clear boundary: D3 governs the mathematics and coordinate calculation, while React governs the semantic DOM, lifecycle, and accessibility attributes.
 
-```text
-D3
-→ mathematics
-→ scales
-→ layouts
-→ geometry
-
-React
-→ rendering
-→ lifecycle
-→ state
-→ accessibility
-```
+<D3BoundaryCard />
 
 Plotcn prefers granular micro-packages (such as `d3-shape`, `d3-scale`, `d3-force`) rather than monolithic bundle imports:
 
@@ -161,39 +96,7 @@ import { line, curveMonotoneX } from "d3-shape"
 
 Use Google Charts for mature Google-powered visualization types and geographic visualization where its native chart implementations are useful.
 
-Typical categories include:
-
-```text
-Core Charts
-├── Line
-├── Area
-├── Bar
-├── Column
-├── Combo
-├── Pie
-├── Donut
-├── Scatter
-├── Bubble
-├── Histogram
-└── Stepped Area
-
-Specialized Charts
-├── Timeline
-├── Gauge
-├── Org Chart
-├── TreeMap
-├── Sankey
-└── Table
-
-Geo
-└── GeoChart
-    ├── World regions
-    ├── Country regions
-    ├── State / province regions
-    ├── Marker maps
-    ├── Value-based coloring
-    └── Region selection
-```
+<GoogleChartsTaxonomy />
 
 Google Charts remains a separate engine family. Its APIs are not merged into Recharts or D3 abstractions.
 
@@ -206,24 +109,7 @@ Google Charts remains a separate engine family. Its APIs are not merged into Rec
 
 The three engines remain technically independent while sharing a consistent product experience.
 
-```text
-                    Plotcn Shared Layer
-                           │
-        ┌──────────────────┼──────────────────┐
-        │                  │                  │
-        ▼                  ▼                  ▼
-
-    Recharts             D3.js          Google Charts
-
- Declarative React    Custom geometry    Hosted runtime
-     charts             and layouts         + wrapper
-
-        │                  │                  │
-        └──────────────────┼──────────────────┘
-                           ▼
-
-                  Shared Plotcn Experience
-```
+<PlotcnArchitecture />
 
 The shared layer covers:
 
@@ -287,35 +173,9 @@ There is no single "best" visualization engine. Choose the engine that best matc
 
 ## Engine Isolation
 
-Each registry item installs only what it requires:
+Each registry item installs only what it requires. Plotcn strictly avoids bundle contamination:
 
-```text
-@plotcn/line-basic
-      │
-      └── recharts
-```
-
-```text
-@plotcn/d3-force-network
-      │
-      └── d3-force, d3-scale (modular D3 packages)
-```
-
-```text
-@plotcn/google-geochart
-      │
-      └── Plotcn Google loader / adapter
-             │
-             └── Google Charts hosted runtime
-```
-
-Plotcn strictly avoids bundle contamination:
-
-```text
-Install one chart
-      ↓
-recharts  +  all D3 packages  +  Google Charts helpers   ❌ (Avoided)
-```
+<EngineIsolationOverview />
 
 Engine isolation ensures your production application bundle contains zero unused visualization code.
 
@@ -325,21 +185,7 @@ Engine isolation ensures your production application bundle contains zero unused
 
 Google Charts requires special architectural treatment because the underlying visualization runtime is externally hosted on Google's content delivery network.
 
-```text
-Plotcn installed source
-        │
-        ▼
-Google chart wrapper
-        │
-        ▼
-Shared Google loader
-        │
-        ▼
-Google Charts runtime
-        │
-        ▼
-Rendered visualization
-```
+<GoogleRuntimePipeline />
 
 **What Plotcn owns:**
 - React wrapper source code
@@ -361,22 +207,13 @@ Rendered visualization
 
 All Google Charts components share a single, resilient loader located in `@/lib/google-charts/loader.ts`.
 
-```text
-Google Charts components
-        │
-        ▼
-Shared Plotcn loader
-        │
-        ├── deduplicate script loading (single <script> tag)
-        ├── manage packages on-demand
-        ├── manage ready state promises
-        └── handle network & CSP failures gracefully
-        │
-        ▼
-Google Charts runtime
-```
+- **Single Script Injection**: The external loader script tag is injected into the DOM at most once across the entire application lifetime.
+- **Concurrent Request Deduplication**: If multiple Google chart components mount simultaneously, they all await the same initialization Promise.
+- **On-Demand Package Loading**: Only the specific package needed (such as `corechart` or `geochart`) is requested via `google.charts.load`.
+- **SSR Safety**: Guards against accessing `window` or `document` during server-side pre-rendering, rendering a stable skeleton during hydration.
+- **Timeout & Error Handling**: If Google's CDN is unreachable or blocked by CSP, the loader transitions gracefully to an error surface with retry support.
 
-Individual chart components never inject independent `<script>` tags. The loader exposes a strictly typed state machine:
+The loader exposes a strictly typed state machine:
 
 ```ts
 export type GoogleChartsLoaderState =
@@ -429,23 +266,7 @@ Plotcn is built for:
 
 The intended developer journey is fast, transparent, and direct:
 
-```text
-Discover visualization
-        ↓
-Choose engine (Recharts, D3.js, Google Charts)
-        ↓
-Inspect source & registry manifest
-        ↓
-Install through shadcn CLI
-        ↓
-Import local component
-        ↓
-Connect typed data
-        ↓
-Customize locally
-        ↓
-Ship
-```
+<TargetDeveloperJourney />
 
 Direct shadcn installation example:
 
@@ -477,41 +298,7 @@ The engines provide the specialized visualization power. Plotcn provides the des
 
 ## Final Architecture & Mental Model
 
-<PlotcnArchitecture />
-
-```text
-                         Plotcn
-                            │
-               ┌────────────┼────────────┐
-               │            │            │
-               ▼            ▼            ▼
-
-          Recharts         D3.js      Google Charts
-          Collection     Collection     Collection
-
-               │            │            │
-               └────────────┼────────────┘
-                            ▼
-
-                 Shared Chart Experience
-                            │
-         ┌──────────────────┼───────────────────┐
-         │                  │                   │
-       Theme          Responsiveness      Accessibility
-         │                  │                   │
-         └──────────────────┼───────────────────┘
-                            ▼
-
-                     Plotcn Registry
-                            │
-                            ▼
-
-                    Developer Source
-                            │
-                            ▼
-
-                      Application
-```
+<FullProductModel />
 
 > **Three visualization engines. One coherent ecosystem. Source you own.**
 
