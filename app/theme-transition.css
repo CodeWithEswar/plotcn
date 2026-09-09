@@ -1,0 +1,93 @@
+:root {
+  --plotcn-theme-transition-duration: 520ms;
+  --plotcn-theme-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --plotcn-theme-reveal-radius: 150vmax;
+}
+
+/* The browser snapshots the existing and next rendered UI. Only the new root
+   snapshot moves, so layout, scroll positions, and component state stay put. */
+html[data-theme-transition="view"]::view-transition-old(root),
+html[data-theme-transition="view"]::view-transition-new(root) {
+  animation-duration: var(--plotcn-theme-transition-duration);
+  animation-timing-function: var(--plotcn-theme-transition-easing);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+html[data-theme-transition="view"]::view-transition-old(root) {
+  animation-name: plotcn-theme-old-fade;
+  z-index: 1;
+}
+
+html[data-theme-transition="view"]::view-transition-new(root) {
+  animation-name: plotcn-theme-reveal;
+  z-index: 2;
+}
+
+@keyframes plotcn-theme-reveal {
+  from {
+    clip-path: circle(0 at 100% 0);
+    opacity: 0.96;
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    clip-path: circle(var(--plotcn-theme-reveal-radius) at 100% 0);
+    opacity: 1;
+  }
+}
+
+@keyframes plotcn-theme-old-fade {
+  from { opacity: 1; }
+  to { opacity: 0.92; }
+}
+
+.theme-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  background: var(--background);
+  clip-path: circle(0 at 100% 0);
+}
+
+/* Fallback browsers receive the same direction as a restrained semantic
+   surface wash while the actual theme is applied underneath. */
+html[data-theme-transition="fallback"] .theme-transition-overlay {
+  visibility: visible;
+  animation: plotcn-theme-fallback-reveal var(--plotcn-theme-transition-duration)
+    var(--plotcn-theme-transition-easing) both;
+}
+
+@keyframes plotcn-theme-fallback-reveal {
+  0% {
+    clip-path: circle(0 at 100% 0);
+    opacity: 0.96;
+  }
+  78% {
+    clip-path: circle(var(--plotcn-theme-reveal-radius) at 100% 0);
+    opacity: 0.96;
+  }
+  100% {
+    clip-path: circle(var(--plotcn-theme-reveal-radius) at 100% 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-transition]::view-transition-old(root),
+  html[data-theme-transition]::view-transition-new(root),
+  html[data-theme-transition="fallback"] .theme-transition-overlay {
+    animation-duration: 1ms !important;
+    animation-name: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .theme-transition-overlay {
+    display: none;
+  }
+}

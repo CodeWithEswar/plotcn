@@ -13,7 +13,7 @@ export function DocsToc({ toc }: DocsTocProps) {
 
   return (
     <div className="w-full flex flex-col gap-3 text-xs select-none">
-      <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+      <p className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         On this page
       </p>
 

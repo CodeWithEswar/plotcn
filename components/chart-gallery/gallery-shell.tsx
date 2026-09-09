@@ -1,10 +1,11 @@
 "use client"
 import Image from "next/image"
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Cancel01Icon,
+  ColorsIcon,
   GridViewIcon,
   Menu01Icon,
   Search01Icon,
@@ -27,14 +28,12 @@ import {
   PopoverTitle,
   PopoverDescription,
 } from "@/components/ui/popover"
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select"
 import { ChartCard } from "./chart-card"
+import {
+  CustomColorDialog,
+  PRESET_PALETTES,
+} from "@/components/chart-detail/custom-color-dialog"
+import { RechartsLogoSvg } from "@/components/chart-detail/engine-badge"
 
 /* -------------------------------------------------------------------------- */
 /*  Engine metadata for the selector panels                                    */
@@ -81,7 +80,36 @@ export function GalleryShell({
   const params = useSearchParams()
   const filters = parseChartFilters(params, charts)
   const [density, setDensity] = useState<"gallery" | "compact">("compact")
-  const [theme, setTheme] = useState("dark")
+  const [chartColor, setChartColor] = useState<string>("#f4f4f5")
+  const [isCustomColor, setIsCustomColor] = useState<boolean>(false)
+  const [colorDialogOpen, setColorDialogOpen] = useState<boolean>(false)
+
+  const effectiveColor = isCustomColor ? chartColor : "var(--chart-1)"
+
+  const activeColorLabel = useMemo(() => {
+    if (!isCustomColor) {
+      return "Monochrome · Chart 1"
+    }
+    const match = PRESET_PALETTES.find(
+      (p) => p.hex.toLowerCase() === chartColor.toLowerCase()
+    )
+    return match ? match.name.replace(" (Default)", "") : chartColor.toUpperCase()
+  }, [isCustomColor, chartColor])
+
+  const handleApplyColor = (color: string) => {
+    setChartColor(color)
+    setIsCustomColor(true)
+  }
+
+  const handleResetColor = () => {
+    setIsCustomColor(false)
+    setChartColor("#f4f4f5")
+  }
+
+  const surfaceStyles = isCustomColor
+    ? ({ "--chart-1": chartColor } as React.CSSProperties)
+    : undefined
+
   const results = filterCharts(charts, filters)
   const gridRef = useRef<HTMLDivElement>(null)
 
@@ -123,11 +151,11 @@ export function GalleryShell({
   const active = Object.entries(filters).filter(([, v]) => v && v !== "all")
 
   return (
-    <div className="charts-surface" data-theme={theme}>
+    <div className="charts-surface" data-theme="follow" style={surfaceStyles}>
       <main id="main" tabIndex={-1} className="lens-shell">
         {/* ── Hero ─────────────────────────────────────────────────────── */}
         <header className="lens-heading">
-          <div>
+          <div className="lens-heading-main">
             <span className="lens-eyebrow">PLOTCN / CHARTS</span>
             <h1>Find your visualization.</h1>
             <p>
@@ -137,18 +165,33 @@ export function GalleryShell({
             </p>
           </div>
           <div className="lens-heading-side">
-            <div className="lens-theme">
-              <span>Workspace theme</span>
-              <Select value={theme} onValueChange={(val) => { if (val) setTheme(val) }}>
-                <SelectTrigger aria-label="Workspace theme" size="sm" className="h-8 w-[110px] text-xs bg-zinc-900/60 border-white/[0.12] rounded-md">
-                  <SelectValue placeholder="Dark" />
-                </SelectTrigger>
-                <SelectContent align="end" side="bottom" sideOffset={6}>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="lens-heading-controls">
+              <div className="lens-palette-control">
+                <span className="lens-control-label">Chart color</span>
+                <button
+                  type="button"
+                  onClick={() => setColorDialogOpen(true)}
+                  className="lens-color-trigger-btn"
+                  aria-label={`Select chart color: currently ${activeColorLabel}`}
+                >
+                  <span
+                    className="lens-color-swatch-dot"
+                    style={{ backgroundColor: effectiveColor }}
+                  />
+                  <span className="lens-color-label-text">{activeColorLabel}</span>
+                  <HugeiconsIcon icon={ColorsIcon} size={13} className="opacity-70" />
+                </button>
+                {isCustomColor && (
+                  <button
+                    type="button"
+                    onClick={handleResetColor}
+                    className="lens-color-reset-btn"
+                    title="Reset to default Zinc"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
             </div>
             <dl className="lens-stats">
               <div>
@@ -189,12 +232,12 @@ export function GalleryShell({
               </PopoverTrigger>
               <PopoverContent
                 className="charts-surface lens-guide"
-                data-theme={theme}
+                data-theme="follow"
                 align="end"
               >
                 <PopoverTitle>Choose your level of control</PopoverTitle>
                 <PopoverDescription>
-                  Each implementation keeps its engine's own API.
+                  Each implementation keeps its engine&apos;s own API.
                 </PopoverDescription>
                 <p>
                   <strong>Recharts</strong>Composable React components for
@@ -243,13 +286,17 @@ export function GalleryShell({
                 </div>
                 <span className="lens-engine-panel-tagline">{ep.tagline}</span>
                 <div className="lens-engine-panel-logo">
-                  <Image
-                    className={`lens-brand ${ep.logoClass}`}
-                    src={ep.logoSrc}
-                    width={ep.logoWidth}
-                    height={20}
-                    alt=""
-                  />
+                  {ep.id === "recharts" ? (
+                    <RechartsLogoSvg className={`lens-brand ${ep.logoClass}`} />
+                  ) : (
+                    <Image
+                      className={`lens-brand ${ep.logoClass}`}
+                      src={ep.logoSrc}
+                      width={ep.logoWidth}
+                      height={20}
+                      alt=""
+                    />
+                  )}
                 </div>
               </button>
             ))}
@@ -305,25 +352,51 @@ export function GalleryShell({
               : ""}{" "}
             charts<span className="lens-result-note"> / source included</span>
           </p>
-          <div
-            className="lens-density"
-            role="group"
-            aria-label="Gallery density"
-          >
+          <div className="lens-toolbar-actions">
             <button
-              aria-pressed={density === "gallery"}
-              onClick={() => setDensity("gallery")}
+              type="button"
+              onClick={() => setColorDialogOpen(true)}
+              className="lens-color-toolbar-btn"
+              aria-label={`Select chart color: currently ${activeColorLabel}`}
             >
-              <HugeiconsIcon icon={GridViewIcon} size={14} />
-              Gallery
+              <span
+                className="lens-color-swatch-dot"
+                style={{ backgroundColor: effectiveColor }}
+              />
+              <span>Color: <strong>{activeColorLabel}</strong></span>
+              <HugeiconsIcon icon={ColorsIcon} size={13} />
             </button>
-            <button
-              aria-pressed={density === "compact"}
-              onClick={() => setDensity("compact")}
+            {isCustomColor && (
+              <button
+                type="button"
+                onClick={handleResetColor}
+                className="lens-color-reset-btn"
+                title="Reset to default Zinc"
+              >
+                Reset
+              </button>
+            )}
+
+            <div
+              className="lens-density"
+              role="group"
+              aria-label="Gallery density"
             >
-              <HugeiconsIcon icon={Menu01Icon} size={14} />
-              Compact
-            </button>
+              <button
+                aria-pressed={density === "gallery"}
+                onClick={() => setDensity("gallery")}
+              >
+                <HugeiconsIcon icon={GridViewIcon} size={14} />
+                Gallery
+              </button>
+              <button
+                aria-pressed={density === "compact"}
+                onClick={() => setDensity("compact")}
+              >
+                <HugeiconsIcon icon={Menu01Icon} size={14} />
+                Compact
+              </button>
+            </div>
           </div>
         </div>
 
@@ -335,6 +408,7 @@ export function GalleryShell({
                 key={chart.id}
                 chart={chart}
                 compact={density === "compact"}
+                color={isCustomColor ? chartColor : undefined}
               />
             ))}
           </div>
@@ -356,6 +430,13 @@ export function GalleryShell({
             Choose a chart to inspect its container behavior and installation.
           </span>
         </div>
+        {/* ── Custom Color Selection Dialog ────────────────────────── */}
+        <CustomColorDialog
+          open={colorDialogOpen}
+          onOpenChange={setColorDialogOpen}
+          currentColor={effectiveColor}
+          onApplyColor={handleApplyColor}
+        />
       </main>
     </div>
   )

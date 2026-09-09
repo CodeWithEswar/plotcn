@@ -52,8 +52,8 @@ export function PackageManagerSelector() {
               style={
                 isSelected
                   ? {
-                      backgroundColor: token.bgTint,
-                      borderColor: token.borderColor,
+                      backgroundColor: "var(--muted)",
+                      borderColor: "var(--border)",
                     }
                   : undefined
               }
@@ -70,7 +70,7 @@ export function PackageManagerSelector() {
               {isSelected && (
                 <span
                   className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full"
-                  style={{ backgroundColor: token.railColor }}
+                  style={{ backgroundColor: "var(--foreground)" }}
                 />
               )}
             </button>

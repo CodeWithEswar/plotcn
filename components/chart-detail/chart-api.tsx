@@ -1,4 +1,5 @@
 import React from "react"
+import { ApiTable, type ApiTableColumn } from "@/components/docs/api-table"
 
 export interface PropItem {
   name: string
@@ -21,31 +22,29 @@ const defaultProps: PropItem[] = [
 ]
 
 export function ChartApi({ propsList = defaultProps }: ChartApiProps) {
+  const columns: readonly ApiTableColumn[] = [
+    { key: "property", label: "Property", width: "18%", kind: "name" },
+    { key: "type", label: "Type", width: "24%", kind: "type" },
+    { key: "default", label: "Default", width: "16%", kind: "default" },
+    { key: "description", label: "Description", width: "42%", kind: "description" },
+  ]
+
   return (
     <div className="flex flex-col mb-8">
-      <h2 className="text-xl font-semibold text-white tracking-tight mb-3">API Reference</h2>
-      <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-zinc-950/70 backdrop-blur-md">
-        <table className="w-full text-left text-xs text-zinc-300">
-          <thead className="border-b border-white/[0.08] bg-white/[0.02] text-[11px] font-mono text-zinc-400">
-            <tr>
-              <th className="px-4 py-3 font-medium">Prop</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Default</th>
-              <th className="px-4 py-3 font-medium">Description</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/[0.04]">
-            {propsList.map((item) => (
-              <tr key={item.name} className="hover:bg-white/[0.02] transition-colors">
-                <td className="px-4 py-3 font-mono text-emerald-400 font-semibold">{item.name}</td>
-                <td className="px-4 py-3 font-mono text-sky-400">{item.type}</td>
-                <td className="px-4 py-3 font-mono text-zinc-400">{item.default || "-"}</td>
-                <td className="px-4 py-3 text-zinc-300 leading-relaxed">{item.description}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <h2 className="text-xl font-semibold text-foreground tracking-tight mb-3">API Reference</h2>
+      <ApiTable
+        caption="Chart API reference"
+        columns={columns}
+        rows={propsList.map((item) => ({
+          id: `api-${item.name.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}`,
+          cells: {
+            property: <code>{item.name}</code>,
+            type: <code>{item.type}</code>,
+            default: <code>{item.default || "—"}</code>,
+            description: item.description,
+          },
+        }))}
+      />
     </div>
   )
 }

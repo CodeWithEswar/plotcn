@@ -12,5 +12,5 @@ export function CopyButton({ value, label = "Copy command" }: { value: string; l
     try { await navigator.clipboard.writeText(value); setStatus("copied") } catch { setStatus("error") }
     timeout.current = setTimeout(() => setStatus("idle"), 2600)
   }
-  return <span className="copy-action"><Tooltip><TooltipTrigger render={<Button variant="ghost" size="icon" aria-label={label} onClick={copy} />}><Icon name={status === "copied" ? "check" : "copy"} /></TooltipTrigger><TooltipContent>{status === "copied" ? "Copied" : label}</TooltipContent></Tooltip><span role="status" className={status === "error" ? "copy-error" : "sr-only"}>{status === "copied" ? "Copied to clipboard" : status === "error" ? "Copy failed. Select and copy the text." : ""}</span></span>
+  return <span className="copy-action shrink-0"><Tooltip><TooltipTrigger render={<Button variant="ghost" size="icon" aria-label={label} onClick={copy} />}><Icon name={status === "copied" ? "check" : "copy"} /></TooltipTrigger><TooltipContent>{status === "copied" ? "Copied" : label}</TooltipContent></Tooltip><span role="status" className={status === "error" ? "copy-error" : "sr-only"}>{status === "copied" ? "Copied to clipboard" : status === "error" ? "Copy failed. Select and copy the text." : ""}</span></span>
 }

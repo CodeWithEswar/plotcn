@@ -48,7 +48,7 @@ export function FooterNavigation() {
     <nav aria-label="Footer Navigation" className="grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-12">
       {navigationGroups.map((group) => (
         <div key={group.title} className="flex flex-col gap-3.5">
-          <h3 className="text-xs font-mono font-medium uppercase tracking-wider text-zinc-300">
+          <h3 className="text-xs font-mono font-medium uppercase tracking-wider text-foreground">
             {group.title}
           </h3>
           <ul className="flex flex-col gap-2.5">
@@ -59,18 +59,18 @@ export function FooterNavigation() {
                     href={link.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors group"
+                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
                   >
                     <span>{link.label}</span>
                     <Icon
                       name="external"
-                      className="size-3 text-zinc-500 transition-colors group-hover:text-zinc-300"
+                      className="size-3 text-muted-foreground/60 transition-colors group-hover:text-foreground"
                     />
                   </a>
                 ) : (
                   <Link
                     href={link.href}
-                    className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {link.label}
                   </Link>

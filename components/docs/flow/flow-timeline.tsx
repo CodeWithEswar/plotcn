@@ -26,14 +26,14 @@ export function FlowTimeline({
             key={String(step.step) || idx}
             className={`flex flex-col justify-between p-3.5 rounded-xl border transition-colors select-none ${
               isActive
-                ? "border-white/[0.2] bg-zinc-900/90 shadow-md"
-                : "border-white/[0.08] bg-zinc-950/60 hover:border-white/[0.14]"
+                ? "border-foreground/20 bg-muted shadow-sm"
+                : "border-border bg-card hover:border-foreground/20"
             }`}
           >
             <div>
               {/* Header: Step Number + Status */}
               <div className="flex items-center justify-between gap-2 mb-2.5">
-                <span className="font-mono text-[10px] text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800">
+                <span className="font-mono text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-muted border border-border">
                   {stepNum}
                 </span>
 
@@ -44,8 +44,8 @@ export function FlowTimeline({
                   </span>
                 )}
                 {step.status === "active" && (
-                  <span className="text-[10px] font-mono text-white flex items-center gap-1">
-                    <span className="size-1.5 rounded-full bg-white animate-pulse motion-reduce:animate-none" />
+                  <span className="text-[10px] font-mono text-foreground flex items-center gap-1">
+                    <span className="size-1.5 rounded-full bg-foreground animate-pulse motion-reduce:animate-none" />
                     Active
                   </span>
                 )}
@@ -54,7 +54,7 @@ export function FlowTimeline({
               {/* Icon + Title */}
               <div className="flex items-center gap-2 mb-1.5">
                 {Icon && (
-                  <span className="text-zinc-300 shrink-0">
+                  <span className="text-muted-foreground shrink-0">
                     {React.isValidElement(Icon) ? (
                       Icon
                     ) : typeof Icon === "function" ? (
@@ -64,14 +64,14 @@ export function FlowTimeline({
                     )}
                   </span>
                 )}
-                <span className="text-xs font-semibold text-zinc-100 tracking-tight leading-snug">
+                <span className="text-xs font-semibold text-foreground tracking-tight leading-snug">
                   {step.title}
                 </span>
               </div>
 
               {/* Description */}
               {step.description && (
-                <p className="text-[11px] text-zinc-400 leading-relaxed m-0">
+                <p className="text-[11px] text-muted-foreground leading-relaxed m-0">
                   {step.description}
                 </p>
               )}
@@ -79,7 +79,7 @@ export function FlowTimeline({
 
             {/* Metadata footer */}
             {step.metadata && (
-              <div className="mt-3 pt-2 border-t border-white/[0.06] text-[10px] font-mono text-zinc-500 truncate">
+              <div className="mt-3 pt-2 border-t border-border text-[10px] font-mono text-muted-foreground truncate">
                 {step.metadata}
               </div>
             )}

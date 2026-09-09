@@ -8,6 +8,7 @@ import {
   Activity01Icon,
   AccessibilityIcon,
   ArrowRight01Icon,
+  ArrowDown01Icon,
   CheckmarkCircle01Icon,
   CodeIcon,
   DatabaseIcon,
@@ -20,11 +21,21 @@ import {
   Shield01Icon,
   SmartPhone01Icon,
   SquareArrowRight01Icon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 import type { ChartMetadata } from "@/lib/charts/metadata"
 import { charts } from "@/config/charts"
 import { chartHref } from "@/lib/charts/filters"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
 
 export interface TocItem {
   id: string
@@ -337,34 +348,93 @@ export function ChartDetailToc({
   }, [chart])
 
   if (compact) {
+    const activeItem = items.find((item) => item.id === activeId) ?? items[0]
+    const ActiveIcon = activeItem ? resolveIcon(activeItem) : PlayCircle02Icon
+
     return (
-      <div className="chart-detail-toc chart-detail-toc-compact">
-        <label className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground">
-          <HugeiconsIcon
-            icon={resolveIcon(items.find((item) => item.id === activeId) ?? items[0])}
-            size={16}
-            strokeWidth={1.75}
-            className="shrink-0 text-muted-foreground"
-          />
-          <select
-            aria-label="Table of contents"
-            className="chart-detail-toc-select w-full appearance-none bg-transparent text-foreground focus-visible:outline-none"
-            value={activeId}
-            onChange={(e) => handleScrollTo(e.target.value)}
+      <div className="chart-detail-toc chart-detail-toc-compact flex-1 min-w-0 h-9 min-h-[36px] max-h-[36px]">
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className="w-full h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-white/[0.1] bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 justify-between shrink-0 focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            }
           >
-            {items.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-          <HugeiconsIcon
-            icon={ArrowRight01Icon}
-            size={13}
-            strokeWidth={2}
-            className="pointer-events-none shrink-0 rotate-90 text-muted-foreground"
-          />
-        </label>
+            <span className="flex items-center gap-2 min-w-0 truncate">
+              <HugeiconsIcon
+                icon={ActiveIcon}
+                size={15}
+                strokeWidth={1.75}
+                className="shrink-0 text-zinc-400"
+              />
+              <span className="truncate">{activeItem?.label || "On this page"}</span>
+            </span>
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              size={13}
+              strokeWidth={2}
+              className="pointer-events-none shrink-0 text-zinc-400 ml-1.5"
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            sideOffset={6}
+            className="w-(--anchor-width) min-w-[220px] max-h-80 overflow-y-auto bg-zinc-950/95 border border-white/[0.1] backdrop-blur-md p-1 shadow-2xl rounded-lg"
+          >
+            <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              On this page
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-white/[0.08] my-1" />
+            {items.map((item) => {
+              const isActive = activeId === item.id
+              const ItemIcon = resolveIcon(item)
+              return (
+                <DropdownMenuItem
+                  key={item.id}
+                  onClick={() => handleScrollTo(item.id)}
+                  className={cn(
+                    "flex items-center justify-between gap-2.5 px-2.5 py-1.5 text-xs rounded-md cursor-pointer transition-colors outline-hidden select-none",
+                    isActive
+                      ? "bg-zinc-800/90 text-white font-medium"
+                      : "text-zinc-300 hover:bg-zinc-800/50 hover:text-white focus:bg-zinc-800/50 focus:text-white"
+                  )}
+                >
+                  <span className="flex items-center gap-2 min-w-0 truncate">
+                    <HugeiconsIcon
+                      icon={ItemIcon}
+                      size={14}
+                      strokeWidth={1.75}
+                      className={cn(
+                        "shrink-0 transition-colors",
+                        isActive ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    />
+                    <span className="truncate">{item.label}</span>
+                  </span>
+                  {item.index ? (
+                    <span
+                      className={cn(
+                        "font-mono text-[10px] shrink-0 tabular-nums",
+                        isActive ? "text-foreground font-medium" : "text-muted-foreground"
+                      )}
+                    >
+                      {item.index}
+                    </span>
+                  ) : isActive ? (
+                    <HugeiconsIcon
+                      icon={Tick02Icon}
+                      size={12}
+                      strokeWidth={2.5}
+                      className="text-foreground shrink-0"
+                    />
+                  ) : null}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     )
   }

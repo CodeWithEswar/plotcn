@@ -42,14 +42,14 @@ export interface ChartThemeTokens {
 }
 
 export const defaultChartTokens: ChartThemeTokens = {
-  chart1: "#10b981",
-  chart2: "#0ea5e9",
-  chart3: "#8b5cf6",
-  chart4: "#f59e0b",
-  chart5: "#e11d48",
-  chart6: "#4f46e5",
-  chart7: "#14b8a6",
-  chart8: "#f97316",
+  chart1: "#f4f4f5",
+  chart2: "#d4d4d8",
+  chart3: "#a1a1aa",
+  chart4: "#71717a",
+  chart5: "#52525b",
+  chart6: "#3f3f46",
+  chart7: "#e4e4e7",
+  chart8: "#27272a",
 
   background: "#09090b",
   foreground: "#fafafa",
@@ -61,9 +61,9 @@ export const defaultChartTokens: ChartThemeTokens = {
   zeroLine: "#52525b",
   crosshair: "#d4d4d8",
 
-  positive: "#10b981",
-  negative: "#ef4444",
-  warning: "#f59e0b",
+  positive: "#e4e4e7",
+  negative: "#71717a",
+  warning: "#a1a1aa",
   neutral: "#71717a",
 
   tooltipBackground: "#09090b",

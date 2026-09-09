@@ -15,14 +15,12 @@ import { DynamicChartRenderer } from "@/components/chart-gallery/chart-renderer"
 import { ChartColorControl } from "./chart-color-control"
 import { CustomColorDialog } from "./custom-color-dialog"
 import { PropsReferenceTable } from "@/components/docs/api-table"
-import { getChartColorRoles, type ChartColorRoleDef } from "@/lib/charts/chart-colors"
+import { getChartColorRoles } from "@/lib/charts/chart-colors"
 import { useChartColors } from "./chart-color-context"
 import { cn } from "@/lib/utils"
 
 interface PropsExplorerProps {
   propsList: readonly PropDoc[]
-  chartId: string
-  sampleData: readonly any[]
   registryName: string
 }
 
@@ -314,7 +312,7 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
   return (
     <section id="section-props" className="space-y-8 pt-4 scroll-mt-20">
       <div className="space-y-1">
-        <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
+        <div className="text-[11px] font-mono tracking-widest text-muted-foreground font-semibold uppercase">
           03 / Component API & Styling
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sans">
@@ -327,17 +325,17 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
 
       {/* ── Section A: Global Appearance & Color Customization ────────────── */}
       {colorRoles.length > 0 && (
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4.5 sm:p-5 space-y-4 backdrop-blur-md shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/[0.06] pb-3">
+        <div className="rounded-2xl border border-border bg-card text-card-foreground p-4.5 sm:p-5 space-y-4 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-border pb-3">
             <div className="flex items-center gap-2">
-              <span className="flex size-6 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="flex size-6 items-center justify-center rounded-lg bg-muted text-foreground border border-border">
                 <HugeiconsIcon icon={ColorsIcon} size={14} />
               </span>
               <div>
-                <h3 className="text-sm font-semibold font-mono uppercase tracking-wider text-zinc-200">
+                <h3 className="text-sm font-semibold font-mono uppercase tracking-wider text-foreground">
                   Colors & Appearance Configuration
                 </h3>
-                <p className="text-xs text-zinc-400 font-sans">
+                <p className="text-xs text-muted-foreground font-sans">
                   Customize primary, reference, or annotation series colors. Defaults derive from Plotcn theme tokens.
                 </p>
               </div>
@@ -348,7 +346,7 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
                 <button
                   type="button"
                   onClick={handleSwapColors}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.08] text-[11px] font-mono text-zinc-300 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-muted/40 hover:bg-muted text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   title="Swap primary and reference colors"
                 >
                   <HugeiconsIcon icon={Sorting01Icon} size={13} />
@@ -360,7 +358,7 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
                 <button
                   type="button"
                   onClick={handleResetColors}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.08] text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-muted/40 hover:bg-muted text-[11px] font-mono text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                   <HugeiconsIcon icon={RefreshIcon} size={12} />
                   <span>Reset All</span>
@@ -384,19 +382,19 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
           </div>
 
           {/* Generated Usage Code with Live Props */}
-          <div className="space-y-1.5 pt-2 border-t border-white/[0.06]">
-            <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+          <div className="space-y-1.5 pt-2 border-t border-border">
+            <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
               <span>Generated Usage Code (Live Props):</span>
               <button
                 type="button"
                 onClick={handleCopyCode}
-                className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 cursor-pointer"
+                className="inline-flex items-center gap-1 text-foreground hover:text-foreground/80 cursor-pointer font-mono"
               >
                 <HugeiconsIcon icon={copiedCode ? Tick02Icon : Copy01Icon} size={12} />
                 <span>{copiedCode ? "Copied" : "Copy Code"}</span>
               </button>
             </div>
-            <pre className="p-3 rounded-xl bg-black/60 border border-white/[0.06] text-xs font-mono text-emerald-300/90 overflow-x-auto selection:bg-emerald-500/20 leading-relaxed">
+            <pre className="p-3 rounded-xl bg-muted/50 border border-border text-xs font-mono text-foreground/90 overflow-x-auto selection:bg-muted leading-relaxed">
               <code>{generatedCodeSnippet}</code>
             </pre>
           </div>
@@ -406,8 +404,8 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
       {/* ── Section B: Interactive Prop Preview Lab ───────────────────────── */}
       {previewableProps.length > 0 && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-300 font-medium uppercase tracking-wider">
-            <HugeiconsIcon icon={SparklesIcon} size={14} className="text-emerald-400" />
+          <div className="flex items-center gap-2 text-xs font-mono text-foreground font-medium uppercase tracking-wider">
+            <HugeiconsIcon icon={SparklesIcon} size={14} className="text-muted-foreground" />
             <span>Interactive Prop Preview Lab</span>
           </div>
 
@@ -429,20 +427,20 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
       {/* ── Section C: Complete Props Reference Table ─────────────────────── */}
       <div className="space-y-3 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs font-mono text-zinc-300 font-medium uppercase tracking-wider">
+          <div className="text-xs font-mono text-foreground font-medium uppercase tracking-wider">
             All Properties ({filteredProps.length}
             {filteredProps.length !== propsList.length ? ` / ${propsList.length}` : ""})
           </div>
 
           {/* Category Filter Pills & Search */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <div className="inline-flex items-center gap-1 p-0.5 rounded-lg bg-zinc-900/80 border border-white/[0.06] text-xs overflow-x-auto scrollbar-none">
+            <div className="inline-flex items-center gap-1 p-0.5 rounded-lg bg-muted/60 border border-border text-xs overflow-x-auto scrollbar-none">
               <button
                 type="button"
                 onClick={() => setSelectedCategory("all")}
                 className={cn(
                   "px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer whitespace-nowrap",
-                  selectedCategory === "all" ? "bg-white/15 text-white font-medium" : "text-zinc-400 hover:text-zinc-200"
+                  selectedCategory === "all" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 All
@@ -454,7 +452,7 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
                     "px-2.5 py-1 rounded text-[11px] font-mono transition-colors cursor-pointer whitespace-nowrap",
-                    selectedCategory === cat ? "bg-white/15 text-white font-medium" : "text-zinc-400 hover:text-zinc-200"
+                    selectedCategory === cat ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   {categoryLabels[cat]}
@@ -467,7 +465,7 @@ export function PropsExplorer({ propsList, registryName }: PropsExplorerProps) {
               placeholder="Filter props..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-3 py-1.5 rounded-lg border border-white/[0.08] bg-zinc-950 text-xs text-zinc-200 placeholder:text-zinc-500 font-mono outline-none focus:border-white/20 w-full sm:w-44 transition-colors"
+              className="px-3 py-1.5 rounded-lg border border-input bg-background text-xs text-foreground placeholder:text-muted-foreground font-mono outline-none focus-visible:ring-2 focus-visible:ring-ring/40 w-full sm:w-44 transition-colors"
             />
           </div>
         </div>
@@ -520,7 +518,7 @@ function PropLabCard({
     return prop.name === "showGrid" ? true : prop.name === "pointSize" ? 5 : "function"
   }, [prop, resolvedControlOptions])
 
-  const [currentVal, setCurrentVal] = useState<any>(initialVal)
+  const [currentVal, setCurrentVal] = useState<unknown>(initialVal)
   const [copied, setCopied] = useState(false)
   const [customColorOpen, setCustomColorOpen] = useState(false)
 
@@ -765,7 +763,7 @@ function PropLabCard({
   const isHeightProp = prop.name === "height" && typeof currentVal === "number"
   const previewHeight = isHeightProp ? currentVal : 220
 
-  const chartPropsOverride: Record<string, any> = {
+  const chartPropsOverride: NonNullable<React.ComponentProps<typeof DynamicChartRenderer>["chartProps"]> = {
     height: previewHeight,
     ...activeCustomColors,
     [prop.name]: currentVal,
@@ -778,24 +776,24 @@ function PropLabCard({
   }
 
   return (
-    <div className="flex flex-col justify-between w-full min-w-0 max-w-full rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-3.5 backdrop-blur-sm shadow-md transition-all hover:border-white/[0.12] overflow-hidden">
+    <div className="flex flex-col justify-between w-full min-w-0 max-w-full rounded-2xl border border-border bg-card p-4 space-y-3.5 shadow-sm transition-[border-color,box-shadow] hover:border-foreground/20 overflow-hidden">
       {/* Card Header: Prop Name + Type Badge + Copy Action */}
       <div className="flex items-start justify-between gap-2 min-w-0">
         <div className="space-y-0.5 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-semibold text-emerald-400">{prop.name}</span>
-            <span className="text-[10px] font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20 px-1.5 py-0.2 rounded">
+            <span className="font-mono text-sm font-semibold text-foreground">{prop.name}</span>
+            <span className="text-[10px] font-mono text-muted-foreground bg-muted border border-border px-1.5 py-0.2 rounded">
               {prop.type}
             </span>
           </div>
-          <p className="text-xs text-zinc-400 leading-relaxed font-sans">{prop.description}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed font-sans">{prop.description}</p>
         </div>
 
         <button
           type="button"
           onClick={handleCopy}
           aria-label={`Copy ${prop.name} prop snippet`}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-[11px] font-mono text-zinc-300 transition-colors shrink-0 cursor-pointer"
+          className="inline-flex items-center gap-1 px-2 py-1 rounded bg-muted/50 hover:bg-muted border border-border text-[11px] font-mono text-foreground transition-colors shrink-0 cursor-pointer"
         >
           <HugeiconsIcon icon={copied ? Tick02Icon : Copy01Icon} size={12} className={copied ? "text-emerald-400" : ""} />
           <span>{copied ? "Copied" : "Copy"}</span>
@@ -805,12 +803,12 @@ function PropLabCard({
       {/* Interactive Controls (Segmented Pill Switcher + Optional Color Customizer) */}
       {resolvedControlOptions && (
         <div className="space-y-1.5 min-w-0 w-full">
-          <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
             <span>Select value to preview live:</span>
             {isColorProp && (
-              <span className="text-zinc-400 normal-case flex items-center gap-1">
+              <span className="text-muted-foreground normal-case flex items-center gap-1">
                 <span
-                  className="size-2 rounded-full inline-block border border-white/30"
+                  className="size-2 rounded-full inline-block border border-border"
                   style={{ backgroundColor: typeof currentVal === "string" ? currentVal : "#10b981" }}
                 />
                 {String(currentVal)}
@@ -819,7 +817,7 @@ function PropLabCard({
           </div>
 
           <div
-            className="flex flex-nowrap items-center gap-1.5 p-1 rounded-lg bg-black/40 border border-white/[0.06] overflow-x-auto no-scrollbar w-full min-w-0 scroll-smooth whitespace-nowrap"
+            className="flex flex-nowrap items-center gap-1.5 p-1 rounded-lg bg-muted/50 border border-border overflow-x-auto no-scrollbar w-full min-w-0 scroll-smooth whitespace-nowrap"
             role="group"
             aria-label={`${prop.name} options`}
           >
@@ -839,13 +837,13 @@ function PropLabCard({
                   className={cn(
                     "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium transition-all cursor-pointer shrink-0 whitespace-nowrap",
                     active
-                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04] border border-transparent"
+                      ? "bg-foreground text-background border border-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background border border-transparent"
                   )}
                 >
                   {isColorProp && (
                     <span
-                      className="size-2.5 rounded-full border border-white/20 shrink-0"
+                      className="size-2.5 rounded-full border border-border shrink-0"
                       style={{ backgroundColor: String(opt.value) }}
                     />
                   )}
@@ -859,9 +857,9 @@ function PropLabCard({
               <button
                 type="button"
                 onClick={() => setCustomColorOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium text-zinc-300 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] transition-all cursor-pointer shrink-0 whitespace-nowrap ml-auto"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium text-foreground bg-background hover:bg-accent border border-border transition-colors cursor-pointer shrink-0 whitespace-nowrap ml-auto"
               >
-                <HugeiconsIcon icon={ColorsIcon} size={12} className="text-emerald-400" />
+                <HugeiconsIcon icon={ColorsIcon} size={12} className="text-muted-foreground" />
                 <span>Custom Color...</span>
               </button>
             )}
@@ -872,7 +870,7 @@ function PropLabCard({
       {/* Live Mini Preview Canvas */}
       <div className="space-y-1">
         <div
-          className="charts-surface w-full min-w-0 max-w-full rounded-xl border border-white/[0.06] bg-black/50 p-2 overflow-hidden flex flex-col items-stretch justify-center transition-[height,min-height] duration-200"
+          className="charts-surface w-full min-w-0 max-w-full rounded-xl border border-border bg-background p-2 overflow-hidden flex flex-col items-stretch justify-center transition-[height,min-height] duration-200"
           style={{ minHeight: previewHeight + 16, height: previewHeight + 16, ...cssVariables }}
         >
           <DynamicChartRenderer
@@ -883,7 +881,7 @@ function PropLabCard({
             motion={false}
             color={
               isColorProp
-                ? currentVal
+                ? (typeof currentVal === "string" ? currentVal : String(currentVal ?? ""))
                 : activeCustomColors["color"] ||
                   activeCustomColors["primaryColor"] ||
                   activeCustomColors["positiveColor"] ||
@@ -892,8 +890,8 @@ function PropLabCard({
             chartProps={chartPropsOverride}
           />
         </div>
-        <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 px-1 pt-1">
-          <span>Active: <code className="text-zinc-300 font-semibold">{propSnippet}</code></span>
+        <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground px-1 pt-1">
+          <span>Active: <code className="text-foreground font-semibold">{propSnippet}</code></span>
           <span>Default: {prop.default}</span>
         </div>
       </div>

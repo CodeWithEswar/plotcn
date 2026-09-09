@@ -58,8 +58,8 @@ export function CodeBlockActions({ rawCode, codeElementId }: CodeBlockActionsPro
                 aria-label={isWrapped ? "Unwrap code" : "Wrap code"}
                 className={`h-7 px-2 text-xs gap-1 transition-colors ${
                   isWrapped
-                    ? "text-zinc-100 bg-zinc-800"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80"
+                    ? "text-foreground bg-muted"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               />
             }
@@ -69,7 +69,7 @@ export function CodeBlockActions({ rawCode, codeElementId }: CodeBlockActionsPro
               {isWrapped ? "Wrapped" : "Wrap"}
             </span>
           </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs font-mono bg-zinc-900 border-zinc-800 text-zinc-200">
+          <TooltipContent side="top" className="text-xs font-mono bg-popover border-border text-popover-foreground">
             {isWrapped ? "Disable line wrapping" : "Enable line wrapping"}
           </TooltipContent>
         </Tooltip>
@@ -83,7 +83,7 @@ export function CodeBlockActions({ rawCode, codeElementId }: CodeBlockActionsPro
                 size="sm"
                 onClick={handleCopy}
                 aria-label="Copy code to clipboard"
-                className="h-7 px-2 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/80 text-xs gap-1"
+                className="h-7 px-2 text-muted-foreground hover:text-foreground hover:bg-muted text-xs gap-1"
               />
             }
           >
@@ -91,13 +91,13 @@ export function CodeBlockActions({ rawCode, codeElementId }: CodeBlockActionsPro
               icon={copied ? CheckmarkCircle01Icon : Copy01Icon}
               size={14}
               strokeWidth={1.8}
-              className={copied ? "text-emerald-400" : ""}
+              className={copied ? "text-emerald-500 dark:text-emerald-400" : ""}
             />
             <span className="text-[11px] font-mono">
               {copied ? "Copied" : copyError ? "Failed" : "Copy"}
             </span>
           </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs font-mono bg-zinc-900 border-zinc-800 text-zinc-200">
+          <TooltipContent side="top" className="text-xs font-mono bg-popover border-border text-popover-foreground">
             {copied ? "Copied to clipboard!" : copyError ? "Unable to copy" : "Copy code"}
           </TooltipContent>
         </Tooltip>

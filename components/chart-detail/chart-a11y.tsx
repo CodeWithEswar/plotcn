@@ -38,7 +38,7 @@ export function ChartA11y({ features = [] }: ChartA11yProps) {
             className="flex flex-col p-4 rounded-xl border border-border/70 bg-card text-card-foreground"
           >
             <div className="flex items-center gap-2.5 mb-2">
-              <HugeiconsIcon icon={item.icon} size={16} className="text-emerald-500" />
+              <HugeiconsIcon icon={item.icon} size={16} className="text-foreground" />
               <h3 className="text-xs font-semibold text-foreground tracking-tight">{item.title}</h3>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>

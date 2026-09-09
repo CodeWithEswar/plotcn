@@ -35,18 +35,18 @@ export async function CodeBlock({
   const elementId = `code-block-${codeCounter}`
 
   return (
-    <div className="my-6 rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden shadow-sm min-w-0 text-left group/code">
+    <div className="my-6 rounded-xl border border-border bg-card text-card-foreground overflow-hidden shadow-xs min-w-0 text-left group/code">
       {/* Code Header Bar */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-2 bg-zinc-900/40 text-xs select-none">
+      <div className="flex items-center justify-between border-b border-border px-3.5 py-2 bg-muted/40 text-xs select-none">
         <div className="flex items-center gap-2 min-w-0 pr-2">
-          <span className="text-zinc-500 shrink-0">
+          <span className="text-muted-foreground shrink-0">
             <HugeiconsIcon
               icon={isTerminal ? ComputerTerminal01Icon : SourceCodeIcon}
               size={15}
               strokeWidth={1.8}
             />
           </span>
-          <span className="font-mono text-zinc-300 truncate text-[12px]">{displayLabel}</span>
+          <span className="font-mono text-foreground/90 truncate text-[12px]">{displayLabel}</span>
         </div>
 
         <CodeBlockActions rawCode={cleanCode} codeElementId={elementId} />
@@ -55,7 +55,7 @@ export async function CodeBlock({
       {/* Syntax-Highlighted HTML Rendered Directly on the Server */}
       <div
         id={elementId}
-        className={`plotcn-code-content p-4 text-[13px] font-mono selection:bg-zinc-800 overflow-x-auto ${
+        className={`plotcn-code-content p-4 text-[13px] font-mono selection:bg-muted overflow-x-auto ${
           shouldShowLineNumbers ? "has-line-numbers" : ""
         }`}
         dangerouslySetInnerHTML={{ __html: highlightedHtml }}

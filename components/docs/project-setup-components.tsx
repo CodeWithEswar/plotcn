@@ -73,7 +73,7 @@ function ArrowRightIcon({ size = 12, className = "" }: { size?: number; classNam
 
 export function ProjectSetupHero() {
   return (
-    <header className="relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
+    <header className="docs-theme-hero relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
       {/* Background blueprint grid decoration */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.035]"
@@ -163,9 +163,9 @@ export function SetupContextHeader() {
             <span
               className="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-medium"
               style={{
-                borderColor: pkgTokens.borderColor,
-                backgroundColor: pkgTokens.bgTint,
-                color: pkgTokens.accentColor,
+                borderColor: "var(--border)",
+                backgroundColor: "var(--muted)",
+                color: "var(--foreground)",
               }}
             >
               <PackageManagerIcon pkg={packageManager} size={15} />

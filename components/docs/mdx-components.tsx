@@ -354,11 +354,11 @@ export async function MDXRenderer({ content, slug, rawContent }: MDXRendererProp
   ) {
     return (
       <InstallationProvider>
-        <div className="docs-content max-w-none text-zinc-300">{elements}</div>
+        <div className="docs-content prose-docs max-w-none text-foreground">{elements}</div>
       </InstallationProvider>
     )
   }
-  return <div className="docs-content max-w-none text-zinc-300">{elements}</div>
+  return <div className="docs-content prose-docs max-w-none text-foreground">{elements}</div>
 }
 
 interface ParseContext {
@@ -3591,7 +3591,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
       nodes.push(
         <kbd
           key={key}
-          className="inline-flex items-center justify-center rounded border border-white/[0.15] bg-zinc-800/90 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-200 shadow-xs select-none mx-0.5 align-baseline"
+          className="inline-flex items-center justify-center rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-foreground shadow-xs select-none mx-0.5 align-baseline"
         >
           {renderInlineFormatting(kbdInner, `${key}-k`)}
         </kbd>
@@ -3608,7 +3608,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
         nodes.push(
           <span
             key={key}
-            className="my-3 block overflow-x-auto py-2 text-center text-zinc-100 not-prose"
+            className="my-3 block overflow-x-auto py-2 text-center text-foreground not-prose"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         )
@@ -3630,7 +3630,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
           nodes.push(
             <span
               key={key}
-              className="inline-math px-0.5 text-zinc-100"
+              className="inline-math px-0.5 text-foreground"
               dangerouslySetInnerHTML={{ __html: html }}
             />
           )
@@ -3645,7 +3645,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
         <code
           key={key}
           dir="ltr"
-          className="rounded-md border border-zinc-800 bg-zinc-900/80 px-1.5 py-0.5 font-mono text-[12px] text-zinc-200"
+          className="rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[12px] text-foreground"
         >
           {token.slice(1, -1)}
         </code>
@@ -3654,8 +3654,8 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
     // 2. Bold + Italic: ***text***
     else if (token.startsWith("***") && token.endsWith("***") && token.length >= 6) {
       nodes.push(
-        <strong key={key} className="font-semibold text-zinc-100">
-          <em className="italic text-zinc-200">
+        <strong key={key} className="font-semibold text-foreground">
+          <em className="italic text-foreground/90">
             {renderInlineFormatting(token.slice(3, -3), `${key}-bi`)}
           </em>
         </strong>
@@ -3664,7 +3664,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
     // 3. Bold: **text**
     else if (token.startsWith("**") && token.endsWith("**") && token.length >= 4) {
       nodes.push(
-        <strong key={key} className="font-semibold text-zinc-100">
+        <strong key={key} className="font-semibold text-foreground">
           {renderInlineFormatting(token.slice(2, -2), `${key}-b`)}
         </strong>
       )
@@ -3672,7 +3672,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
     // 4. Strikethrough: ~~text~~
     else if (token.startsWith("~~") && token.endsWith("~~") && token.length >= 4) {
       nodes.push(
-        <del key={key} className="line-through text-zinc-500">
+        <del key={key} className="line-through text-muted-foreground">
           {renderInlineFormatting(token.slice(2, -2), `${key}-del`)}
         </del>
       )
@@ -3680,7 +3680,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
     // 5. Italic: *text*
     else if (token.startsWith("*") && token.endsWith("*") && token.length >= 2) {
       nodes.push(
-        <em key={key} className="italic text-zinc-200">
+        <em key={key} className="italic text-foreground/90">
           {renderInlineFormatting(token.slice(1, -1), `${key}-i`)}
         </em>
       )
@@ -3700,7 +3700,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
               href={href}
               target="_blank"
               rel="noreferrer"
-              className="text-white font-medium underline decoration-zinc-600 underline-offset-4 hover:decoration-white transition-colors"
+              className="text-foreground font-medium underline decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors"
             >
               {renderInlineFormatting(label, `${key}-a`)}
             </a>
@@ -3710,7 +3710,7 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
             <Link
               key={key}
               href={href}
-              className="text-white font-medium underline decoration-zinc-600 underline-offset-4 hover:decoration-white transition-colors"
+              className="text-foreground font-medium underline decoration-muted-foreground underline-offset-4 hover:decoration-foreground transition-colors"
             >
               {renderInlineFormatting(label, `${key}-l`)}
             </Link>

@@ -27,10 +27,10 @@ export function HeadingAnchor({ level, id, children }: HeadingAnchorProps) {
 
   const sizeClasses =
     level === 2
-      ? "text-2xl sm:text-[26px] font-bold text-white tracking-tight mt-12 mb-4"
+      ? "text-2xl sm:text-[26px] font-bold text-foreground tracking-tight mt-12 mb-4"
       : level === 3
-      ? "text-lg sm:text-xl font-semibold text-zinc-100 tracking-tight mt-8 mb-3"
-      : "text-base font-medium text-zinc-200 mt-6 mb-2"
+      ? "text-lg sm:text-xl font-semibold text-foreground/90 tracking-tight mt-8 mb-3"
+      : "text-base font-medium text-foreground/80 mt-6 mb-2"
 
   return (
     <Tag id={id} className={`group relative flex items-center gap-2 scroll-mt-24 ${sizeClasses}`}>
@@ -39,7 +39,7 @@ export function HeadingAnchor({ level, id, children }: HeadingAnchorProps) {
         type="button"
         onClick={handleCopy}
         aria-label={`Copy link to section "${id}"`}
-        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-zinc-500 hover:text-zinc-200 p-1 rounded hover:bg-white/[0.06]"
+        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
       >
         <HugeiconsIcon
           icon={copied ? CheckmarkCircle01Icon : Link01Icon}

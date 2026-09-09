@@ -28,7 +28,7 @@ const snippetCache = new Map<string, string>()
 export async function getHighlighterSingleton(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ["vesper"],
+      themes: ["github-light", "vesper"],
       langs: [...REQUIRED_LANGS],
     })
   }
@@ -37,7 +37,7 @@ export async function getHighlighterSingleton(): Promise<Highlighter> {
 
 /**
  * Server-side syntax highlighter using cached singleton Shiki.
- * Uses a restrained dark theme (vesper) fitting Plotcn's aesthetic.
+ * Uses restrained dual themes (github-light and vesper) fitting Plotcn's aesthetic.
  */
 export async function highlightCode(
   code: string,
@@ -63,7 +63,11 @@ export async function highlightCode(
 
     const rawHtml = highlighter.codeToHtml(trimmed, {
       lang: targetLang,
-      theme: "vesper",
+      themes: {
+        light: "github-light",
+        dark: "vesper",
+      },
+      defaultColor: false,
     })
     const html = rawHtml.replace(/<\/span>\r?\n<span class="line">/g, '</span><span class="line">')
 

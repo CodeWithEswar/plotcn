@@ -168,7 +168,7 @@ export async function loadGoogleChartsPackages(packages: readonly string[]): Pro
 export function resolveGoogleColor(
   colorStr: string | undefined,
   element?: HTMLElement | null,
-  fallback = "#10b981"
+  fallback = "#f4f4f5"
 ): string {
   if (!colorStr) return fallback
 

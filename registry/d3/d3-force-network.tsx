@@ -149,7 +149,7 @@ export function D3ForceNetwork({
           }}
         >
           <div className="plotcn-chart-tooltip">
-            <div className="mb-1 flex items-center justify-between gap-2 border-b border-[var(--chart-tooltip-border)] pb-1 text-xs font-semibold">
+            <div className="mb-1 flex items-center justify-between gap-2 border-b border-[var(--chart-tooltip-border)] pb-1 text-xs font-semibold text-[var(--chart-tooltip-foreground)]">
               <span>{hoveredNode.label}</span>
               <span className="size-2 rounded-full bg-[var(--chart-1)]" />
             </div>
@@ -160,7 +160,7 @@ export function D3ForceNetwork({
             {hoveredNode.group !== undefined && (
               <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-[var(--chart-tooltip-muted)]">
                 <span>Cluster</span>
-                <span className="font-mono font-semibold text-[var(--chart-1)]">Group {hoveredNode.group}</span>
+                <span className="font-mono font-semibold text-[var(--chart-tooltip-foreground)]">Group {hoveredNode.group}</span>
               </div>
             )}
           </div>

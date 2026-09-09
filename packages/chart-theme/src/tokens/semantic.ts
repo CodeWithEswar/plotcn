@@ -18,23 +18,23 @@ export const defaultLightTokens: ChartThemeSnapshot = {
 
   crosshair: "#52525b",
   cursor: "#71717a",
-  selection: "#6366f1",
-  focus: "#6366f1",
+  selection: "#27272a",
+  focus: "#09090b",
 
   series: [
-    "#10b981", // series 1 (emerald)
-    "#0ea5e9", // series 2 (sky)
-    "#8b5cf6", // series 3 (violet)
-    "#f59e0b", // series 4 (amber)
-    "#f43f5e", // series 5 (rose)
-    "#6366f1", // series 6 (indigo)
-    "#14b8a6", // series 7 (teal)
-    "#f97316", // series 8 (orange)
+    "#18181b", // series 1 (zinc-900)
+    "#3f3f46", // series 2 (zinc-700)
+    "#52525b", // series 3 (zinc-600)
+    "#71717a", // series 4 (zinc-500)
+    "#a1a1aa", // series 5 (zinc-400)
+    "#27272a", // series 6 (zinc-800)
+    "#d4d4d8", // series 7 (zinc-300)
+    "#09090b", // series 8 (zinc-950)
   ],
 
-  positive: "#10b981",
-  negative: "#ef4444",
-  warning: "#f59e0b",
+  positive: "#18181b",
+  negative: "#71717a",
+  warning: "#52525b",
   neutral: "#71717a",
 
   tooltipBackground: "#09090b",
@@ -64,23 +64,23 @@ export const defaultDarkTokens: ChartThemeSnapshot = {
 
   crosshair: "#a1a1aa",
   cursor: "#71717a",
-  selection: "#818cf8",
-  focus: "#818cf8",
+  selection: "#e4e4e7",
+  focus: "#fafafa",
 
   series: [
-    "#10b981", // series 1
-    "#38bdf8", // series 2
-    "#a78bfa", // series 3
-    "#fbbf24", // series 4
-    "#fb7185", // series 5
-    "#818cf8", // series 6
-    "#2dd4bf", // series 7
-    "#fb923c", // series 8
+    "#f4f4f5", // series 1 (zinc-100)
+    "#d4d4d8", // series 2 (zinc-300)
+    "#a1a1aa", // series 3 (zinc-400)
+    "#71717a", // series 4 (zinc-500)
+    "#52525b", // series 5 (zinc-600)
+    "#3f3f46", // series 6 (zinc-700)
+    "#e4e4e7", // series 7 (zinc-200)
+    "#27272a", // series 8 (zinc-800)
   ],
 
-  positive: "#10b981",
-  negative: "#ef4444",
-  warning: "#f59e0b",
+  positive: "#e4e4e7",
+  negative: "#71717a",
+  warning: "#a1a1aa",
   neutral: "#a1a1aa",
 
   tooltipBackground: "#18181b",

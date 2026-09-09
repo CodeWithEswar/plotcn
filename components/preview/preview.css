@@ -66,6 +66,22 @@
   min-width: 0;
 }
 
+/* Refined chart line weight for workspace canvas: crisp 1.6px strokes */
+.preview-render path.recharts-curve,
+.preview-render path.recharts-line-curve,
+.preview-render .recharts-line path {
+  stroke-width: 1.6px !important;
+}
+
+.preview-render path.recharts-curve[stroke-dasharray],
+.preview-render path.recharts-line-curve[stroke-dasharray] {
+  stroke-width: 1.3px !important;
+}
+
+.preview-render .recharts-dot {
+  stroke-width: 1.6px !important;
+}
+
 .preview-runtime {
   padding: 10px 16px;
   border-top: 1px solid var(--border);

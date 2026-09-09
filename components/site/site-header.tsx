@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ComponentProps } from "react"
 import { useMotionValueEvent, useScroll } from "motion/react"
 import { AppLogo } from "@/components/brand"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -26,14 +26,14 @@ import {
   SearchIcon,
   Menu01Icon,
 } from "@hugeicons/core-free-icons"
-import { Icon } from "@/components/landing/icons"
 import { navigation, site } from "@/lib/site"
+import { ThemeToggle, MobileThemeSelector } from "@/components/theme"
 
 interface SearchItem {
   label: string
   description: string
   href: string
-  icon: any
+  icon: ComponentProps<typeof HugeiconsIcon>["icon"]
   badge?: string
   external?: boolean
 }
@@ -211,9 +211,9 @@ export function SiteHeader() {
           return
         }
       }
-      window.location.href = item.href
+      window.location.assign(item.href)
     } else {
-      window.location.href = item.href
+      window.location.assign(item.href)
     }
   }
 
@@ -226,8 +226,8 @@ export function SiteHeader() {
       <header className={`site-header w-full ${scrolled ? "is-scrolled" : ""}`}>
         <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 header-inner">
           <Link href="/" className="brand-link" aria-label="Plotcn home">
-            <AppLogo className="size-8" />
-            <span>Plotcn</span>
+            <AppLogo className="size-6 sm:size-7 shrink-0 text-foreground" />
+            <span className="text-[16.5px] sm:text-[18px] font-semibold tracking-tight text-foreground">Plotcn</span>
             <span className="brand-beta">beta</span>
           </Link>
 
@@ -241,7 +241,11 @@ export function SiteHeader() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={isActive ? "!text-white font-medium" : undefined}
+                  data-active={isActive ? "true" : undefined}
+                  className={cn(
+                    "text-xs transition-colors",
+                    isActive ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
                   {item.label}
                 </Link>
@@ -252,57 +256,61 @@ export function SiteHeader() {
           <div className="header-actions">
             <Button
               variant="ghost"
-              className="search-button"
+              size="sm"
+              className="search-button !size-8 !p-0 sm:!size-auto sm:!h-8 sm:!px-2.5 sm:!gap-2 rounded-md text-muted-foreground hover:text-foreground"
               aria-label="Search Plotcn"
               onClick={() => setSearch(true)}
             >
               <HugeiconsIcon icon={SearchIcon} size={16} strokeWidth={1.8} />
-              <kbd>Ctrl K</kbd>
+              <kbd className="hidden sm:inline-flex">Ctrl K</kbd>
             </Button>
+
+            {/* Global Theme Appearance Dropdown Toggle */}
+            <ThemeToggle />
 
             {site.github ? (
               <a
-                className="github-link"
+                className="github-link size-8 text-muted-foreground hover:text-foreground"
                 href={site.github}
                 aria-label="Plotcn on GitHub"
                 target="_blank"
                 rel="noreferrer"
               >
-                <HugeiconsIcon icon={GithubIcon} size={18} strokeWidth={1.8} />
+                <HugeiconsIcon icon={GithubIcon} size={16} strokeWidth={1.8} />
               </a>
             ) : (
-              <Link className="github-link" href="#open-source" aria-label="Open source">
-                <HugeiconsIcon icon={GithubIcon} size={18} strokeWidth={1.8} />
+              <Link className="github-link size-8 text-muted-foreground hover:text-foreground" href="#open-source" aria-label="Open source">
+                <HugeiconsIcon icon={GithubIcon} size={16} strokeWidth={1.8} />
               </Link>
             )}
 
-            <Link href="/docs/installation" className={buttonVariants({ className: "header-cta" })}>
-              Get started <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={1.8} />
+            <Link href="/docs/installation" className={buttonVariants({ size: "sm", className: "header-cta !h-8 !px-3 !text-xs !font-medium rounded-md bg-foreground text-background hover:bg-foreground/90" })}>
+              Get started <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={1.8} />
             </Link>
 
             <Sheet open={menu} onOpenChange={setMenu}>
               <SheetTrigger
                 render={
-                  <Button variant="ghost" size="icon" className="mobile-menu" aria-label="Open navigation">
-                    <HugeiconsIcon icon={Menu01Icon} size={20} strokeWidth={1.8} />
+                  <Button variant="ghost" size="icon" className="mobile-menu !size-8 !p-0 rounded-md text-muted-foreground hover:text-foreground" aria-label="Open navigation">
+                    <HugeiconsIcon icon={Menu01Icon} size={18} strokeWidth={1.8} />
                   </Button>
                 }
               />
               <SheetContent
-                className="dark mobile-sheet !w-[270px] !max-w-[85vw] !p-0 !gap-0 !bg-[#0c0c0e] !border-l !border-white/[0.08] shadow-2xl flex flex-col justify-between overflow-hidden"
-                style={{ width: "270px", maxWidth: "85vw" }}
+                className="mobile-sheet !w-[280px] !max-w-[85vw] !p-0 !gap-0 bg-popover text-popover-foreground border-l border-border shadow-2xl flex flex-col justify-between overflow-hidden"
+                style={{ width: "280px", maxWidth: "85vw" }}
               >
-                <SheetHeader className="p-4 pb-3 pr-10 border-b border-white/[0.08] flex flex-col gap-1 text-left">
+                <SheetHeader className="p-4 pb-3 pr-10 border-b border-border flex flex-col gap-1 text-left">
                   <div className="flex items-center gap-2">
-                    <AppLogo className="size-5 shrink-0" />
-                    <SheetTitle className="!text-[15px] !font-semibold !leading-none tracking-tight text-white m-0 flex items-center">
+                    <AppLogo className="size-5 shrink-0 text-foreground" />
+                    <SheetTitle className="!text-[15px] !font-semibold !leading-none tracking-tight text-foreground m-0 flex items-center">
                       Plotcn
                     </SheetTitle>
-                    <span className="font-mono text-[9px] text-zinc-400 border border-zinc-700/80 px-1.5 py-0.5 rounded leading-none">
+                    <span className="font-mono text-[9px] text-muted-foreground border border-border px-1.5 py-0.5 rounded leading-none">
                       beta
                     </span>
                   </div>
-                  <SheetDescription className="!text-[11px] !leading-normal text-zinc-400 m-0">
+                  <SheetDescription className="!text-[11px] !leading-normal text-muted-foreground m-0">
                     Visualizations. Your way.
                   </SheetDescription>
                 </SheetHeader>
@@ -321,8 +329,8 @@ export function SiteHeader() {
                         className={cn(
                           "flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium transition-all group",
                           isActive
-                            ? "bg-white/[0.08] text-white font-semibold is-active"
-                            : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                            ? "bg-accent text-accent-foreground font-semibold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                         )}
                       >
                         <span>{item.label}</span>
@@ -330,36 +338,41 @@ export function SiteHeader() {
                           icon={ArrowRight01Icon}
                           size={14}
                           strokeWidth={1.8}
-                          className="shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                          className="shrink-0 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-0.5"
                         />
                       </Link>
                     )
                   })}
 
-                  <div className="my-1.5 border-t border-white/[0.06]" />
+                  <div className="my-2 border-t border-border" />
+
+                  {/* Mobile Theme Selector */}
+                  <MobileThemeSelector className="px-1 py-1" />
+
+                  <div className="my-1.5 border-t border-border" />
 
                   <Link
                     href="#open-source"
                     onClick={() => setMenu(false)}
-                    className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all group"
+                    className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all group"
                   >
                     <span>Open source</span>
                     <HugeiconsIcon
                       icon={GithubIcon}
                       size={15}
                       strokeWidth={1.8}
-                      className="shrink-0 text-zinc-500 group-hover:text-zinc-300"
+                      className="shrink-0 text-muted-foreground group-hover:text-foreground"
                     />
                   </Link>
                 </nav>
 
-                <div className="p-3 pt-2.5 border-t border-white/[0.08] bg-[#0c0c0e]/80 backdrop-blur-sm">
+                <div className="p-3 pt-2.5 border-t border-border bg-popover/80 backdrop-blur-sm">
                   <Link
                     href="/docs/installation"
                     onClick={() => setMenu(false)}
                     className={cn(
                       buttonVariants({ size: "sm" }),
-                      "w-full justify-center text-xs font-medium h-9 bg-white text-black hover:bg-zinc-200 transition-colors shadow-sm flex items-center gap-1.5"
+                      "w-full justify-center text-xs font-medium h-9 bg-foreground text-background hover:bg-foreground/90 transition-colors shadow-sm flex items-center gap-1.5"
                     )}
                   >
                     <span>Get started</span>
@@ -375,7 +388,7 @@ export function SiteHeader() {
       {/* Responsive Command Palette Search Dialog */}
       <Dialog open={search} onOpenChange={setSearch}>
         <DialogContent
-          className="dark search-dialog !fixed !inset-0 !m-auto !h-fit !max-h-[min(85vh,620px)] !max-w-[640px] !w-[min(calc(100vw-32px),640px)] !p-0 !gap-0 !border-white/[0.12] !bg-[#0d0d10f8] !backdrop-blur-2xl !rounded-2xl !shadow-2xl overflow-hidden"
+          className="search-dialog !fixed !inset-0 !m-auto !h-fit !max-h-[min(85vh,620px)] !max-w-[640px] !w-[min(calc(100vw-32px),640px)] !p-0 !gap-0 border border-border bg-popover text-popover-foreground backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden"
           style={{
             position: "fixed",
             inset: 0,
@@ -393,11 +406,11 @@ export function SiteHeader() {
           <DialogDescription className="sr-only">
             Search for charts, blocks, engines, themes, or guides
           </DialogDescription>
-          <Command className="bg-transparent text-foreground flex flex-col w-full overflow-hidden">
-            <CommandInput placeholder="Search charts, docs, themes…" />
+          <Command className="bg-transparent text-popover-foreground flex flex-col w-full overflow-hidden">
+            <CommandInput placeholder="Search charts, docs, themes…" className="text-foreground placeholder:text-muted-foreground" />
             <CommandList className="max-h-[60vh] sm:max-h-[360px] overflow-y-auto no-scrollbar p-2">
-              <CommandEmpty className="py-10 text-center text-sm text-zinc-500">
-                No results found. Try "charts", "engines", or "themes".
+              <CommandEmpty className="py-10 text-center text-sm text-muted-foreground">
+                No results found. Try &quot;charts&quot;, &quot;engines&quot;, or &quot;themes&quot;.
               </CommandEmpty>
 
               {searchGroups.map((group) => (
@@ -407,30 +420,30 @@ export function SiteHeader() {
                       key={item.label}
                       value={`${item.label} ${item.description} ${item.badge || ""}`}
                       onSelect={() => handleSelect(item)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors group data-[selected=true]:bg-zinc-800/80 text-zinc-300 data-[selected=true]:text-white"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors group data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground text-foreground"
                     >
-                      <div className="size-8 rounded-md border border-white/[0.08] bg-zinc-900/90 flex items-center justify-center shrink-0 text-zinc-400 group-data-[selected=true]:text-white group-data-[selected=true]:border-zinc-500 transition-colors">
+                      <div className="size-8 rounded-md border border-border bg-muted/60 flex items-center justify-center shrink-0 text-muted-foreground group-data-[selected=true]:text-foreground group-data-[selected=true]:border-foreground/30 transition-colors">
                         <HugeiconsIcon icon={item.icon} size={16} strokeWidth={1.8} />
                       </div>
                       <div className="flex flex-col min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-zinc-200 group-data-[selected=true]:text-white truncate">
+                          <span className="text-sm font-medium text-foreground truncate">
                             {item.label}
                           </span>
                           {item.badge && (
-                            <span className="font-mono text-[9px] uppercase tracking-wider text-zinc-400 border border-zinc-700/60 px-1.5 py-0.5 rounded bg-zinc-900/50">
+                            <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground border border-border px-1.5 py-0.5 rounded bg-muted/50">
                               {item.badge}
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-zinc-500 truncate group-data-[selected=true]:text-zinc-400">
+                        <span className="text-xs text-muted-foreground truncate group-data-[selected=true]:text-accent-foreground/80">
                           {item.description}
                         </span>
                       </div>
                       <HugeiconsIcon
                         icon={ArrowRight01Icon}
                         size={14}
-                        className="text-zinc-600 group-data-[selected=true]:text-zinc-300 transition-transform group-data-[selected=true]:translate-x-0.5 shrink-0"
+                        className="text-muted-foreground group-data-[selected=true]:text-accent-foreground transition-transform group-data-[selected=true]:translate-x-0.5 shrink-0"
                       />
                     </CommandItem>
                   ))}
@@ -439,23 +452,23 @@ export function SiteHeader() {
             </CommandList>
 
             {/* Desktop / Tablet Keyboard Legend Footer */}
-            <div className="flex items-center justify-between border-t border-white/[0.08] px-3.5 py-2.5 bg-zinc-950/60 text-[10px] font-mono text-zinc-500 select-none shrink-0">
+            <div className="flex items-center justify-between border-t border-border px-3.5 py-2.5 bg-muted/40 text-[10px] font-mono text-muted-foreground select-none shrink-0">
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1">
-                  <kbd className="rounded border border-zinc-700/60 bg-zinc-800/60 px-1 py-0.5 text-[9px] text-zinc-400">
+                  <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[9px] text-foreground">
                     ↑↓
                   </kbd>
                   <span>navigate</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="rounded border border-zinc-700/60 bg-zinc-800/60 px-1 py-0.5 text-[9px] text-zinc-400">
+                  <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[9px] text-foreground">
                     ↵
                   </kbd>
                   <span>select</span>
                 </span>
               </div>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-zinc-700/60 bg-zinc-800/60 px-1 py-0.5 text-[9px] text-zinc-400">
+                <kbd className="rounded border border-border bg-muted px-1 py-0.5 text-[9px] text-foreground">
                   esc
                 </kbd>
                 <span>close</span>

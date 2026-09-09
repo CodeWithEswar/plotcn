@@ -252,7 +252,7 @@ export function ArchitecturalDomainsCard() {
     {
       domain: "1. Product Application",
       badge: "HOSTING",
-      color: "text-sky-400 border-sky-800/40 bg-sky-950/20",
+      color: "text-foreground border-border bg-muted",
       description: "Public user-facing surfaces built with Next.js App Router.",
       items: ["Documentation", "Component Gallery", "Interactive Playground", "Registry Static Hosting"],
       icon: Globe02Icon,
@@ -260,7 +260,7 @@ export function ArchitecturalDomainsCard() {
     {
       domain: "2. Shared Visualization Layer",
       badge: "STANDARDS",
-      color: "text-emerald-400 border-emerald-800/40 bg-emerald-950/20",
+      color: "text-foreground border-border bg-muted",
       description: "Engine-independent product concerns wrapping each chart.",
       items: ["Responsive Container", "Truthful States", "Semantic Theming", "Accessibility Shell", "Interaction Conventions"],
       icon: Shield01Icon,
@@ -268,7 +268,7 @@ export function ArchitecturalDomainsCard() {
     {
       domain: "3. Visualization Engines",
       badge: "POWER",
-      color: "text-amber-400 border-amber-800/40 bg-amber-950/20",
+      color: "text-foreground border-border bg-muted",
       description: "Three distinct rendering technologies with isolated scopes.",
       items: ["Recharts (Declarative SVG)", "D3.js (Math & Geometry)", "Google Charts (Hosted Runtime)"],
       icon: Layers01Icon,
@@ -276,7 +276,7 @@ export function ArchitecturalDomainsCard() {
     {
       domain: "4. Registry Distribution",
       badge: "DISTRIBUTION",
-      color: "text-indigo-400 border-indigo-800/40 bg-indigo-950/20",
+      color: "text-foreground border-border bg-muted",
       description: "Static JSON metadata consumed by the official shadcn CLI.",
       items: ["Item Catalog", "Registry Item Manifests", "NPM Dependencies", "Registry Dependencies"],
       icon: Package01Icon,
@@ -284,7 +284,7 @@ export function ArchitecturalDomainsCard() {
     {
       domain: "5. Consumer Application",
       badge: "DESTINATION",
-      color: "text-teal-400 border-teal-800/40 bg-teal-950/20",
+      color: "text-foreground border-border bg-muted",
       description: "Your local codebase where source code is installed and modified.",
       items: ["Installed TypeScript Files", "Direct Component Tweaks", "Local Styling Overrides", "No Upstream Lock-in"],
       icon: SourceCodeIcon,
@@ -490,7 +490,7 @@ export function GoogleLoaderArchitectureCard() {
           {states.map((s) => (
             <div key={s.state} className="p-3 rounded-lg border border-white/[0.05] bg-zinc-900/40">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-mono font-bold text-emerald-400">"{s.state}"</span>
+                <span className="text-xs font-mono font-bold text-emerald-400">{`"${s.state}"`}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               </div>
               <p className="text-[11px] text-zinc-400">{s.desc}</p>
@@ -757,7 +757,7 @@ export function ClientServerBoundaryCard() {
           <div className="p-3.5 rounded-lg border border-amber-500/20 bg-amber-950/10">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">Client Environment</h4>
-              <span className="text-[9px] font-mono text-zinc-400">"use client"</span>
+              <span className="text-[9px] font-mono text-zinc-400">{`"use client"`}</span>
             </div>
             <ul className="space-y-1.5 text-[11px] text-zinc-300">
               <li>• Interactive chart hover & tooltips</li>
@@ -894,7 +894,7 @@ export function ThemeAndA11yArchitectureCard() {
         </div>
         <div className="space-y-2 text-xs">
           <div className="p-2.5 rounded bg-zinc-900/60 border border-white/[0.05] text-zinc-200">
-            1. Visualization Component Root (`role="region"`, `aria-label`)
+            {'1. Visualization Component Root (`role="region"`, `aria-label`)'}
           </div>
           <div className="text-center text-zinc-600 text-[10px]">↓</div>
           <div className="grid grid-cols-3 gap-2">

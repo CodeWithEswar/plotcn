@@ -16,18 +16,18 @@ export function QuickFacts({ facts }: QuickFactsProps) {
   ]
 
   return (
-    <section className="rounded-2xl border border-white/[0.08] bg-zinc-950/60 p-4 sm:p-5 backdrop-blur-sm">
-      <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 font-medium mb-3 flex items-center gap-2">
-        <span className="size-1.5 rounded-full bg-emerald-400/80" />
+    <section className="rounded-2xl border border-border bg-card/60 p-4 sm:p-5 backdrop-blur-sm shadow-xs">
+      <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center gap-2">
+        <span className="size-1.5 rounded-full bg-foreground/60" />
         Component Specifications
       </div>
       <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => (
           <div key={item.label} className="space-y-1">
-            <dt className="text-[10px] font-mono uppercase text-zinc-500 tracking-wider">
+            <dt className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider">
               {item.label}
             </dt>
-            <dd className="text-xs text-zinc-300 leading-relaxed font-sans">
+            <dd className="text-xs text-foreground leading-relaxed font-sans">
               {item.value}
             </dd>
           </div>

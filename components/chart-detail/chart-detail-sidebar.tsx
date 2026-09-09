@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Menu01Icon } from "@hugeicons/core-free-icons"
+import { ArrowLeft01Icon, Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons"
 import type { ChartEngine, ChartMetadata } from "@/lib/charts/metadata"
 import { Button } from "@/components/ui/button"
 import { EngineBrandBadge } from "./engine-badge"
@@ -12,9 +12,9 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet"
 
 interface NavigationProps {
@@ -39,14 +39,6 @@ function Navigation({ current, charts, onItemClick }: NavigationProps) {
     [`${current.engine}-${current.category}`]: true,
   }))
 
-  // Auto-expand family when user navigates to a chart in a different category/engine
-  useEffect(() => {
-    setExpandedFamilies((prev) => ({
-      ...prev,
-      [`${current.engine}-${current.category}`]: true,
-    }))
-  }, [current.engine, current.category])
-
   const toggleFamily = (key: string) => {
     setExpandedFamilies((prev) => ({
       ...prev,
@@ -59,8 +51,14 @@ function Navigation({ current, charts, onItemClick }: NavigationProps) {
       {/* Root quick navigation links */}
       <div className="chart-nav-section">
         <p>Charts</p>
-        <Link href="/charts" className="chart-nav-root-link" onClick={onItemClick}>
-          All charts <span>{filteredCharts.length}</span>
+        <Link
+          href="/charts"
+          className="chart-nav-root-link chart-nav-back-btn"
+          onClick={onItemClick}
+        >
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={13} className="text-zinc-400 shrink-0" />
+          <span>All charts</span>
+          <span>{filteredCharts.length}</span>
         </Link>
         <Link href="/playground" className="chart-nav-root-link" onClick={onItemClick}>
           Playground
@@ -86,7 +84,7 @@ function Navigation({ current, charts, onItemClick }: NavigationProps) {
             >
               <summary
                 data-active={engine === current.engine || undefined}
-                className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 px-2 text-left transition-colors hover:bg-zinc-900/50"
+                className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 px-2 text-left transition-colors hover:bg-muted/50"
               >
                 <EngineBrandBadge engine={engine} className="border-0 bg-transparent p-0" />
                 <small className="font-mono text-[10px] text-zinc-500">
@@ -144,8 +142,7 @@ export function ChartDetailMobileSidebar(props: Omit<NavigationProps, "onItemCli
         render={
           <Button
             variant="outline"
-            size="sm"
-            className="w-full sm:w-auto h-9 gap-2 px-3 text-xs font-medium border-white/[0.1] bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 justify-center sm:justify-start shrink-0"
+            className="w-full flex-1 h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-white/[0.1] bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 justify-start shrink-0"
           />
         }
       >
@@ -154,14 +151,52 @@ export function ChartDetailMobileSidebar(props: Omit<NavigationProps, "onItemCli
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="charts-surface overflow-y-auto p-5"
-        data-theme="dark"
+        showCloseButton={false}
+        className="charts-surface flex flex-col h-full w-[300px] sm:w-[340px] max-w-[85vw] p-0 gap-0 border-r border-white/[0.1] bg-zinc-950 text-zinc-100 shadow-2xl"
+        data-theme="follow"
       >
-        <SheetHeader>
-          <SheetTitle>Chart catalog</SheetTitle>
-          <SheetDescription>Browse implemented Plotcn charts.</SheetDescription>
-        </SheetHeader>
-        <div className="mt-4">
+        {/* Responsive Header: Fixed, perfectly aligned in a single row with back button, compact title, badge, and close button */}
+        <div className="chart-detail-drawer-header flex items-center justify-between px-3.5 py-2.5 border-b border-white/[0.08] bg-zinc-950/90 backdrop-blur-sm shrink-0 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <SheetClose
+              render={
+                <button
+                  type="button"
+                  className="size-7 rounded-md bg-zinc-900 border border-white/[0.1] text-zinc-300 hover:text-white hover:bg-zinc-800 flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
+                  aria-label="Back to chart"
+                />
+              }
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+            </SheetClose>
+            <SheetTitle
+              className="!text-[12px] !font-semibold uppercase tracking-wider text-zinc-200 truncate m-0 leading-none"
+              style={{ fontSize: "12px", lineHeight: "1" }}
+            >
+              Chart Catalog
+            </SheetTitle>
+            <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-800/90 text-zinc-400 border border-white/[0.06] shrink-0">
+              {props.charts.length}
+            </span>
+          </div>
+          <SheetClose
+            render={
+              <button
+                type="button"
+                className="size-7 rounded-md bg-zinc-900 border border-white/[0.1] text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
+                aria-label="Close chart catalog"
+              />
+            }
+          >
+            <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
+          </SheetClose>
+        </div>
+        <SheetDescription className="sr-only">
+          Browse implemented Plotcn charts and components.
+        </SheetDescription>
+
+        {/* Scrollable Navigation Body */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
           <Navigation {...props} onItemClick={() => setOpen(false)} />
         </div>
       </SheetContent>

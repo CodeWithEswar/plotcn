@@ -13,9 +13,11 @@ import { InstallCommand } from "@/components/registry/install-command"
 export function ChartCard({
   chart,
   compact = false,
+  color,
 }: {
   chart: ChartMetadata
   compact?: boolean
+  color?: string
 }) {
   const rawFeature =
     chart.features.find((f) => f !== "responsive") || chart.features[0]
@@ -78,6 +80,7 @@ export function ChartCard({
           registryName={chart.registryName}
           height={compact ? 190 : 260}
           motion={false}
+          color={color}
         />
       </div>
 

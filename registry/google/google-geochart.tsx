@@ -86,8 +86,8 @@ export function GoogleGeoChart({
     const gridColor = css.getPropertyValue("--chart-grid").trim() || "#27272a"
     const surfaceColor = css.getPropertyValue("--muted").trim() || "#18181b"
     const targetMax = color || colorMax
-    const resolvedMin = resolveGoogleColor(colorMin, chartRef.current, "#1e293b")
-    const resolvedMax = resolveGoogleColor(targetMax, chartRef.current, "#10b981")
+    const resolvedMin = resolveGoogleColor(colorMin, chartRef.current, "#3f3f46")
+    const resolvedMax = resolveGoogleColor(targetMax, chartRef.current, "#f4f4f5")
 
     data.forEach((item) => {
       const regionName = String(item[regionKey])
@@ -182,6 +182,9 @@ export function GoogleGeoChart({
     const surface = chartRef.current?.closest("[data-theme]")
     const observer = new MutationObserver(drawChart)
     if (surface) observer.observe(surface, { attributes: true, attributeFilter: ["data-theme"] })
+    if (typeof document !== "undefined") {
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] })
+    }
     const media = window.matchMedia("(prefers-color-scheme: dark)")
     media.addEventListener("change", drawChart)
     return () => { observer.disconnect(); media.removeEventListener("change", drawChart) }

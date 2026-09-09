@@ -38,7 +38,7 @@ export function BackToTop({ className }: { className?: string }) {
       aria-label={`Scroll back to top (${scrollProgress}% scrolled)`}
       title={`Back to top (${scrollProgress}%)`}
       className={cn(
-        "fixed bottom-6 right-6 z-40 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-white/[0.12] bg-zinc-950/90 hover:border-emerald-500/40 hover:bg-zinc-900 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer group active:scale-95",
+        "fixed bottom-6 right-6 z-40 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-border bg-card/90 hover:border-foreground/40 hover:bg-muted/80 shadow-xl backdrop-blur-md transition-all duration-200 cursor-pointer group active:scale-95",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
           : "opacity-0 translate-y-3 pointer-events-none",
@@ -53,7 +53,7 @@ export function BackToTop({ className }: { className?: string }) {
             cy="12"
             r={radius}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.12)"
+            stroke="var(--border)"
             strokeWidth="2"
           />
           <circle
@@ -61,7 +61,7 @@ export function BackToTop({ className }: { className?: string }) {
             cy="12"
             r={radius}
             fill="none"
-            stroke="#10b981"
+            stroke="var(--foreground)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -72,10 +72,10 @@ export function BackToTop({ className }: { className?: string }) {
         <HugeiconsIcon
           icon={ArrowUp02Icon}
           size={11}
-          className="absolute text-emerald-400 group-hover:-translate-y-0.5 transition-transform"
+          className="absolute text-foreground group-hover:-translate-y-0.5 transition-transform"
         />
       </div>
-      <span className="text-[11px] font-mono font-medium text-zinc-300 group-hover:text-white tabular-nums tracking-tight">
+      <span className="text-[11px] font-mono font-medium text-muted-foreground group-hover:text-foreground tabular-nums tracking-tight">
         {scrollProgress}%
       </span>
     </button>

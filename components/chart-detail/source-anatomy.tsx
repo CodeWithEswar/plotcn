@@ -27,7 +27,7 @@ export function SourceAnatomy({ anatomy, sourceCode, highlightedSourceCode, comp
   return (
     <section id="section-source" className="space-y-6 pt-4 scroll-mt-20">
       <div className="space-y-1">
-        <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
+        <div className="text-[11px] font-mono tracking-widest text-muted-foreground font-semibold uppercase">
           07 / Source Anatomy
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sans">
@@ -40,12 +40,12 @@ export function SourceAnatomy({ anatomy, sourceCode, highlightedSourceCode, comp
 
       {/* Module Hierarchy Tree with CSS Connectors */}
       <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/80 p-5 space-y-3 font-mono text-xs">
-        <div className="text-[11px] uppercase tracking-wider text-emerald-400 font-semibold">
+        <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
           Component Architecture Call Tree
         </div>
 
         <div className="p-4 rounded-xl bg-black/50 border border-white/[0.04] text-zinc-300 space-y-2">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+          <div className="flex items-center gap-2 text-foreground font-semibold">
             <span>●</span>
             <span>{anatomy.tree.name}</span>
             <span className="text-[10px] text-zinc-500 font-normal">({anatomy.tree.role})</span>
@@ -94,7 +94,7 @@ export function SourceAnatomy({ anatomy, sourceCode, highlightedSourceCode, comp
       <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/90 overflow-hidden shadow-xl">
         <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-2.5 sm:px-4 bg-white/[0.02] gap-2">
           <div className="flex items-center gap-2 text-xs font-mono text-zinc-300 min-w-0 flex-1 mr-1">
-            <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-emerald-400 shrink-0" />
+            <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-muted-foreground shrink-0" />
             <span className="font-semibold truncate" title={componentPath}>{componentPath}</span>
           </div>
 

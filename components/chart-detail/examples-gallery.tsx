@@ -19,7 +19,7 @@ export function ExamplesGallery({ examples, registryName }: ExamplesGalleryProps
   return (
     <section id="section-examples" className="space-y-8 pt-4 scroll-mt-20">
       <div className="space-y-1">
-        <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
+        <div className="text-[11px] font-mono tracking-widest text-muted-foreground font-semibold uppercase">
           04 / Cookbook & States
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sans">

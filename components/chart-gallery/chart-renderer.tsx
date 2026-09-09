@@ -699,6 +699,10 @@ export function DynamicChartRenderer({
   if (effectivePrimary && effectivePrimary !== "theme") {
     colorStyles["--chart-1"] = effectivePrimary
     colorStyles["--primary"] = effectivePrimary
+    colorStyles["--chart-focus"] = effectivePrimary
+    if (!effectiveSecondary || effectiveSecondary === "theme") {
+      colorStyles["--chart-selection"] = effectivePrimary
+    }
   }
   if (effectiveSecondary && effectiveSecondary !== "theme") {
     colorStyles["--chart-2"] = effectiveSecondary

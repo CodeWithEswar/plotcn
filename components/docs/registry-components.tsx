@@ -90,7 +90,7 @@ export function RegistryHero() {
   const pkgTokens = packageManagerTokens[packageManager] || packageManagerTokens.pnpm
 
   return (
-    <header className="relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
+    <header className="docs-theme-hero relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.035]"
         style={{
@@ -136,9 +136,9 @@ export function RegistryHero() {
             <span
               className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px]"
               style={{
-                borderColor: pkgTokens.borderColor,
-                backgroundColor: pkgTokens.bgTint,
-                color: pkgTokens.accentColor,
+                borderColor: "var(--border)",
+                backgroundColor: "var(--muted)",
+                color: "var(--foreground)",
               }}
             >
               <PackageManagerIcon pkg={packageManager} size={12} />
@@ -524,7 +524,7 @@ export function RegistryCliExplorer() {
 
       {/* Simulated Output Preview */}
       <div className="rounded-lg border border-white/[0.06] bg-zinc-950 p-3 font-mono text-[11px] text-zinc-400 overflow-x-auto leading-relaxed">
-        <div className="text-zinc-600 text-[10px] mb-1 select-none">// Terminal output simulation</div>
+        <div className="text-zinc-600 text-[10px] mb-1 select-none">{"// Terminal output simulation"}</div>
         <pre className="text-zinc-300">
           <code>{active.output}</code>
         </pre>
@@ -606,7 +606,7 @@ export function RegistryItemExplorer() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left: JSON Explorer */}
         <div className="lg:col-span-7 rounded-xl border border-white/[0.08] bg-zinc-900/60 p-4 font-mono text-xs leading-relaxed overflow-x-auto">
-          <div className="text-zinc-500 mb-1 text-[10px] select-none">// /r/line-basic.json</div>
+          <div className="text-zinc-500 mb-1 text-[10px] select-none">{"// /r/line-basic.json"}</div>
           <pre className="text-zinc-300">
             <code>{itemJson}</code>
           </pre>

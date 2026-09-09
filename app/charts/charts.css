@@ -33,19 +33,19 @@
   --chart-axis-line: var(--chart-border);
   --chart-zero-line: rgba(255, 255, 255, 0.24);
   --chart-crosshair: rgba(255, 255, 255, 0.4);
-  --chart-focus: #10b981;
-  --chart-selection: #10b981;
-  --chart-1: #10b981;
-  --chart-2: #0ea5e9;
-  --chart-3: #8b5cf6;
-  --chart-4: #f59e0b;
-  --chart-5: #f43f5e;
-  --chart-6: #6366f1;
-  --chart-7: #14b8a6;
-  --chart-8: #f97316;
-  --chart-positive: #10b981;
-  --chart-negative: #f43f5e;
-  --chart-warning: #f59e0b;
+  --chart-focus: #f4f4f5;
+  --chart-selection: #f4f4f5;
+  --chart-1: #f4f4f5;
+  --chart-2: #d4d4d8;
+  --chart-3: #a1a1aa;
+  --chart-4: #71717a;
+  --chart-5: #52525b;
+  --chart-6: #3f3f46;
+  --chart-7: #e4e4e7;
+  --chart-8: #27272a;
+  --chart-positive: #e4e4e7;
+  --chart-negative: #71717a;
+  --chart-warning: #a1a1aa;
   --chart-tooltip-background: #09090b;
   --chart-tooltip-foreground: #fafafa;
   --chart-tooltip-muted: #a1a1aa;
@@ -63,7 +63,9 @@
 }
 
 /* Light Theme */
-.charts-surface[data-theme="light"] {
+.charts-surface[data-theme="light"],
+html:not(.dark) .charts-surface:not([data-theme="dark"]):not([data-theme="light"]):not([data-theme="system"]),
+html:not(.dark) .charts-surface[data-theme="follow"] {
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(0, 0, 0, 0.2);
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
@@ -97,19 +99,19 @@
   --chart-axis-line: var(--chart-border);
   --chart-zero-line: #d4d4d8;
   --chart-crosshair: #71717a;
-  --chart-focus: #059669;
-  --chart-selection: #059669;
-  --chart-1: #059669;
-  --chart-2: #0284c7;
-  --chart-3: #7c3aed;
-  --chart-4: #d97706;
-  --chart-5: #e11d48;
-  --chart-6: #4f46e5;
-  --chart-7: #0d9488;
-  --chart-8: #ea580c;
-  --chart-positive: #059669;
-  --chart-negative: #e11d48;
-  --chart-warning: #d97706;
+  --chart-focus: #18181b;
+  --chart-selection: #18181b;
+  --chart-1: #18181b;
+  --chart-2: #3f3f46;
+  --chart-3: #52525b;
+  --chart-4: #71717a;
+  --chart-5: #a1a1aa;
+  --chart-6: #27272a;
+  --chart-7: #d4d4d8;
+  --chart-8: #09090b;
+  --chart-positive: #18181b;
+  --chart-negative: #71717a;
+  --chart-warning: #52525b;
   --chart-tooltip-background: #ffffff;
   --chart-tooltip-foreground: #09090b;
   --chart-tooltip-muted: #71717a;
@@ -117,6 +119,15 @@
 
   color-scheme: light;
 }
+
+/* Compatibility layer for chart-detail islands that still carry historical
+   dark utility classes. It is scoped to a resolved light chart surface, so
+   explicit dark preview canvases remain independent. */
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) :is([class*="bg-zinc-950"],[class*="bg-zinc-900"]){background-color:var(--card)!important}
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) :is([class*="bg-zinc-800"],[class*="bg-black"],[class*="bg-white/"]){background-color:var(--muted)!important}
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) :is([class*="text-white"],[class*="text-zinc-100"],[class*="text-zinc-200"],[class*="text-zinc-300"]){color:var(--foreground)!important}
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) :is([class*="text-zinc-400"],[class*="text-zinc-500"],[class*="text-zinc-600"]){color:var(--muted-foreground)!important}
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) :is([class*="border-white"],[class*="border-zinc-800"],[class*="divide-white"]){border-color:var(--border)!important}
 
 /* System Theme */
 @media (prefers-color-scheme: light) {
@@ -149,19 +160,19 @@
     --chart-axis-line: var(--chart-border);
     --chart-zero-line: #d4d4d8;
     --chart-crosshair: #71717a;
-    --chart-focus: #059669;
-    --chart-selection: #059669;
-    --chart-1: #059669;
-    --chart-2: #0284c7;
-    --chart-3: #7c3aed;
-    --chart-4: #d97706;
-    --chart-5: #e11d48;
-    --chart-6: #4f46e5;
-    --chart-7: #0d9488;
-    --chart-8: #ea580c;
-    --chart-positive: #059669;
-    --chart-negative: #e11d48;
-    --chart-warning: #d97706;
+    --chart-focus: #18181b;
+    --chart-selection: #18181b;
+    --chart-1: #18181b;
+    --chart-2: #3f3f46;
+    --chart-3: #52525b;
+    --chart-4: #71717a;
+    --chart-5: #a1a1aa;
+    --chart-6: #27272a;
+    --chart-7: #d4d4d8;
+    --chart-8: #09090b;
+    --chart-positive: #18181b;
+    --chart-negative: #71717a;
+    --chart-warning: #52525b;
     --chart-tooltip-background: #ffffff;
     --chart-tooltip-foreground: #09090b;
     --chart-tooltip-muted: #71717a;
@@ -217,49 +228,114 @@
 .lens-heading {
   display: flex;
   justify-content: space-between;
-  gap: 32px;
-  padding-bottom: 52px;
+  align-items: flex-start;
+  gap: 40px;
+  padding-bottom: 48px;
+}
+.lens-heading-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 640px;
 }
 .lens-heading h1 {
   font-size: clamp(32px, 3.3vw, 56px);
   font-weight: 500;
   letter-spacing: -0.055em;
-  line-height: 1.1;
-  margin: 20px 0;
+  line-height: 1.08;
+  margin: 18px 0 16px;
 }
 .lens-heading p {
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.75;
   color: var(--muted-foreground);
-  max-width: 610px;
+  max-width: 580px;
 }
 .lens-heading-side {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
+  gap: 28px;
+  flex-shrink: 0;
 }
-.lens-theme {
+.lens-heading-controls {
   display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lens-theme,
+.lens-palette-control {
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   font-size: 11px;
   color: var(--muted-foreground);
 }
+.lens-control-label {
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+.lens-theme-select-trigger,
+.lens-color-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-family: var(--font-geist-mono), monospace;
+  color: var(--foreground);
+  background: rgba(24, 24, 27, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.lens-theme-select-trigger {
+  min-width: 114px;
+  justify-content: space-between;
+}
+.lens-theme-select-trigger:hover,
+.lens-color-trigger-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.lens-color-label-text {
+  white-space: nowrap;
+}
+.lens-color-reset-btn {
+  font-size: 10px;
+  font-family: var(--font-geist-mono), monospace;
+  padding: 3px 7px;
+  border-radius: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lens-color-reset-btn:hover {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.12);
+}
 .lens-stats {
   display: flex;
-  gap: 38px;
+  gap: 36px;
 }
 .lens-stats div {
   display: flex;
   flex-direction: column-reverse;
-  gap: 5px;
+  gap: 4px;
 }
 .lens-stats dd {
   font-family: var(--font-geist-mono), monospace;
   font-size: 32px;
   letter-spacing: -0.07em;
+  line-height: 1;
 }
 .lens-stats dt {
   font-size: 10px;
@@ -689,6 +765,65 @@
   color: var(--foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
+.lens-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.lens-color-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 29px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-family: var(--font-geist-mono), monospace;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.lens-color-toolbar-btn:hover {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--muted-foreground);
+}
+.lens-color-toolbar-btn strong {
+  color: var(--foreground);
+  font-weight: 500;
+}
+.lens-color-swatch-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+.charts-surface[data-theme="light"] .lens-theme-select-trigger,
+.charts-surface[data-theme="light"] .lens-color-trigger-btn,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-theme-select-trigger,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-color-trigger-btn {
+  background: #ffffff;
+  border-color: var(--border);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.charts-surface[data-theme="light"] .lens-theme-select-trigger:hover,
+.charts-surface[data-theme="light"] .lens-color-trigger-btn:hover,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-theme-select-trigger:hover,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-color-trigger-btn:hover {
+  background: #f4f4f5;
+  border-color: #d4d4d8;
+}
+.charts-surface[data-theme="light"] .lens-color-swatch-dot,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-color-swatch-dot {
+  border-color: rgba(0, 0, 0, 0.2);
+}
 
 /* ==========================================================================
    Chart Grid
@@ -839,6 +974,29 @@
   background: transparent;
   border: 0;
   border-radius: 0;
+}
+
+/* Refined chart line weight for gallery preview cards: crisp 1.5px strokes */
+.lens-plot path.recharts-curve,
+.lens-plot path.recharts-line-curve,
+.lens-plot .recharts-line path {
+  stroke-width: 1.5px !important;
+}
+
+/* Secondary / reference dashed lines */
+.lens-plot path.recharts-curve[stroke-dasharray],
+.lens-plot path.recharts-line-curve[stroke-dasharray] {
+  stroke-width: 1.25px !important;
+}
+
+/* Data points / active dots on lines */
+.lens-plot .recharts-dot {
+  stroke-width: 1.5px !important;
+}
+
+/* Soften pure-black glare in light mode for a refined, modern finish */
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .lens-plot path.recharts-curve {
+  stroke-opacity: 0.92;
 }
 .lens-preview-loading {
   height: 100%;
@@ -1070,7 +1228,8 @@
   color: var(--foreground);
   filter: none;
 }
-.charts-surface[data-theme="light"] .lens-brand.recharts {
+.charts-surface[data-theme="light"] .lens-brand.recharts,
+html:not(.dark) .charts-surface[data-theme="follow"] .lens-brand.recharts {
   color: #0f172a;
   filter: none;
 }
@@ -1130,21 +1289,59 @@
 /* ==========================================================================
    Responsive — Tablet
    ========================================================================== */
-@media (max-width: 1150px) {
+/* ==========================================================================
+   Responsive — Narrow Desktop & Tablet Landscape (<= 1200px)
+   ========================================================================== */
+@media (max-width: 1200px) {
   .lens-shell,
   .site-container-wide {
     width: calc(100% - 64px);
   }
+  .lens-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    padding-bottom: 38px;
+  }
+  .lens-heading-main {
+    max-width: 100%;
+  }
+  .lens-heading h1 {
+    font-size: clamp(34px, 4.2vw, 46px);
+    margin: 14px 0 12px;
+  }
+  .lens-heading p {
+    max-width: 680px;
+  }
+  .lens-heading-side {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .lens-heading-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .lens-stats {
+    gap: 28px;
+  }
+  .lens-stats dd {
+    font-size: 28px;
+  }
 }
+
 @media (max-width: 1023px) {
   .lens-shell {
-    padding: 44px 0 24px;
+    padding: 40px 0 24px;
   }
   .lens-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .lens-heading-side {
-    justify-content: flex-start;
   }
   .lens-stats {
     gap: 22px;
@@ -1158,9 +1355,6 @@
   .lens-module-info {
     padding: 0 14px 14px;
   }
-  .lens-heading h1 {
-    font-size: 38px;
-  }
   .lens-engine-panel {
     padding: 18px;
   }
@@ -1173,67 +1367,145 @@
 }
 
 /* ==========================================================================
-   Responsive — Mobile
+   Responsive — Tablet Portrait (<= 860px)
    ========================================================================== */
-@media (max-width: 767px) {
-  .lens-shell,
-  .site-container-wide {
-    padding: 36px 0 22px;
-    width: calc(100% - 32px);
-  }
-  .lens-heading {
-    flex-direction: column;
-    gap: 26px;
-    padding-bottom: 30px;
-  }
-  .lens-heading h1 {
-    font-size: 36px;
-    max-width: 360px;
-  }
-  .lens-heading p {
-    font-size: 13px;
-  }
+@media (max-width: 860px) {
   .lens-heading-side {
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .lens-heading-controls {
+    width: 100%;
+    justify-content: flex-start;
     gap: 14px;
   }
-  .lens-theme {
-    font-size: 0;
-    gap: 0;
-  }
-  .lens-theme select {
-    font-size: 11px;
-    padding: 8px;
-  }
   .lens-stats {
-    gap: 24px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .lens-stats div {
+    flex: 1;
+    align-items: flex-start;
   }
   .lens-stats dd {
-    font-size: 24px;
+    font-size: 26px;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Mobile (<= 640px)
+   ========================================================================== */
+@media (max-width: 640px) {
+  .lens-shell,
+  .site-container-wide {
+    padding: 28px 0 20px;
+    width: calc(100% - 28px);
+  }
+  .lens-heading {
+    gap: 18px;
+    padding-bottom: 24px;
+  }
+  .lens-heading h1 {
+    font-size: clamp(28px, 7.5vw, 36px);
+    letter-spacing: -0.04em;
+    margin: 10px 0 8px;
+    max-width: 100%;
+  }
+  .lens-heading p {
+    font-size: 13.5px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
+  .lens-heading-side {
+    gap: 14px;
+    padding-top: 14px;
+  }
+  .lens-heading-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+  .lens-theme,
+  .lens-palette-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+  .lens-control-label {
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .lens-theme-select-trigger,
+  .lens-color-trigger-btn {
+    height: 34px;
+  }
+  .lens-theme-select-trigger {
+    min-width: 120px;
+  }
+  .lens-color-trigger-btn {
+    max-width: 190px;
+  }
+  .lens-color-label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+  }
+  .lens-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+  .lens-stats div {
+    text-align: left;
+  }
+  .lens-stats dd {
+    font-size: 22px;
   }
   .lens-stats dt {
-    font-size: 8px;
+    font-size: 8.5px;
   }
   .lens-engine-selector {
     grid-template-columns: 1fr;
     gap: 10px;
   }
   .lens-engine-panel {
-    padding: 16px;
+    padding: 14px 16px;
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
   .lens-engine-panel-head {
     flex: 1;
   }
-  .lens-engine-panel-tagline {
-    display: none;
-  }
+  .lens-engine-panel-tagline,
   .lens-engine-panel-logo {
     display: none;
+  }
+  .lens-result-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .lens-toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .lens-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
   }
   .lens-search-row {
     padding: 14px;
@@ -1260,10 +1532,6 @@
   .lens-categories button {
     font-size: 11px;
     padding: 6px 10px;
-  }
-  .lens-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
   }
   .lens-result-note {
     display: none;
@@ -1296,6 +1564,34 @@
   .lens-copy > button,
   .lens-module-actions > a {
     min-height: 44px;
+  }
+}
+
+/* ==========================================================================
+   Responsive — Extra Small Mobile (<= 380px)
+   ========================================================================== */
+@media (max-width: 380px) {
+  .lens-shell,
+  .site-container-wide {
+    width: calc(100% - 20px);
+  }
+  .lens-color-trigger-btn {
+    max-width: 155px;
+    font-size: 10.5px;
+    padding: 0 8px;
+  }
+  .lens-color-label-text {
+    max-width: 95px;
+  }
+  .lens-stats {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .lens-stats dd {
+    font-size: 19px;
+  }
+  .lens-stats dt {
+    font-size: 8px;
   }
 }
 
@@ -1739,6 +2035,26 @@
 }
 .chart-nav-root-link:hover { color: var(--foreground); background: var(--muted); }
 .chart-nav-root-link > span { margin-left: auto; font: 10px var(--font-geist-mono), monospace; color: var(--muted-foreground); }
+.chart-nav-back-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--foreground) !important;
+  font-weight: 500;
+}
+.chart-nav-back-btn:hover {
+  background: var(--muted) !important;
+  border-color: var(--muted-foreground) !important;
+}
+.chart-detail-drawer-header h2,
+.chart-detail-drawer-header [data-slot="sheet-title"] {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  margin: 0 !important;
+  color: #e4e4e7 !important;
+}
 .chart-engine-details > summary {
   cursor: pointer;
   list-style: none;
@@ -1788,7 +2104,7 @@
   height: 5px;
   flex: 0 0 5px;
   border-radius: 50%;
-  background: var(--chart-1, #10b981);
+  background: var(--chart-1, #f4f4f5);
 }
 .chart-detail-toc-select {
   display: none;
@@ -1839,23 +2155,37 @@
   .chart-detail-sidebar { display: none; }
   .chart-detail-mobile-controls {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 24px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
+    width: 100%;
+  }
+  .chart-detail-mobile-controls > * {
+    flex: 1 1 0%;
+    min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+  }
+  .chart-detail-mobile-controls > .chart-detail-back-link {
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
   }
   .chart-detail-toc-compact {
     margin: 0;
     flex: 1 1 0%;
     min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    display: flex;
+    align-items: center;
   }
-  .chart-detail-toc-compact .chart-detail-toc-heading,
-  .chart-detail-toc-compact .chart-detail-toc-links,
-  .chart-detail-toc-compact .chart-detail-facts,
-  .chart-detail-toc-compact .chart-detail-next { display: none; }
-  .chart-detail-toc-compact .chart-detail-toc-select { display: block; }
 }
 @media (max-width: 700px) {
   .chart-detail-page { --chart-detail-header-height: 68px; padding: 0 16px 0; }
@@ -1869,15 +2199,26 @@
   .chart-detail-mobile-controls > * {
     flex: 1 1 0%;
     min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
   }
   .chart-detail-hero { flex-direction: column; }
   .chart-detail-main { min-width: 0; }
 }
 @media (max-width: 440px) {
   .chart-detail-mobile-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .chart-detail-mobile-controls > * {
+    flex: 1 1 0%;
+    min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
   }
 }
 
@@ -2182,4 +2523,3 @@
     display: none !important;
   }
 }
-

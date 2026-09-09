@@ -12,10 +12,9 @@ import {
   RefreshIcon,
 } from "@hugeicons/core-free-icons"
 import { Button } from "@/components/ui/button"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-export type PreviewTheme = "dark" | "light" | "system"
+export type PreviewTheme = "follow" | "dark" | "light" | "system"
 export interface PreviewContext {
   width: number
   height: number
@@ -89,7 +88,7 @@ function PreviewCanvas({
     <div className="preview-canvas-area">
       <div
         className="charts-surface preview-canvas"
-        data-theme={theme}
+        data-theme={theme === "follow" ? undefined : theme}
         style={{ width, maxWidth: "100%", ...colors, ...customStyle }}
       >
         <div className="preview-ruler">
@@ -119,18 +118,16 @@ function PreviewCanvas({
 
 export function PreviewWorkspace(props: PreviewWorkspaceProps) {
   const [localWidth, setLocalWidth] = useState(1100)
-  const [localTheme, setLocalTheme] = useState<PreviewTheme>("dark")
   const [iteration, setIteration] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   const systemReduced = useReducedMotion()
   const width = props.width ?? localWidth
-  const theme = props.theme ?? localTheme
+  const theme = props.theme ?? "follow"
   const height = props.height ?? 360
   const reducedMotion = !!systemReduced || !!props.reducedMotion
   const setWidth = props.onWidthChange ?? setLocalWidth
-  const setTheme = props.onThemeChange ?? setLocalTheme
 
   useEffect(() => {
     setMounted(true)
@@ -220,22 +217,6 @@ export function PreviewWorkspace(props: PreviewWorkspaceProps) {
         <div className="lens-preview-utilities">
           {props.toolbarActions}
 
-          <Select
-            value={theme}
-            onValueChange={(value) => {
-              if (value) setTheme(value as PreviewTheme)
-            }}
-          >
-            <SelectTrigger aria-label="Preview theme" size="sm" className="w-24">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="dark">Dark</SelectItem>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="system">System</SelectItem>
-            </SelectContent>
-          </Select>
-
           {props.animate && (
             <Button
               variant="ghost"
@@ -264,7 +245,7 @@ export function PreviewWorkspace(props: PreviewWorkspaceProps) {
         createPortal(
           <div
             className="preview-fullscreen-overlay charts-surface"
-            data-theme={theme}
+            data-theme={theme === "follow" ? undefined : theme}
             role="dialog"
             aria-modal="true"
             aria-label={`${props.title} full-screen preview`}
@@ -298,22 +279,6 @@ export function PreviewWorkspace(props: PreviewWorkspaceProps) {
 
               <div className="preview-fullscreen-actions">
                 {props.toolbarActions}
-
-                <Select
-                  value={theme}
-                  onValueChange={(value) => {
-                    if (value) setTheme(value as PreviewTheme)
-                  }}
-                >
-                  <SelectTrigger aria-label="Preview theme" size="sm" className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
 
                 {props.animate && (
                   <Button

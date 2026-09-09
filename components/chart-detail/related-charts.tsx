@@ -29,7 +29,7 @@ export function RelatedCharts({ relatedCharts, currentChart }: RelatedChartsProp
   return (
     <section id="section-related" className="space-y-6 pt-4 scroll-mt-20 border-t border-border">
       <div className="space-y-1 pt-4">
-        <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
+        <div className="text-[11px] font-mono tracking-widest text-muted-foreground font-semibold uppercase">
           08 / Ecosystem Discovery
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sans">
@@ -52,14 +52,14 @@ export function RelatedCharts({ relatedCharts, currentChart }: RelatedChartsProp
             <div className="space-y-1">
               <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 uppercase">
                 <span>{engineLabels[c.engine]}</span>
-                <span className="text-emerald-400 font-semibold">{c.status}</span>
+                <span className="text-muted-foreground font-semibold">{c.status}</span>
               </div>
               <h3 className="text-sm font-semibold text-zinc-200 group-hover:text-white transition-colors flex items-center justify-between">
                 <span>{c.title}</span>
                 <HugeiconsIcon
                   icon={ArrowUpRight01Icon}
                   size={14}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400 shrink-0"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-foreground shrink-0"
                 />
               </h3>
               <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">

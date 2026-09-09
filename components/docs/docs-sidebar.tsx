@@ -31,16 +31,16 @@ export function DocsSidebar({ onSelect }: DocsSidebarProps) {
           <div key={group.title} className="flex flex-col">
             {/* Section Header with Icon Box */}
             <div className="flex items-center gap-2 mb-3">
-              <div className="size-5 rounded-md bg-zinc-800/90 border border-zinc-700/60 flex items-center justify-center text-zinc-400 shrink-0">
+              <div className="size-5 rounded-md bg-muted border border-border flex items-center justify-center text-muted-foreground shrink-0">
                 <HugeiconsIcon icon={Icon} size={12} strokeWidth={1.8} />
               </div>
-              <span className="text-xs font-medium text-zinc-400 tracking-wide">
+              <span className="text-xs font-medium text-muted-foreground tracking-wide">
                 {group.title}
               </span>
             </div>
 
             {/* Continuous Vertical Rail with Child Items */}
-            <ul className="relative ml-2.5 border-l border-zinc-800 pl-4 flex flex-col gap-3.5">
+            <ul className="relative ml-2.5 border-l border-border pl-4 flex flex-col gap-3.5">
               {group.items.map((item) => (
                 <DocsSidebarLink
                   key={item.href}

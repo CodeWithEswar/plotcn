@@ -23,22 +23,22 @@ export function ChartPreview({ registryName: propRegistryName, name, title }: Ch
   }
 
   return (
-    <div className="flex flex-col rounded-2xl border border-white/[0.08] bg-zinc-950/80 overflow-hidden shadow-2xl backdrop-blur-md mb-8">
+    <div className="flex flex-col rounded-2xl border border-border bg-card/80 overflow-hidden shadow-2xl backdrop-blur-md mb-8">
       {/* Top Toolbar */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5 bg-white/[0.02]">
+      <div className="flex items-center justify-between border-b border-border px-4 py-2.5 bg-muted/20">
         <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-mono text-zinc-400">Interactive Preview</span>
+          <span className="size-2 rounded-full bg-foreground/60 animate-pulse" />
+          <span className="text-xs font-mono text-muted-foreground">Interactive Preview</span>
         </div>
 
         {/* Viewport Width Controls */}
-        <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-lg border border-white/[0.06]">
+        <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-lg border border-border">
           <button
             onClick={() => setDevice("desktop")}
             title="Desktop view (100%)"
             className={cn(
               "p-1.5 rounded text-xs transition-colors",
-              device === "desktop" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+              device === "desktop" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <HugeiconsIcon icon={ComputerIcon} size={15} />

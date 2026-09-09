@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { getDocData, getAllDocSlugs } from "@/lib/docs"
 import { getPagerForDoc } from "@/config/docs"
-import { DocsBreadcrumb } from "@/components/docs/docs-breadcrumb"
 import { DocsPager } from "@/components/docs/docs-pager"
 import { DocsToc } from "@/components/docs/docs-toc"
 import { DocsMobileNav } from "@/components/docs/docs-mobile-nav"
@@ -75,10 +74,10 @@ export default async function DocPage({ params }: PageProps) {
           {/* Article Header (Custom heroes used on introduction, installation, project-setup, shadcn, registry, usage, theming) */}
           {!["introduction", "installation", "project-setup", "shadcn", "registry", "usage", "theming", "accessibility"].includes(doc.slug) ? (
             <div className="mb-6">
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2.5">
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-2.5">
                 {doc.title}
               </h1>
-              <p className="text-base sm:text-lg text-zinc-400 leading-relaxed mb-5">
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-5">
                 {doc.description}
               </p>
               <DocsArticleActions rawContent={doc.rawContent} slug={doc.slug} />
@@ -93,7 +92,7 @@ export default async function DocPage({ params }: PageProps) {
         </main>
 
         {/* Right Sticky Table of Contents (>= 1280px) */}
-        <aside className="hidden xl:block w-[220px] shrink-0 self-start sticky top-[80px] h-[calc(100svh-80px)] overflow-y-auto no-scrollbar py-8 lg:py-10">
+        <aside className="hidden xl:block w-[220px] shrink-0 self-start sticky top-[var(--site-header-height,52px)] h-[calc(100svh-var(--site-header-height,52px))] overflow-y-auto no-scrollbar py-8 lg:py-10">
           <DocsToc toc={doc.toc} />
         </aside>
       </div>

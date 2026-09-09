@@ -47,7 +47,7 @@ export function GoogleBar({
     if (status !== "ready" || !chartRef.current || !window.google?.visualization) return
 
     const css = getComputedStyle(chartRef.current)
-    const resolvedColor = resolveGoogleColor(color, chartRef.current, "#0ea5e9")
+    const resolvedColor = resolveGoogleColor(color, chartRef.current, "#f4f4f5")
     const axisColor = css.getPropertyValue("--chart-axis").trim() || "#a1a1aa"
     const gridColor = css.getPropertyValue("--chart-grid").trim() || "rgba(255,255,255,0.08)"
 
@@ -135,6 +135,9 @@ export function GoogleBar({
     const surface = chartRef.current?.closest("[data-theme]")
     const observer = new MutationObserver(drawChart)
     if (surface) observer.observe(surface, { attributes: true, attributeFilter: ["data-theme"] })
+    if (typeof document !== "undefined") {
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] })
+    }
     const media = window.matchMedia("(prefers-color-scheme: dark)")
     media.addEventListener("change", drawChart)
     return () => { observer.disconnect(); media.removeEventListener("change", drawChart) }

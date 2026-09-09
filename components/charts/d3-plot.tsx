@@ -319,17 +319,17 @@ export function D3Plot({ kind, compact = false, values = defaults }: D3PlotProps
             transform: `translate(${transformX}, ${transformY})`,
             pointerEvents: "none",
             zIndex: 50,
-            background: "#18181b",
-            border: "1px solid #3f3f46",
+            background: "var(--chart-tooltip-background, var(--card, #18181b))",
+            border: "1px solid var(--chart-tooltip-border, var(--border, #3f3f46))",
             borderRadius: "7px",
             padding: "5px 10px",
-            boxShadow: "0 10px 25px -3px rgba(0, 0, 0, 0.75), 0 4px 6px -2px rgba(0, 0, 0, 0.5)",
+            boxShadow: "0 10px 25px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.1)",
             display: "inline-flex",
             alignItems: "center",
             gap: "7px",
-            color: "#fafafa",
+            color: "var(--chart-tooltip-foreground, var(--card-foreground, #fafafa))",
             fontSize: "11px",
-            fontFamily: "var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+            fontFamily: "var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif",
             whiteSpace: "nowrap",
           }}
         >
@@ -340,17 +340,26 @@ export function D3Plot({ kind, compact = false, values = defaults }: D3PlotProps
                 height: 7,
                 borderRadius: "50%",
                 backgroundColor: tooltip.color,
-                border: "1px solid rgba(255, 255, 255, 0.25)",
+                border: "1px solid var(--chart-tooltip-border, rgba(255, 255, 255, 0.25))",
                 flexShrink: 0,
               }}
             />
           )}
-          <span style={{ color: "#a1a1aa", fontSize: "11px" }}>{tooltip.title}</span>
+          <span
+            data-tooltip-muted
+            style={{
+              color: "var(--chart-tooltip-muted, var(--muted-foreground, #a1a1aa))",
+              fontSize: "11px",
+            }}
+          >
+            {tooltip.title}
+          </span>
           {tooltip.value !== undefined && (
             <span
+              data-tooltip-val
               style={{
                 fontWeight: 600,
-                color: "#f4f4f5",
+                color: "var(--chart-tooltip-foreground, var(--foreground, #f4f4f5))",
                 fontFamily: "var(--font-geist-mono), monospace",
                 fontSize: "11px",
               }}

@@ -110,7 +110,7 @@ export function DocsTocObserver({ toc }: DocsTocObserverProps) {
   }
 
   return (
-    <ul className="flex flex-col gap-1.5 border-l border-white/[0.08] pl-3 py-0.5">
+    <ul className="flex flex-col gap-1.5 border-l border-border pl-3 py-0.5">
       {toc.map((item) => {
         const isActive = activeId === item.id
         const isH3 = item.level === 3
@@ -122,8 +122,8 @@ export function DocsTocObserver({ toc }: DocsTocObserverProps) {
               onClick={(e) => handleClick(e, item.id)}
               className={`block py-1 transition-colors leading-normal truncate ${
                 isActive
-                  ? "text-zinc-100 font-medium"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {item.title}

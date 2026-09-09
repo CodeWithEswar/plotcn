@@ -7,8 +7,13 @@
       white-space: nowrap;
       fill: #ffffff;
     }
+    @media (prefers-color-scheme: light) {
+      .recharts-text {
+        fill: #09090b;
+      }
+    }
   ]]></style>
-  <g fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <g fill="none" stroke="#0284c7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14.5,25L5,30L14.5,35" />
     <path d="M114.25,37.5L123.75,22.5" />
     <path d="M128.5,25L138,30L128.5,35" />
@@ -17,4 +22,3 @@
     <tspan x="19" dy="0.355em">Recharts</tspan>
   </text>
 </svg>
-

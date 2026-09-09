@@ -33,7 +33,7 @@ export function SiteFooter() {
           <div className="footer-meta-left">
             <span>© 2026 Plotcn. Open source under MIT license.</span>
             <span className="footer-meta-bullet" aria-hidden="true">·</span>
-            <span className="text-zinc-500">Your code. Your canvas.</span>
+            <span className="text-muted-foreground">Your code. Your canvas.</span>
           </div>
           <div className="footer-meta-right">
             <Link

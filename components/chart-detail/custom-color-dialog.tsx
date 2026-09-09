@@ -16,6 +16,7 @@ import {
   SparklesIcon,
 } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/theme"
 
 export interface CustomColorDialogProps {
   open: boolean
@@ -24,7 +25,10 @@ export interface CustomColorDialogProps {
   onApplyColor: (color: string) => void
 }
 
-const PRESET_PALETTES = [
+export const PRESET_PALETTES = [
+  { name: "Zinc (Default)", hex: "#f4f4f5", category: "Monochrome" },
+  { name: "Zinc Muted", hex: "#a1a1aa", category: "Monochrome" },
+  { name: "Zinc Dark", hex: "#71717a", category: "Monochrome" },
   { name: "Emerald", hex: "#10b981", category: "Classic" },
   { name: "Mint", hex: "#34d399", category: "Classic" },
   { name: "Teal", hex: "#14b8a6", category: "Modern" },
@@ -301,23 +305,23 @@ export function CustomColorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[calc(100%-1.5rem)] sm:w-[780px] md:w-[860px] lg:w-[900px] max-w-[900px] max-h-[90dvh] sm:max-h-[85dvh] flex flex-col p-0 gap-0 overflow-hidden bg-zinc-950 border border-white/[0.12] text-white rounded-2xl shadow-2xl [&_[data-slot=dialog-close]]:text-zinc-400 hover:[&_[data-slot=dialog-close]]:text-white hover:[&_[data-slot=dialog-close]]:bg-white/10 [&_[data-slot=dialog-close]]:top-4 sm:[&_[data-slot=dialog-close]]:top-5 [&_[data-slot=dialog-close]]:right-4 sm:[&_[data-slot=dialog-close]]:right-5"
+        className="w-[calc(100%-1.5rem)] sm:w-[780px] md:w-[860px] lg:w-[900px] max-w-[900px] max-h-[90dvh] sm:max-h-[85dvh] flex flex-col p-0 gap-0 overflow-hidden bg-card border border-border text-card-foreground rounded-2xl shadow-2xl [&_[data-slot=dialog-close]]:text-muted-foreground hover:[&_[data-slot=dialog-close]]:text-foreground hover:[&_[data-slot=dialog-close]]:bg-muted [&_[data-slot=dialog-close]]:top-4 sm:[&_[data-slot=dialog-close]]:top-5 [&_[data-slot=dialog-close]]:right-4 sm:[&_[data-slot=dialog-close]]:right-5"
         style={{
           width: "min(900px, calc(100vw - 2rem))",
           maxWidth: "min(900px, calc(100vw - 2rem))",
         }}
       >
         {/* Pinned Dialog Header */}
-        <DialogHeader className="shrink-0 px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-4 border-b border-white/[0.08] bg-zinc-950/90 backdrop-blur-sm pr-12 space-y-1 text-left">
+        <DialogHeader className="shrink-0 px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-4 border-b border-border bg-card/90 backdrop-blur-sm pr-12 space-y-1 text-left">
           <div className="flex items-center gap-2.5">
-            <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+            <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
               <HugeiconsIcon icon={ColorsIcon} size={18} />
             </span>
-            <DialogTitle className="text-base sm:text-lg font-semibold font-sans text-zinc-100 tracking-tight">
+            <DialogTitle className="text-base sm:text-lg font-semibold font-sans text-foreground tracking-tight">
               Customize Component Color
             </DialogTitle>
           </div>
-          <DialogDescription className="text-xs text-zinc-400 font-sans leading-relaxed">
+          <DialogDescription className="text-xs text-muted-foreground font-sans leading-relaxed">
             Interactive visual color laboratory. Drag across the spectrum, pick with the eyedropper, or select designer presets.
           </DialogDescription>
         </DialogHeader>
@@ -328,14 +332,14 @@ export function CustomColorDialog({
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
             {/* LEFT COLUMN: Customized In-Theme Visual Color Picker (5 cols) */}
             <div className="md:col-span-5 space-y-3.5">
-              <div className="rounded-xl border border-white/[0.1] bg-black/50 p-3.5 space-y-3">
+              <div className="rounded-xl border border-border bg-muted/40 p-3.5 space-y-3 shadow-xs">
                 {/* 1. 2D Saturation / Value Gradient Canvas */}
                 <div
                   ref={satValRef}
                   onMouseDown={handleSatValMouseDown}
                   onTouchStart={handleSatValTouch}
                   onTouchMove={handleSatValTouch}
-                  className="w-full h-32 sm:h-36 rounded-lg border border-white/20 relative overflow-hidden cursor-crosshair select-none shadow-inner touch-none"
+                  className="w-full h-32 sm:h-36 rounded-lg border border-border/80 relative overflow-hidden cursor-crosshair select-none shadow-inner touch-none"
                 style={{
                   backgroundColor: `hsl(${hsv.h}, 100%, 50%)`,
                 }}
@@ -364,14 +368,14 @@ export function CustomColorDialog({
                   onClick={handleEyeDropper}
                   title="Pick color from screen"
                   aria-label="Pick color from screen"
-                  className="size-8 rounded-lg border border-white/[0.12] bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center text-zinc-300 hover:text-white transition-all cursor-pointer shrink-0 shadow-xs"
+                  className="size-8 rounded-lg border border-input bg-background hover:bg-muted flex items-center justify-center text-foreground transition-all cursor-pointer shrink-0 shadow-xs"
                 >
                   <HugeiconsIcon icon={DropperIcon} size={15} />
                 </button>
 
                 {/* Live Swatch Circle */}
                 <div
-                  className="size-7 rounded-full border-2 border-white/40 shadow-xs shrink-0 transition-colors"
+                  className="size-7 rounded-full border-2 border-border/80 shadow-xs shrink-0 transition-colors"
                   style={{ backgroundColor: selectedHex }}
                   title={`Current: ${selectedHex.toUpperCase()}`}
                 />
@@ -399,20 +403,20 @@ export function CustomColorDialog({
               </div>
 
               {/* 3. Format Switcher & Inputs (HEX vs RGB) */}
-              <div className="pt-2 border-t border-white/[0.08] space-y-2">
+              <div className="pt-2 border-t border-border space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">
+                  <span className="text-[11px] font-mono text-muted-foreground">
                     {colorMode === "hex" ? "HEX Coordinate" : "RGB Channels"}
                   </span>
-                  <div className="flex items-center rounded-md border border-white/[0.08] bg-black/40 p-0.5 text-[10px] font-mono">
+                  <div className="flex items-center rounded-md border border-border bg-muted/60 p-0.5 text-[10px] font-mono">
                     <button
                       type="button"
                       onClick={() => setColorMode("hex")}
                       className={cn(
                         "px-2 py-0.5 rounded transition-colors cursor-pointer",
                         colorMode === "hex"
-                          ? "bg-white/[0.12] text-white font-medium shadow-xs"
-                          : "text-zinc-500 hover:text-zinc-300"
+                          ? "bg-background text-foreground font-medium shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
                       )}
                     >
                       HEX
@@ -423,8 +427,8 @@ export function CustomColorDialog({
                       className={cn(
                         "px-2 py-0.5 rounded transition-colors cursor-pointer",
                         colorMode === "rgb"
-                          ? "bg-white/[0.12] text-white font-medium shadow-xs"
-                          : "text-zinc-500 hover:text-zinc-300"
+                          ? "bg-background text-foreground font-medium shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
                       )}
                     >
                       RGB
@@ -434,7 +438,7 @@ export function CustomColorDialog({
 
                 {colorMode === "hex" ? (
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-zinc-500">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">
                       #
                     </span>
                     <input
@@ -450,7 +454,7 @@ export function CustomColorDialog({
                       }}
                       placeholder="10B981"
                       maxLength={6}
-                      className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-white/[0.1] bg-black/60 font-mono text-xs text-white placeholder:text-zinc-600 outline-none focus:border-emerald-500/50 uppercase"
+                      className="w-full pl-7 pr-3 py-1.5 rounded-lg border border-input bg-background font-mono text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-emerald-500/50 uppercase"
                     />
                   </div>
                 ) : (
@@ -462,9 +466,9 @@ export function CustomColorDialog({
                         max={255}
                         value={rgb.r}
                         onChange={(e) => handleRgbChange("r", e.target.value)}
-                        className="w-full text-center px-2 py-1.5 rounded-lg border border-white/[0.1] bg-black/60 font-mono text-xs text-white focus:border-emerald-500/50 outline-none"
+                        className="w-full text-center px-2 py-1.5 rounded-lg border border-input bg-background font-mono text-xs text-foreground focus:border-emerald-500/50 outline-none"
                       />
-                      <span className="text-[10px] font-mono text-zinc-500 mt-1 uppercase font-semibold">
+                      <span className="text-[10px] font-mono text-muted-foreground mt-1 uppercase font-semibold">
                         R
                       </span>
                     </div>
@@ -475,9 +479,9 @@ export function CustomColorDialog({
                         max={255}
                         value={rgb.g}
                         onChange={(e) => handleRgbChange("g", e.target.value)}
-                        className="w-full text-center px-2 py-1.5 rounded-lg border border-white/[0.1] bg-black/60 font-mono text-xs text-white focus:border-emerald-500/50 outline-none"
+                        className="w-full text-center px-2 py-1.5 rounded-lg border border-input bg-background font-mono text-xs text-foreground focus:border-emerald-500/50 outline-none"
                       />
-                      <span className="text-[10px] font-mono text-zinc-500 mt-1 uppercase font-semibold">
+                      <span className="text-[10px] font-mono text-muted-foreground mt-1 uppercase font-semibold">
                         G
                       </span>
                     </div>
@@ -488,9 +492,9 @@ export function CustomColorDialog({
                         max={255}
                         value={rgb.b}
                         onChange={(e) => handleRgbChange("b", e.target.value)}
-                        className="w-full text-center px-2 py-1.5 rounded-lg border border-white/[0.1] bg-black/60 font-mono text-xs text-white focus:border-emerald-500/50 outline-none"
+                        className="w-full text-center px-2 py-1.5 rounded-lg border border-input bg-background font-mono text-xs text-foreground focus:border-emerald-500/50 outline-none"
                       />
-                      <span className="text-[10px] font-mono text-zinc-500 mt-1 uppercase font-semibold">
+                      <span className="text-[10px] font-mono text-muted-foreground mt-1 uppercase font-semibold">
                         B
                       </span>
                     </div>
@@ -501,9 +505,16 @@ export function CustomColorDialog({
 
             {/* Quick Palette Shortcuts */}
             <div className="flex items-center gap-1.5 text-[11px] font-mono">
-              <span className="text-[10px] text-zinc-500">Quick:</span>
-              {["#10b981", "#0ea5e9", "#8b5cf6"].map((hex) => {
-                const label = hex === "#10b981" ? "Emerald" : hex === "#0ea5e9" ? "Sky" : "Purple"
+              <span className="text-[10px] text-muted-foreground">Quick:</span>
+              {["#f4f4f5", "#10b981", "#0ea5e9", "#8b5cf6"].map((hex) => {
+                const label =
+                  hex === "#f4f4f5"
+                    ? "Zinc"
+                    : hex === "#10b981"
+                      ? "Emerald"
+                      : hex === "#0ea5e9"
+                        ? "Sky"
+                        : "Purple"
                 return (
                   <button
                     key={hex}
@@ -512,8 +523,8 @@ export function CustomColorDialog({
                     className={cn(
                       "px-2.5 py-1 rounded-md border text-[11px] transition-colors cursor-pointer",
                       selectedHex.toLowerCase() === hex.toLowerCase()
-                        ? "border-white/30 bg-white/10 text-white font-medium shadow-xs"
-                        : "border-white/[0.08] bg-white/[0.02] text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.06]"
+                        ? "border-primary/40 bg-primary/10 text-foreground font-medium shadow-xs"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                   >
                     {label}
@@ -526,10 +537,10 @@ export function CustomColorDialog({
           {/* RIGHT COLUMN: Curated Visual Spectrum (7 cols) */}
           <div className="md:col-span-7 space-y-2.5">
             <div className="flex items-center justify-between">
-              <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+              <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
                 Curated Visual Spectrum
               </div>
-              <span className="text-[10px] font-mono text-zinc-500">12 Presets</span>
+              <span className="text-[10px] font-mono text-muted-foreground">{PRESET_PALETTES.length} Presets</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -543,12 +554,12 @@ export function CustomColorDialog({
                     className={cn(
                       "flex items-center gap-2.5 p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer group text-left min-h-[44px]",
                       active
-                        ? "border-white/40 bg-white/[0.08] shadow-md ring-1 ring-white/20"
-                        : "border-white/[0.06] bg-zinc-900/40 hover:bg-white/[0.04] hover:border-white/[0.15]"
+                        ? "border-foreground bg-muted shadow-md ring-1 ring-border"
+                        : "border-border bg-card hover:bg-muted/80 hover:border-muted-foreground/30"
                     )}
                   >
                     <div
-                      className="size-6 rounded-full border border-white/20 flex items-center justify-center shrink-0 shadow-xs transition-transform group-hover:scale-105"
+                      className="size-6 rounded-full border border-border/80 flex items-center justify-center shrink-0 shadow-xs transition-transform group-hover:scale-105"
                       style={{ backgroundColor: color.hex }}
                     >
                       {active && (
@@ -556,10 +567,10 @@ export function CustomColorDialog({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-mono font-medium text-zinc-200 group-hover:text-white truncate">
+                      <div className="text-xs font-mono font-medium text-foreground group-hover:text-foreground truncate">
                         {color.name}
                       </div>
-                      <div className="text-[10px] font-mono text-zinc-500 uppercase truncate">
+                      <div className="text-[10px] font-mono text-muted-foreground uppercase truncate">
                         {color.hex}
                       </div>
                     </div>
@@ -572,15 +583,15 @@ export function CustomColorDialog({
       </div>
 
       {/* Pinned Dialog Footer Actions */}
-      <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-5 py-3.5 sm:px-6 border-t border-white/[0.08] bg-zinc-950/95 backdrop-blur-sm">
-        <div className="text-xs font-mono text-zinc-400 flex items-center justify-between sm:justify-start gap-2">
+      <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-5 py-3.5 sm:px-6 border-t border-border bg-card">
+        <div className="text-xs font-mono text-muted-foreground flex items-center justify-between sm:justify-start gap-2">
           <div className="flex items-center gap-2">
-            <span className="size-3 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: selectedHex }} />
-            <span className="text-[11px] text-zinc-500 uppercase font-mono">Coordinate:</span>
-            <span className="text-zinc-100 font-semibold uppercase">{selectedHex}</span>
+            <span className="size-3 rounded-full border border-border/80 shrink-0" style={{ backgroundColor: selectedHex }} />
+            <span className="text-[11px] text-muted-foreground uppercase font-mono">Coordinate:</span>
+            <span className="text-foreground font-semibold uppercase">{selectedHex}</span>
           </div>
           {activePreset && (
-            <span className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-zinc-300 text-[10px]">
+            <span className="px-1.5 py-0.5 rounded bg-muted border border-border text-foreground text-[10px]">
               {activePreset.name}
             </span>
           )}
@@ -590,14 +601,14 @@ export function CustomColorDialog({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] text-xs font-mono text-zinc-300 transition-colors cursor-pointer text-center"
+            className="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-xs font-mono text-foreground transition-colors cursor-pointer text-center"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleApply}
-            className="flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/20 hover:bg-emerald-500/30 text-xs font-mono font-medium text-emerald-300 transition-colors shadow-xs cursor-pointer text-center"
+            className="flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg border border-border bg-primary hover:bg-primary/90 text-xs font-mono font-medium text-primary-foreground transition-colors shadow-xs cursor-pointer text-center"
           >
             Apply Color
           </button>

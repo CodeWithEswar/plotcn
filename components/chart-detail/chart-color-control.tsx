@@ -28,6 +28,7 @@ import {
   resolveDisplayHex,
 } from "@/lib/charts/chart-colors"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/theme"
 
 export interface ChartColorControlProps {
   role: ChartColorRoleDef
@@ -50,10 +51,15 @@ export function ChartColorControl({
   const isDefault = !value || value === "theme" || value === role.defaultToken
   const activeValue = value || role.defaultToken
 
+  const { resolvedTheme } = useTheme()
+  const isLight = resolvedTheme === "light"
+  const bgForContrast = isLight ? "#ffffff" : "#09090b"
+  const contrastBgLabel = isLight ? "Light" : "Dark"
+
   // Resolved hex for preview display
   const displayHex = React.useMemo(() => {
-    return resolveDisplayHex(activeValue, role.defaultToken, true)
-  }, [activeValue, role.defaultToken])
+    return resolveDisplayHex(activeValue, role.defaultToken, !isLight)
+  }, [activeValue, role.defaultToken, isLight])
 
   // Custom hex input local state
   const [customHex, setCustomHex] = React.useState(() => {
@@ -69,10 +75,10 @@ export function ChartColorControl({
     }
   }, [activeValue])
 
-  // Contrast against dark background (#09090b)
+  // Contrast against theme background
   const contrastRatio = React.useMemo(() => {
-    return calculateContrastRatio(displayHex, "#09090b")
-  }, [displayHex])
+    return calculateContrastRatio(displayHex, bgForContrast)
+  }, [displayHex, bgForContrast])
   const isLowContrast = contrastRatio < 3.0
   const isHighContrast = contrastRatio >= 4.5
 
@@ -105,7 +111,7 @@ export function ChartColorControl({
         onClick={() => setOpen(true)}
         aria-label={`${role.label} color: ${isDefault ? "Theme Default" : activeValue}`}
         className={cn(
-          "group inline-flex items-center gap-1.5 rounded-lg border border-white/[0.12] bg-zinc-950/80 px-2 text-xs font-mono transition-all hover:border-white/25 hover:bg-zinc-900 focus-visible:ring-2 focus-visible:ring-emerald-500/50 cursor-pointer outline-none select-none text-zinc-200",
+          "group inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2 text-xs font-mono transition-all hover:border-muted-foreground/40 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring cursor-pointer outline-none select-none text-foreground shadow-xs",
           compact
             ? "h-7 sm:h-8 w-auto"
             : "h-8 sm:h-9 w-full min-w-[160px] justify-between px-2.5",
@@ -115,13 +121,13 @@ export function ChartColorControl({
         <div className="flex items-center gap-1.5 min-w-0">
           {/* Swatch Circle */}
           <span
-            className="size-3.5 shrink-0 rounded-full border border-white/25 shadow-xs transition-transform group-hover:scale-110"
+            className="size-3.5 shrink-0 rounded-full border border-border/80 shadow-xs transition-transform group-hover:scale-110"
             style={{ backgroundColor: displayHex }}
           />
-          <span className="text-xs font-medium text-zinc-200 truncate max-w-[75px] sm:max-w-[105px]">
+          <span className="text-xs font-medium text-foreground truncate max-w-[75px] sm:max-w-[105px]">
             {role.label}
           </span>
-          <span className="text-[11px] font-mono text-zinc-400 truncate hidden xs:inline">
+          <span className="text-[11px] font-mono text-muted-foreground truncate hidden xs:inline">
             {displayHex}
           </span>
         </div>
@@ -129,39 +135,39 @@ export function ChartColorControl({
         <HugeiconsIcon
           icon={ArrowDown01Icon}
           size={12}
-          className="text-zinc-400 transition-transform group-hover:text-zinc-200 shrink-0"
+          className="text-muted-foreground transition-transform group-hover:text-foreground shrink-0"
         />
       </button>
 
       {/* Horizontal, Professional, Fully Responsive Color Customization Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className="w-[calc(100%-1.5rem)] sm:w-[780px] md:w-[860px] lg:w-[920px] max-w-[920px] max-h-[92vh] sm:max-h-[88vh] flex flex-col p-0 gap-0 overflow-hidden bg-zinc-950 border border-white/[0.14] text-white rounded-2xl shadow-2xl backdrop-blur-2xl ring-1 ring-white/[0.06]"
+          className="w-[calc(100%-1.5rem)] sm:w-[780px] md:w-[860px] lg:w-[920px] max-w-[920px] max-h-[92vh] sm:max-h-[88vh] flex flex-col p-0 gap-0 overflow-hidden bg-card border border-border text-card-foreground rounded-2xl shadow-2xl backdrop-blur-2xl ring-1 ring-border/50"
           style={{
             width: "min(920px, calc(100vw - 2rem))",
             maxWidth: "min(920px, calc(100vw - 2rem))",
           }}
         >
           {/* Header */}
-          <DialogHeader className="shrink-0 px-5 py-4 sm:px-6 sm:py-5 border-b border-white/[0.08] bg-zinc-950/95 backdrop-blur-md pr-12 text-left space-y-1.5">
+          <DialogHeader className="shrink-0 px-5 py-4 sm:px-6 sm:py-5 border-b border-border bg-card/95 backdrop-blur-md pr-12 text-left space-y-1.5">
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-              <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+              <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shrink-0">
                 <HugeiconsIcon icon={ColorsIcon} size={16} />
               </span>
-              <DialogTitle className="text-base sm:text-lg font-semibold font-sans text-zinc-100 tracking-tight">
-                {role.label} Color Configuration
+              <DialogTitle className="text-base sm:text-lg font-semibold font-sans text-foreground tracking-tight">
+                {role.label.toLowerCase().endsWith("color") ? role.label : `${role.label} Color`}
               </DialogTitle>
               {isDefault ? (
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-400 border border-emerald-500/20">
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   Theme Default
                 </span>
               ) : (
-                <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-sky-400 border border-sky-500/20">
+                <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-mono font-medium text-sky-600 dark:text-sky-400 border border-sky-500/20">
                   Custom Override
                 </span>
               )}
             </div>
-            <DialogDescription className="text-xs text-zinc-400 font-sans leading-relaxed max-w-2xl">
+            <DialogDescription className="text-xs text-muted-foreground font-sans leading-relaxed max-w-2xl">
               {role.description} Selected color updates the live preview, code generator, and variants immediately.
             </DialogDescription>
           </DialogHeader>
@@ -172,17 +178,17 @@ export function ChartColorControl({
               {/* LEFT COLUMN: Active Preview, WCAG Metric & Custom Input (5 cols) */}
               <div className="sm:col-span-5 space-y-4">
                 {/* Active Preview Card */}
-                <div className="rounded-xl border border-white/[0.1] bg-black/40 p-4 space-y-3 shadow-inner">
-                  <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-xs">
+                  <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
                     <span>Active Preview</span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
+                    <span className="text-[10px] text-muted-foreground font-mono">
                       {isDefault ? "Inherited" : "Overridden"}
                     </span>
                   </div>
 
                   {/* Large Swatch Block with Mini Visualization */}
                   <div
-                    className="w-full h-24 rounded-lg border border-white/20 relative overflow-hidden shadow-inner flex flex-col justify-between p-3 transition-colors duration-200"
+                    className="w-full h-24 rounded-lg border border-border/80 relative overflow-hidden shadow-inner flex flex-col justify-between p-3 transition-colors duration-200"
                     style={{ backgroundColor: displayHex }}
                   >
                     {/* Subtle Mini SVG wave demonstrating stroke */}
@@ -193,40 +199,40 @@ export function ChartColorControl({
                     </div>
 
                     <div className="relative z-10 flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-white/80 uppercase tracking-wider bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-xs">
+                      <span className="text-[10px] font-mono text-white/90 uppercase tracking-wider bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-xs">
                         Swatch
                       </span>
                     </div>
 
-                    <div className="relative z-10 bg-black/75 backdrop-blur-md rounded-md px-2.5 py-1 flex items-center justify-between border border-white/15">
-                      <span className="font-mono text-xs font-bold text-white tracking-wider">
+                    <div className="relative z-10 bg-background/90 backdrop-blur-md rounded-md px-2.5 py-1 flex items-center justify-between border border-border/60">
+                      <span className="font-mono text-xs font-bold text-foreground tracking-wider">
                         {displayHex.toUpperCase()}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-300 truncate max-w-[120px]">
+                      <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[120px]">
                         {isDefault ? role.defaultToken : "Custom"}
                       </span>
                     </div>
                   </div>
 
                   {/* Contrast Metric Banner */}
-                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-zinc-900/80 border border-white/[0.06]">
-                    <div className="text-[11px] text-zinc-300 font-sans">
-                      Dark contrast:
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-muted border border-border">
+                    <div className="text-[11px] text-foreground font-sans">
+                      {contrastBgLabel} contrast:
                     </div>
                     <div className="flex items-center gap-1.5">
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold border",
                           isLowContrast
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                            : "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                         )}
                       >
                         {isLowContrast && <HugeiconsIcon icon={AlertCircleIcon} size={11} />}
                         {isHighContrast && <HugeiconsIcon icon={CheckmarkCircle02Icon} size={11} />}
                         {contrastRatio.toFixed(1)}:1
                       </span>
-                      <span className="text-[10px] text-zinc-400">
+                      <span className="text-[10px] text-muted-foreground">
                         {isLowContrast ? "Low" : isHighContrast ? "AAA" : "AA"}
                       </span>
                     </div>
@@ -234,8 +240,8 @@ export function ChartColorControl({
                 </div>
 
                 {/* Custom Hex & Eyedropper Input */}
-                <div className="rounded-xl border border-white/[0.1] bg-black/40 p-4 space-y-2.5 shadow-inner">
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                <div className="rounded-xl border border-border bg-card p-4 space-y-2.5 shadow-xs">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                     Custom Hex or CSS Color
                   </div>
                   <div className="flex items-center gap-2">
@@ -248,13 +254,13 @@ export function ChartColorControl({
                           handleApplyHex(e.target.value)
                         }}
                         placeholder="#3b82f6 or var(--chart-1)"
-                        className="h-9 font-mono text-xs pl-3 pr-2 bg-zinc-950 border-white/20 text-white placeholder:text-zinc-600 focus-visible:border-emerald-400"
+                        className="h-9 font-mono text-xs pl-3 pr-2 bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:border-emerald-500"
                       />
                     </div>
 
                     {/* Native system color picker button */}
                     <label
-                      className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                      className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-input bg-muted hover:bg-muted/80 text-foreground transition-colors cursor-pointer"
                       title="Open visual color picker"
                     >
                       <HugeiconsIcon icon={ColorsIcon} size={16} />
@@ -272,7 +278,7 @@ export function ChartColorControl({
                   </div>
 
                   {inputError && (
-                    <p className="text-[10px] font-mono text-rose-400 leading-tight">
+                    <p className="text-[10px] font-mono text-rose-500 dark:text-rose-400 leading-tight">
                       {inputError}
                     </p>
                   )}
@@ -284,7 +290,7 @@ export function ChartColorControl({
                   variant="outline"
                   size="sm"
                   onClick={handleReset}
-                  className="w-full h-8 text-xs font-mono text-zinc-300 hover:text-white border-white/10 hover:bg-white/[0.06] justify-center gap-1.5 cursor-pointer"
+                  className="w-full h-8 text-xs font-mono text-foreground border-border hover:bg-muted justify-center gap-1.5 cursor-pointer"
                 >
                   <HugeiconsIcon icon={RefreshIcon} size={13} />
                   <span>Reset to {role.defaultToken}</span>
@@ -296,10 +302,10 @@ export function ChartColorControl({
                 {/* 1. Plotcn Theme Tokens */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                       Plotcn Theme Tokens
                     </span>
-                    <span className="text-[10px] text-zinc-400 font-mono">
+                    <span className="text-[10px] text-muted-foreground font-mono">
                       CSS Variables
                     </span>
                   </div>
@@ -307,6 +313,7 @@ export function ChartColorControl({
                   <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Theme tokens">
                     {THEME_CHART_TOKENS.map((token) => {
                       const isSelected = activeValue === token.value
+                      const tokenDisplayHex = resolveDisplayHex(token.value, token.value, !isLight)
                       return (
                         <button
                           key={token.id}
@@ -318,26 +325,26 @@ export function ChartColorControl({
                           className={cn(
                             "flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-left transition-all cursor-pointer h-10",
                             isSelected
-                              ? "border-emerald-500 bg-emerald-500/15 ring-1 ring-emerald-500 text-white font-medium shadow-xs"
-                              : "border-white/[0.08] bg-zinc-900/60 hover:bg-zinc-900 hover:border-white/20 text-zinc-300"
+                              ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500 text-foreground font-medium shadow-xs"
+                              : "border-border bg-card hover:bg-muted text-foreground"
                           )}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <span
-                              className="size-3.5 shrink-0 rounded-full border border-white/20 shadow-xs"
-                              style={{ backgroundColor: token.hex }}
+                              className="size-3.5 shrink-0 rounded-full border border-border/80 shadow-xs"
+                              style={{ backgroundColor: tokenDisplayHex }}
                             />
                             <div className="flex flex-col min-w-0">
-                              <span className="font-mono text-xs text-zinc-200 truncate">
+                              <span className="font-mono text-xs text-foreground truncate">
                                 {token.label}
                               </span>
-                              <span className="font-mono text-[10px] text-zinc-400 truncate">
+                              <span className="font-mono text-[10px] text-muted-foreground truncate">
                                 {token.value}
                               </span>
                             </div>
                           </div>
                           {isSelected && (
-                            <HugeiconsIcon icon={Tick02Icon} size={14} className="text-emerald-400 shrink-0" />
+                            <HugeiconsIcon icon={Tick02Icon} size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                           )}
                         </button>
                       )
@@ -349,7 +356,7 @@ export function ChartColorControl({
                 <div className="space-y-3.5 pt-1">
                   {CURATED_COLOR_GROUPS.slice(1).map((group) => (
                     <div key={group.name} className="space-y-1.5">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                         {group.name}
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -362,10 +369,10 @@ export function ChartColorControl({
                               aria-label={`${preset.label} (${preset.value})`}
                               onClick={() => onChange(preset.value)}
                               className={cn(
-                                "group relative size-8 rounded-lg border transition-all cursor-pointer flex items-center justify-center p-0 outline-none focus-visible:ring-2 focus-visible:ring-white",
+                                "group relative size-8 rounded-lg border transition-all cursor-pointer flex items-center justify-center p-0 outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                 isSelected
-                                  ? "border-white ring-2 ring-emerald-400 scale-110 shadow-md"
-                                  : "border-white/15 hover:border-white/40 hover:scale-105"
+                                  ? "border-foreground ring-2 ring-emerald-500 scale-110 shadow-md"
+                                  : "border-border hover:border-foreground/50 hover:scale-105"
                               )}
                               style={{ backgroundColor: preset.hex }}
                               title={`${preset.label} (${preset.hex})`}
@@ -389,8 +396,8 @@ export function ChartColorControl({
           </div>
 
           {/* Footer with Done / Close Button */}
-          <div className="shrink-0 px-5 py-3.5 sm:px-6 border-t border-white/[0.08] bg-zinc-950 flex items-center justify-between">
-            <span className="text-[11px] font-mono text-zinc-400 hidden sm:inline">
+          <div className="shrink-0 px-5 py-3.5 sm:px-6 border-t border-border bg-card flex items-center justify-between">
+            <span className="text-[11px] font-mono text-muted-foreground hidden sm:inline">
               Press ESC or click outside to dismiss
             </span>
             <div className="flex items-center gap-2 ml-auto">
@@ -400,7 +407,7 @@ export function ChartColorControl({
                   variant="ghost"
                   size="sm"
                   onClick={handleReset}
-                  className="text-xs font-mono text-zinc-400 hover:text-white h-8 px-3 cursor-pointer"
+                  className="text-xs font-mono text-muted-foreground hover:text-foreground h-8 px-3 cursor-pointer"
                 >
                   Reset
                 </Button>
@@ -409,7 +416,7 @@ export function ChartColorControl({
                 type="button"
                 size="sm"
                 onClick={() => setOpen(false)}
-                className="bg-white text-zinc-950 hover:bg-zinc-200 font-semibold text-xs h-8 px-4 rounded-lg cursor-pointer shadow-sm transition-all"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-xs h-8 px-4 rounded-lg cursor-pointer shadow-xs transition-all"
               >
                 Done
               </Button>

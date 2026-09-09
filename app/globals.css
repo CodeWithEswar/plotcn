@@ -59,142 +59,165 @@
 
 :root {
   color-scheme: light;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --background: #fafafa;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #e11d48;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #18181b;
 
-  /* Plotcn Semantic Chart Tokens (Light) */
-  --chart-background: oklch(1 0 0);
-  --chart-foreground: oklch(0.145 0 0);
-  --chart-muted-foreground: oklch(0.556 0 0);
-  --chart-border: oklch(0.922 0 0);
-  --chart-grid: oklch(0.922 0 0);
-  --chart-grid-emphasis: oklch(0.85 0 0);
-  --chart-axis: oklch(0.556 0 0);
-  --chart-axis-emphasis: oklch(0.205 0 0);
+  /* Plotcn Canonical Zinc Monochrome Chart Tokens (Light) */
+  --chart-background: #ffffff;
+  --chart-foreground: #09090b;
+  --chart-muted-foreground: #71717a;
+  --chart-border: #e4e4e7;
+  --chart-grid: #f4f4f5;
+  --chart-grid-emphasis: #e4e4e7;
+  --chart-axis: #71717a;
+  --chart-axis-emphasis: #09090b;
   --chart-axis-label: var(--chart-axis);
   --chart-axis-line: var(--chart-border);
-  --chart-zero-line: oklch(0.708 0 0);
-  --chart-crosshair: oklch(0.439 0 0);
-  --chart-cursor: oklch(0.708 0 0);
-  --chart-selection: oklch(0.6 0.2 260);
-  --chart-focus: oklch(0.6 0.2 260);
-  --chart-1: oklch(0.65 0.18 155);
-  --chart-2: oklch(0.7 0.17 230);
-  --chart-3: oklch(0.6 0.2 285);
-  --chart-4: oklch(0.75 0.18 75);
-  --chart-5: oklch(0.65 0.22 15);
-  --chart-6: oklch(0.6 0.2 260);
-  --chart-7: oklch(0.7 0.15 180);
-  --chart-8: oklch(0.7 0.19 45);
-  --chart-positive: oklch(0.65 0.18 155);
-  --chart-negative: oklch(0.6 0.22 25);
-  --chart-warning: oklch(0.75 0.18 75);
-  --chart-neutral: oklch(0.556 0 0);
-  --chart-tooltip-background: oklch(0.145 0 0);
-  --chart-tooltip-foreground: oklch(0.985 0 0);
-  --chart-tooltip-muted: oklch(0.708 0 0);
-  --chart-tooltip-border: oklch(0.269 0 0);
-  --chart-disabled: oklch(0.708 0 0);
-  --chart-hidden: oklch(0.85 0 0);
+  --chart-zero-line: #d4d4d8;
+  --chart-crosshair: #52525b;
+  --chart-cursor: #71717a;
+  --chart-selection: #09090b;
+  --chart-focus: #09090b;
+  --chart-1: #18181b;
+  --chart-2: #3f3f46;
+  --chart-3: #52525b;
+  --chart-4: #71717a;
+  --chart-5: #a1a1aa;
+  --chart-6: #27272a;
+  --chart-7: #d4d4d8;
+  --chart-8: #09090b;
+  --chart-positive: #18181b;
+  --chart-negative: #71717a;
+  --chart-warning: #52525b;
+  --chart-neutral: #71717a;
+  --chart-tooltip-background: #ffffff;
+  --chart-tooltip-foreground: #09090b;
+  --chart-tooltip-muted: #71717a;
+  --chart-tooltip-border: #e4e4e7;
+  --chart-disabled: #d4d4d8;
+  --chart-hidden: #e4e4e7;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --sidebar: #ffffff;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #18181b;
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(0, 0, 0, 0.2);
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
   --scrollbar-thumb-active: rgba(0, 0, 0, 0.5);
+  --site-header-height: 52px;
+
+  /* SVG Documentation Diagram Tokens (Light) */
+  --diagram-background: var(--background);
+  --diagram-surface: var(--card);
+  --diagram-foreground: var(--foreground);
+  --diagram-muted: var(--muted-foreground);
+  --diagram-border: var(--border);
+  --diagram-emphasis: var(--primary);
+}
+
+@media (max-width: 600px) {
+  :root {
+    --site-header-height: 48px;
+  }
 }
 
 .dark,
 :root.dark {
   color-scheme: dark;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #121215;
+  --card-foreground: #fafafa;
+  --popover: #121215;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #09090b;
+  --secondary: #1f1f23;
+  --secondary-foreground: #fafafa;
+  --muted: #1f1f23;
+  --muted-foreground: #a1a1aa;
+  --accent: #1f1f23;
+  --accent-foreground: #fafafa;
+  --destructive: #f43f5e;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #a1a1aa;
 
-  /* Plotcn Semantic Chart Tokens (Dark) */
-  --chart-background: oklch(0.145 0 0);
-  --chart-foreground: oklch(0.985 0 0);
-  --chart-muted-foreground: oklch(0.708 0 0);
-  --chart-border: oklch(1 0 0 / 10%);
-  --chart-grid: oklch(0.205 0 0);
-  --chart-grid-emphasis: oklch(0.269 0 0);
-  --chart-axis: oklch(0.708 0 0);
-  --chart-axis-emphasis: oklch(0.922 0 0);
+  /* Plotcn Canonical Zinc Monochrome Chart Tokens (Dark) */
+  --chart-background: #09090b;
+  --chart-foreground: #fafafa;
+  --chart-muted-foreground: #a1a1aa;
+  --chart-border: rgba(255, 255, 255, 0.12);
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-grid-emphasis: rgba(255, 255, 255, 0.16);
+  --chart-axis: #a1a1aa;
+  --chart-axis-emphasis: #fafafa;
   --chart-axis-label: var(--chart-axis);
   --chart-axis-line: var(--chart-border);
-  --chart-zero-line: oklch(0.439 0 0);
-  --chart-crosshair: oklch(0.708 0 0);
-  --chart-cursor: oklch(0.556 0 0);
-  --chart-selection: oklch(0.7 0.18 260);
-  --chart-focus: oklch(0.7 0.18 260);
-  --chart-1: oklch(0.7 0.18 155);
-  --chart-2: oklch(0.75 0.17 230);
-  --chart-3: oklch(0.7 0.2 285);
-  --chart-4: oklch(0.8 0.18 75);
-  --chart-5: oklch(0.7 0.22 15);
-  --chart-6: oklch(0.7 0.2 260);
-  --chart-7: oklch(0.75 0.15 180);
-  --chart-8: oklch(0.75 0.19 45);
-  --chart-positive: oklch(0.7 0.18 155);
-  --chart-negative: oklch(0.65 0.22 25);
-  --chart-warning: oklch(0.8 0.18 75);
-  --chart-neutral: oklch(0.708 0 0);
-  --chart-tooltip-background: oklch(0.205 0 0);
-  --chart-tooltip-foreground: oklch(0.985 0 0);
-  --chart-tooltip-muted: oklch(0.708 0 0);
-  --chart-tooltip-border: oklch(1 0 0 / 15%);
-  --chart-disabled: oklch(0.439 0 0);
-  --chart-hidden: oklch(0.371 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --chart-zero-line: rgba(255, 255, 255, 0.24);
+  --chart-crosshair: #d4d4d8;
+  --chart-cursor: #a1a1aa;
+  --chart-selection: #fafafa;
+  --chart-focus: #fafafa;
+  --chart-1: #f4f4f5;
+  --chart-2: #d4d4d8;
+  --chart-3: #a1a1aa;
+  --chart-4: #71717a;
+  --chart-5: #52525b;
+  --chart-6: #3f3f46;
+  --chart-7: #e4e4e7;
+  --chart-8: #27272a;
+  --chart-positive: #e4e4e7;
+  --chart-negative: #71717a;
+  --chart-warning: #a1a1aa;
+  --chart-neutral: #71717a;
+  --chart-tooltip-background: #09090b;
+  --chart-tooltip-foreground: #fafafa;
+  --chart-tooltip-muted: #a1a1aa;
+  --chart-tooltip-border: rgba(255, 255, 255, 0.14);
+  --chart-disabled: #52525b;
+  --chart-hidden: #3f3f46;
+  --sidebar: #121215;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1f1f23;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #a1a1aa;
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.18);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.32);
   --scrollbar-thumb-active: rgba(255, 255, 255, 0.48);
+
+  /* SVG Documentation Diagram Tokens (Dark) */
+  --diagram-background: var(--background);
+  --diagram-surface: var(--card);
+  --diagram-foreground: var(--foreground);
+  --diagram-muted: var(--muted-foreground);
+  --diagram-border: var(--border);
+  --diagram-emphasis: var(--primary);
 }
 
 @layer base {
@@ -340,6 +363,101 @@
   overflow: visible !important;
 }
 
+/* Dual-Theme Shiki Syntax Highlighting */
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+}
+
+html:not(.dark) .shiki,
+html:not(.dark) .shiki span {
+  color: var(--shiki-light) !important;
+}
+
+/* Theme-adaptive Site Header rules */
+:root:not(.dark) .site-header {
+  border-bottom: 1px solid var(--border) !important;
+  background: rgba(250, 250, 250, 0.85) !important;
+}
+
+:root:not(.dark) .site-header.is-scrolled {
+  border-bottom: 1px solid var(--border) !important;
+  background: rgba(250, 250, 250, 0.95) !important;
+}
+
+:root:not(.dark) .header-actions kbd {
+  color: var(--muted-foreground) !important;
+  border-color: var(--border) !important;
+  background: var(--muted) !important;
+}
+
+:root:not(.dark) .desktop-nav a {
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .desktop-nav a:hover,
+:root:not(.dark) .desktop-nav a[data-active="true"] {
+  color: var(--foreground) !important;
+}
+
+:root:not(.dark) .brand-link {
+  color: var(--foreground) !important;
+}
+
+:root:not(.dark) .github-link {
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .github-link:hover {
+  color: var(--foreground) !important;
+  background: var(--accent) !important;
+}
+
+:root:not(.dark) .search-button {
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .search-button:hover {
+  color: var(--foreground) !important;
+}
+
+:root:not(.dark) .footer-root {
+  background: var(--background) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--foreground) !important;
+}
+
+:root:not(.dark) .footer-ambient-glow {
+  display: none !important;
+}
+
+:root:not(.dark) .footer-ambient-grid {
+  opacity: 0.12 !important;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px) !important;
+}
+
+:root:not(.dark) .footer-flow-wrap path {
+  stroke: var(--muted-foreground) !important;
+  opacity: 0.18 !important;
+}
+
+:root:not(.dark) .footer-meta-row {
+  border-color: var(--border) !important;
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .footer-meta-bullet {
+  color: var(--border) !important;
+}
+
+:root:not(.dark) .footer-back-to-top {
+  color: var(--muted-foreground) !important;
+}
+
+:root:not(.dark) .footer-back-to-top:hover {
+  color: var(--foreground) !important;
+}
+
 .plotcn-code-content code {
   display: block !important;
   font-family: inherit !important;
@@ -475,19 +593,19 @@
 }
 
 /* ==========================================================================
-   Google Charts Custom Dark Glassmorphism Tooltip
+   Google Charts Custom Theme-Aware Tooltips (Light & Dark)
    ========================================================================== */
 
 div.google-visualization-tooltip,
 .google-visualization-tooltip {
   position: absolute !important;
-  background: rgba(12, 12, 14, 0.95) !important;
+  background: var(--chart-tooltip-background, #ffffff) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid var(--chart-tooltip-border, #e4e4e7) !important;
   border-radius: 8px !important;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-  color: #f4f4f5 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
   font-size: 12px !important;
   line-height: 1.5 !important;
@@ -496,6 +614,7 @@ div.google-visualization-tooltip,
   z-index: 99999 !important;
   white-space: nowrap !important;
   min-width: 140px !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
 }
 
 div.google-visualization-tooltip > ul,
@@ -511,7 +630,7 @@ div.google-visualization-tooltip li,
 .google-visualization-tooltip-item {
   margin: 0 !important;
   padding: 3px 0 !important;
-  color: #f4f4f5 !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -521,8 +640,8 @@ div.google-visualization-tooltip li,
 div.google-visualization-tooltip li:first-child,
 .google-visualization-tooltip-item:first-child {
   font-weight: 600 !important;
-  color: #ffffff !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
+  border-bottom: 1px solid var(--chart-tooltip-border, #e4e4e7) !important;
   padding-bottom: 5px !important;
   margin-bottom: 4px !important;
   font-size: 12px !important;
@@ -533,7 +652,7 @@ div.google-visualization-tooltip span,
 .google-visualization-tooltip span {
   font-family: var(--font-geist-mono), monospace !important;
   font-size: 11px !important;
-  color: #d4d4d8 !important;
+  color: var(--chart-tooltip-muted, #71717a) !important;
 }
 
 div.google-visualization-tooltip li:first-child span,
@@ -541,7 +660,7 @@ div.google-visualization-tooltip li:first-child span,
   font-family: var(--font-sans), sans-serif !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: #ffffff !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
 }
 
 /* Suppress duplicate default title when custom Plotcn tooltip card is rendered */
@@ -573,7 +692,7 @@ div.google-visualization-tooltip td {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid var(--chart-tooltip-border, #e4e4e7) !important;
   padding-bottom: 4px !important;
 }
 
@@ -589,7 +708,7 @@ div.google-visualization-tooltip td {
   font-family: var(--font-sans), -apple-system, sans-serif !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: #ffffff !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
   letter-spacing: -0.01em !important;
 }
 
@@ -602,7 +721,7 @@ div.google-visualization-tooltip td {
 }
 
 .plotcn-tooltip-label {
-  color: #a1a1aa !important;
+  color: var(--chart-tooltip-muted, #71717a) !important;
   text-transform: capitalize !important;
   font-size: 11px !important;
   font-family: var(--font-sans), sans-serif !important;
@@ -611,8 +730,148 @@ div.google-visualization-tooltip td {
 .plotcn-tooltip-value {
   font-family: var(--font-geist-mono), monospace !important;
   font-weight: 600 !important;
-  color: #f4f4f5 !important;
+  color: var(--chart-tooltip-foreground, #09090b) !important;
   letter-spacing: 0.02em !important;
+}
+
+/* Explicit Dark Theme Overrides for Google Visualization Tooltips */
+:is(.dark, [data-theme="dark"], :root.dark) div.google-visualization-tooltip,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip,
+.charts-surface[data-theme="dark"] div.google-visualization-tooltip,
+.charts-surface[data-theme="dark"] .google-visualization-tooltip {
+  background: rgba(12, 12, 14, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  color: #f4f4f5 !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) div.google-visualization-tooltip li,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip li,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip-item,
+.charts-surface[data-theme="dark"] div.google-visualization-tooltip li,
+.charts-surface[data-theme="dark"] .google-visualization-tooltip li {
+  color: #f4f4f5 !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) div.google-visualization-tooltip li:first-child,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip-item:first-child,
+.charts-surface[data-theme="dark"] div.google-visualization-tooltip li:first-child,
+.charts-surface[data-theme="dark"] .google-visualization-tooltip-item:first-child {
+  color: #ffffff !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) div.google-visualization-tooltip span,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip span,
+.charts-surface[data-theme="dark"] div.google-visualization-tooltip span,
+.charts-surface[data-theme="dark"] .google-visualization-tooltip span {
+  color: #a1a1aa !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) div.google-visualization-tooltip li:first-child span,
+:is(.dark, [data-theme="dark"], :root.dark) .google-visualization-tooltip-item:first-child span,
+.charts-surface[data-theme="dark"] div.google-visualization-tooltip li:first-child span,
+.charts-surface[data-theme="dark"] .google-visualization-tooltip-item:first-child span {
+  color: #ffffff !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) .plotcn-tooltip-header,
+.charts-surface[data-theme="dark"] .plotcn-tooltip-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) .plotcn-tooltip-title,
+.charts-surface[data-theme="dark"] .plotcn-tooltip-title {
+  color: #ffffff !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) .plotcn-tooltip-label,
+.charts-surface[data-theme="dark"] .plotcn-tooltip-label {
+  color: #a1a1aa !important;
+}
+
+:is(.dark, [data-theme="dark"], :root.dark) .plotcn-tooltip-value,
+.charts-surface[data-theme="dark"] .plotcn-tooltip-value {
+  color: #f4f4f5 !important;
+}
+
+/* Explicit Light Theme Overrides for Google Visualization Tooltips */
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) div.google-visualization-tooltip,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  color: #09090b !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) div.google-visualization-tooltip li,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip li,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip-item {
+  color: #09090b !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) div.google-visualization-tooltip li:first-child,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip-item:first-child {
+  color: #09090b !important;
+  border-bottom: 1px solid #e4e4e7 !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) div.google-visualization-tooltip span,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip span {
+  color: #71717a !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) div.google-visualization-tooltip li:first-child span,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .google-visualization-tooltip-item:first-child span {
+  color: #09090b !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .plotcn-tooltip-header {
+  border-bottom: 1px solid #e4e4e7 !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .plotcn-tooltip-title {
+  color: #09090b !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .plotcn-tooltip-label {
+  color: #71717a !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .plotcn-tooltip-value {
+  color: #09090b !important;
+}
+
+/* ==========================================================================
+   D3 Charts Theme-Aware Tooltips (Light & Dark)
+   ========================================================================== */
+
+/* Light mode D3 chart tooltips */
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .plotcn-chart-tooltip,
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .d3-tooltip {
+  background: #ffffff !important;
+  color: #09090b !important;
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .d3-tooltip span[data-tooltip-muted] {
+  color: #71717a !important;
+}
+
+:is(html:not(.dark):not([data-theme="dark"]), .charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"]) .d3-tooltip span[data-tooltip-val] {
+  color: #09090b !important;
+}
+
+/* Dark mode D3 chart tooltips */
+:is(.dark, [data-theme="dark"], :root.dark) .plotcn-chart-tooltip,
+:is(.dark, [data-theme="dark"], :root.dark) .d3-tooltip,
+.charts-surface[data-theme="dark"] .plotcn-chart-tooltip,
+.charts-surface[data-theme="dark"] .d3-tooltip {
+  background: #09090b !important;
+  color: #fafafa !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
 }
 
 /* ==========================================================================
@@ -912,9 +1171,220 @@ div.google-visualization-tooltip td {
     padding: 8px 12px !important;
   }
 
-  .plotcn-api-table td::before {
+.plotcn-api-table td::before {
     display: none !important;
   }
+}
+
+/* ===========================================================================
+   Theme-aware documentation diagrams
+   ========================================================================== */
+
+.prose-docs figure,
+.plotcn-flow-diagram {
+  color: var(--diagram-foreground);
+  border-color: var(--diagram-border) !important;
+  background-color: var(--diagram-surface) !important;
+  background-image: none !important;
+  box-shadow: 0 16px 40px -32px color-mix(in oklab, var(--foreground) 35%, transparent) !important;
+}
+
+.prose-docs figure [style*="linear-gradient(#ffffff"] {
+  background-image: linear-gradient(var(--diagram-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--diagram-border) 1px, transparent 1px) !important;
+}
+
+.prose-docs figure :is([class*="bg-zinc-950"],[class*="bg-zinc-900"],[class*="bg-zinc-800"],[class*="bg-black"]),
+.plotcn-flow-diagram :is([class*="bg-zinc-950"],[class*="bg-zinc-900"],[class*="bg-zinc-800"],[class*="bg-black"]) {
+  background-color: var(--diagram-surface) !important;
+}
+.prose-docs figure :is([class*="text-white"],[class*="text-zinc-100"],[class*="text-zinc-200"],[class*="text-zinc-300"]),
+.plotcn-flow-diagram :is([class*="text-white"],[class*="text-zinc-100"],[class*="text-zinc-200"],[class*="text-zinc-300"]) { color: var(--diagram-foreground) !important; }
+.prose-docs figure :is([class*="text-zinc-400"],[class*="text-zinc-500"],[class*="text-zinc-600"]),
+.plotcn-flow-diagram :is([class*="text-zinc-400"],[class*="text-zinc-500"],[class*="text-zinc-600"]) { color: var(--diagram-muted) !important; }
+.prose-docs figure :is([class*="border-white"],[class*="border-zinc"]),
+.plotcn-flow-diagram :is([class*="border-white"],[class*="border-zinc"]) { border-color: var(--diagram-border) !important; }
+.prose-docs figure :is([class*="fill-zinc-950"],[class*="fill-zinc-900"],[class*="fill-zinc-800"],[class*="fill-black"]) { fill: var(--diagram-surface) !important; }
+.prose-docs figure :is([class*="fill-white"],[class*="fill-zinc-100"],[class*="fill-zinc-200"],[class*="fill-zinc-300"]) { fill: var(--diagram-foreground) !important; }
+.prose-docs figure :is([class*="fill-zinc-400"],[class*="fill-zinc-500"],[class*="fill-zinc-600"]) { fill: var(--diagram-muted) !important; }
+.prose-docs figure :is([class*="stroke-white"],[class*="stroke-zinc"]) { stroke: var(--diagram-border) !important; }
+.prose-docs figure svg [stroke^="rgba(255,255,255"] { stroke: var(--diagram-border) !important; }
+
+/* Decorative diagram hues resolve to the Zinc series scale. Geometry, dash,
+   labels, and marker shape continue to carry semantic identity. */
+.prose-docs figure :is([class*="text-sky"],[class*="text-blue"],[class*="text-cyan"],[class*="text-teal"]){color:var(--chart-1)!important}
+.prose-docs figure :is([class*="text-emerald"],[class*="text-green"]){color:var(--chart-2)!important}
+.prose-docs figure :is([class*="text-purple"],[class*="text-violet"],[class*="text-indigo"]){color:var(--chart-3)!important}
+.prose-docs figure :is([class*="text-amber"],[class*="text-yellow"],[class*="text-orange"]){color:var(--chart-4)!important}
+.prose-docs figure :is([class*="text-red"],[class*="text-rose"]){color:var(--chart-5)!important}
+.prose-docs figure :is([class*="bg-sky"],[class*="bg-blue"],[class*="bg-cyan"],[class*="bg-teal"],[class*="bg-emerald"],[class*="bg-green"],[class*="bg-purple"],[class*="bg-violet"],[class*="bg-indigo"],[class*="bg-amber"],[class*="bg-yellow"],[class*="bg-orange"],[class*="bg-red"],[class*="bg-rose"]){background-color:var(--muted)!important}
+.prose-docs figure :is([class*="border-sky"],[class*="border-blue"],[class*="border-cyan"],[class*="border-teal"],[class*="border-emerald"],[class*="border-green"],[class*="border-purple"],[class*="border-violet"],[class*="border-indigo"],[class*="border-amber"],[class*="border-yellow"],[class*="border-orange"],[class*="border-red"],[class*="border-rose"]){border-color:var(--diagram-border)!important}
+.prose-docs figure :is([class*="fill-sky"],[class*="fill-blue"],[class*="fill-cyan"],[class*="fill-teal"]){fill:var(--chart-1)!important}
+.prose-docs figure :is([class*="fill-emerald"],[class*="fill-green"]){fill:var(--chart-2)!important}
+.prose-docs figure :is([class*="fill-purple"],[class*="fill-violet"],[class*="fill-indigo"]){fill:var(--chart-3)!important}
+.prose-docs figure :is([class*="fill-amber"],[class*="fill-yellow"],[class*="fill-orange"]){fill:var(--chart-4)!important}
+.prose-docs figure :is([class*="fill-red"],[class*="fill-rose"]){fill:var(--chart-5)!important}
+.prose-docs figure :is([class*="stroke-sky"],[class*="stroke-blue"],[class*="stroke-cyan"],[class*="stroke-teal"]){stroke:var(--chart-1)!important}
+.prose-docs figure :is([class*="stroke-emerald"],[class*="stroke-green"]){stroke:var(--chart-2)!important}
+.prose-docs figure :is([class*="stroke-purple"],[class*="stroke-violet"],[class*="stroke-indigo"]){stroke:var(--chart-3)!important}
+.prose-docs figure :is([class*="stroke-amber"],[class*="stroke-yellow"],[class*="stroke-orange"]){stroke:var(--chart-4)!important}
+.prose-docs figure :is([class*="stroke-red"],[class*="stroke-rose"]){stroke:var(--chart-5)!important}
+.prose-docs figure [class~="bg-[#3b82f6]"] { background-color: var(--chart-1) !important; }
+.prose-docs figure [class~="bg-[#10b981]"] { background-color: var(--chart-2) !important; }
+.prose-docs figure [class~="bg-[#8b5cf6]"] { background-color: var(--chart-3) !important; }
+.prose-docs figure [class~="bg-[#f59e0b]"] { background-color: var(--chart-4) !important; }
+.prose-docs figure [class~="bg-[#ef4444]"] { background-color: var(--chart-5) !important; }
+
+.prose-docs figure svg :is([fill="#ffffff" i],[fill="#fafafa" i],[fill="#f4f4f5" i]){fill:var(--diagram-foreground)!important}
+.prose-docs figure svg :is([fill="#09090b" i],[fill="#18181b" i],[fill="#1c1917" i]){fill:var(--diagram-surface)!important}
+.prose-docs figure svg :is([fill="#71717a" i],[fill="#a1a1aa" i],[fill="#e4e4e7" i]){fill:var(--diagram-muted)!important}
+.prose-docs figure svg :is([stroke="#ffffff" i],[stroke="#fafafa" i],[stroke="#f4f4f5" i]){stroke:var(--diagram-foreground)!important}
+.prose-docs figure svg :is([stroke="#27272a" i],[stroke="#3f3f46" i],[stroke="#52525b" i],[stroke="#71717a" i],[stroke="#a1a1aa" i]){stroke:var(--diagram-border)!important}
+
+.prose-docs figure svg :is([fill="#3b82f6" i],[fill="#38bdf8" i],[fill="#0284c7" i],[fill="#60a5fa" i],[fill="#93c5fd" i],[fill="#06b6d4" i],[fill="#0ea5e9" i],[fill="#0369a1" i],[fill="#2c8ebb" i],[fill="#14b8a6" i],[fill="#2dd4bf" i]){fill:var(--chart-1)!important}
+.prose-docs figure svg :is([stroke="#3b82f6" i],[stroke="#38bdf8" i],[stroke="#0284c7" i],[stroke="#60a5fa" i],[stroke="#93c5fd" i],[stroke="#06b6d4" i],[stroke="#0ea5e9" i],[stroke="#0369a1" i],[stroke="#2c8ebb" i],[stroke="#14b8a6" i],[stroke="#2dd4bf" i]){stroke:var(--chart-1)!important}
+.prose-docs figure svg :is([stop-color="#3b82f6" i],[stop-color="#38bdf8" i],[stop-color="#0284c7" i],[stop-color="#60a5fa" i],[stop-color="#93c5fd" i],[stop-color="#06b6d4" i],[stop-color="#0ea5e9" i],[stop-color="#14b8a6" i],[stop-color="#2dd4bf" i]){stop-color:var(--chart-1)!important}
+.prose-docs figure svg :is([fill="#10b981" i],[fill="#34d399" i],[fill="#6ee7b7" i],[fill="#059669" i],[fill="#065f46" i],[fill="#064e3b" i],[fill="#047857" i]){fill:var(--chart-2)!important}
+.prose-docs figure svg :is([stroke="#10b981" i],[stroke="#34d399" i],[stroke="#6ee7b7" i],[stroke="#059669" i],[stroke="#065f46" i],[stroke="#064e3b" i],[stroke="#047857" i]){stroke:var(--chart-2)!important}
+.prose-docs figure svg :is([stop-color="#10b981" i],[stop-color="#34d399" i],[stop-color="#6ee7b7" i],[stop-color="#059669" i]){stop-color:var(--chart-2)!important}
+.prose-docs figure svg :is([fill="#a855f7" i],[fill="#c084fc" i],[fill="#d8b4fe" i],[fill="#6366f1" i],[fill="#818cf8" i],[fill="#8b5cf6" i],[fill="#a78bfa" i],[fill="#7e22ce" i],[fill="#581c87" i]){fill:var(--chart-3)!important}
+.prose-docs figure svg :is([stroke="#a855f7" i],[stroke="#c084fc" i],[stroke="#d8b4fe" i],[stroke="#6366f1" i],[stroke="#818cf8" i],[stroke="#8b5cf6" i],[stroke="#a78bfa" i],[stroke="#7e22ce" i],[stroke="#581c87" i]){stroke:var(--chart-3)!important}
+.prose-docs figure svg :is([stop-color="#a855f7" i],[stop-color="#c084fc" i],[stop-color="#6366f1" i],[stop-color="#818cf8" i],[stop-color="#8b5cf6" i]){stop-color:var(--chart-3)!important}
+.prose-docs figure svg :is([fill="#f97316" i],[fill="#fdba74" i],[fill="#f59e0b" i],[fill="#fbbf24" i],[fill="#eab308" i],[fill="#d97706" i],[fill="#78350f" i],[fill="#fde68a" i],[fill="#fef08a" i]){fill:var(--chart-4)!important}
+.prose-docs figure svg :is([stroke="#f97316" i],[stroke="#fdba74" i],[stroke="#f59e0b" i],[stroke="#fbbf24" i],[stroke="#eab308" i],[stroke="#d97706" i],[stroke="#78350f" i]){stroke:var(--chart-4)!important}
+.prose-docs figure svg :is([stop-color="#f97316" i],[stop-color="#f59e0b" i],[stop-color="#fbbf24" i],[stop-color="#eab308" i],[stop-color="#d97706" i]){stop-color:var(--chart-4)!important}
+.prose-docs figure svg :is([fill="#ef4444" i],[fill="#f43f5e" i],[fill="#f87171" i],[fill="#fb7185" i],[fill="#fca5a5" i],[fill="#f8b4b4" i],[fill="#dc2626" i],[fill="#e11d48" i],[fill="#991b1b" i],[fill="#7f1d1d" i],[fill="#f472b6" i]){fill:var(--chart-5)!important}
+.prose-docs figure svg :is([stroke="#ef4444" i],[stroke="#f43f5e" i],[stroke="#f87171" i],[stroke="#fb7185" i],[stroke="#fca5a5" i],[stroke="#dc2626" i],[stroke="#e11d48" i],[stroke="#991b1b" i],[stroke="#7f1d1d" i],[stroke="#f472b6" i]){stroke:var(--chart-5)!important}
+.prose-docs figure svg :is([stop-color="#ef4444" i],[stop-color="#f43f5e" i],[stop-color="#f87171" i],[stop-color="#fb7185" i],[stop-color="#dc2626" i],[stop-color="#e11d48" i],[stop-color="#f472b6" i]){stop-color:var(--chart-5)!important}
+
+.prose-docs figure svg :is(path, line, rect, circle, polygon, text, stop) {
+  transition: fill 160ms ease, stroke 160ms ease, stop-color 160ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose-docs figure *,
+  .plotcn-flow-diagram * {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Legacy documentation modules predate semantic color utilities. Keep their
+   structure while translating their explicit dark palette in resolved light
+   mode. Token selectors match complete class names, so hover utilities retain
+   their interaction-only behavior. */
+.light .docs-shell :is(.text-white, .text-zinc-100, .text-zinc-200, .text-zinc-300) {
+  color: var(--foreground) !important;
+}
+
+.light .docs-shell :is(.text-zinc-400, .text-zinc-500, .text-zinc-600) {
+  color: var(--muted-foreground) !important;
+}
+
+.light .docs-shell :is(.text-zinc-700, .text-zinc-800, .text-zinc-900) {
+  color: var(--foreground) !important;
+}
+
+.light .docs-shell :is(
+  .bg-zinc-950,
+  [class~="bg-zinc-950/40"], [class~="bg-zinc-950/60"], [class~="bg-zinc-950/70"], [class~="bg-zinc-950/80"], [class~="bg-zinc-950/90"], [class~="bg-zinc-950/95"],
+  .bg-zinc-900,
+  [class~="bg-zinc-900/30"], [class~="bg-zinc-900/40"], [class~="bg-zinc-900/50"], [class~="bg-zinc-900/60"], [class~="bg-zinc-900/70"], [class~="bg-zinc-900/80"], [class~="bg-zinc-900/90"], [class~="bg-zinc-900/95"],
+  .bg-zinc-800,
+  [class~="bg-zinc-800/30"], [class~="bg-zinc-800/40"], [class~="bg-zinc-800/60"], [class~="bg-zinc-800/80"],
+  [class~="bg-black/40"]
+) {
+  background-color: var(--card) !important;
+}
+
+.light .docs-shell :is(
+  [class~="bg-white/[0.03]"], [class~="bg-white/[0.04]"], [class~="bg-white/[0.05]"],
+  [class~="bg-white/[0.06]"], [class~="bg-white/[0.08]"]
+) {
+  background-color: var(--muted) !important;
+}
+
+.light .docs-shell :is(
+  .border-white,
+  [class~="border-white/[0.02]"], [class~="border-white/[0.04]"], [class~="border-white/[0.05]"],
+  [class~="border-white/[0.06]"], [class~="border-white/[0.07]"], [class~="border-white/[0.08]"],
+  [class~="border-white/[0.1]"], [class~="border-white/[0.12]"], [class~="border-white/[0.2]"], [class~="border-white/10"],
+  .border-zinc-200, .border-zinc-300, .border-zinc-400, .border-zinc-500,
+  .border-zinc-700, [class~="border-zinc-700/50"], .border-zinc-800,
+  [class~="border-zinc-800/60"], [class~="border-zinc-800/80"]
+) {
+  border-color: var(--border) !important;
+}
+
+.light .docs-shell [class~="divide-white/[0.04]"] > :not(:last-child) {
+  border-color: var(--border) !important;
+}
+
+.docs-shell .docs-content :is(h1, h2, h3, h4) {
+  color: var(--foreground) !important;
+  opacity: 1 !important;
+}
+
+/* landing.css contains an intentional split-tone landing-page h2 span. Docs
+   headings also wrap their label in a span, so restore inherited article color. */
+.docs-shell .docs-content h2 > span {
+  color: inherit !important;
+}
+
+/* The setup, shadcn, and registry pages share this technical hero. Its
+   surface and blueprint grid now resolve from the active theme. */
+.docs-shell .docs-theme-hero {
+  color: var(--foreground);
+  border-color: var(--border) !important;
+  background-color: var(--card) !important;
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--muted) 72%, var(--card)),
+    var(--card)
+  ) !important;
+  box-shadow: 0 16px 40px -32px color-mix(in oklab, var(--foreground) 35%, transparent);
+}
+
+.docs-shell .docs-theme-hero > [aria-hidden="true"] {
+  opacity: 0.5 !important;
+  background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0) !important;
+}
+
+.docs-shell .docs-content [data-package-manager-icon] {
+  filter: grayscale(1);
+}
+
+/* Migrate every remaining legacy accent utility in documentation modules to
+   the shared Zinc hierarchy. Labels and geometry preserve meaning without
+   relying on hue. SVG geometry is handled by the diagram rules above. */
+.docs-shell .docs-content :is(
+  [class*="text-sky-"], [class*="text-blue-"], [class*="text-cyan-"], [class*="text-teal-"],
+  [class*="text-emerald-"], [class*="text-green-"],
+  [class*="text-purple-"], [class*="text-violet-"], [class*="text-indigo-"],
+  [class*="text-amber-"], [class*="text-yellow-"], [class*="text-orange-"],
+  [class*="text-red-"], [class*="text-rose-"]
+) {
+  color: var(--foreground) !important;
+}
+
+.docs-shell .docs-content :is(
+  [class*="bg-sky-"], [class*="bg-blue-"], [class*="bg-cyan-"], [class*="bg-teal-"],
+  [class*="bg-emerald-"], [class*="bg-green-"],
+  [class*="bg-purple-"], [class*="bg-violet-"], [class*="bg-indigo-"],
+  [class*="bg-amber-"], [class*="bg-yellow-"], [class*="bg-orange-"],
+  [class*="bg-red-"], [class*="bg-rose-"]
+) {
+  background-color: var(--muted) !important;
+}
+
+.docs-shell .docs-content :is(
+  [class*="border-sky-"], [class*="border-blue-"], [class*="border-cyan-"], [class*="border-teal-"],
+  [class*="border-emerald-"], [class*="border-green-"],
+  [class*="border-purple-"], [class*="border-violet-"], [class*="border-indigo-"],
+  [class*="border-amber-"], [class*="border-yellow-"], [class*="border-orange-"],
+  [class*="border-red-"], [class*="border-rose-"]
+) {
+  border-color: var(--border) !important;
 }
 
 /* Docs & Technical Content Keyboard Badges */

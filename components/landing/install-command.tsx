@@ -16,9 +16,9 @@ export function InstallCommand({
   const command = `npx shadcn@latest add ${origin}/r/${cleanName}.json`
 
   return (
-    <div className={`install-command ${compact ? "compact" : ""}`}>
+    <div className={`install-command ${compact ? "compact" : ""} min-w-0 max-w-full`}>
       <Icon name="terminal" />
-      <code title={command}>
+      <code title={command} className="min-w-0">
         {command}
       </code>
       <CopyButton value={command} />

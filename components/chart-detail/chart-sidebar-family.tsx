@@ -128,15 +128,15 @@ export function ChartSidebarFamily({
                   "group/item relative flex min-h-[32px] w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12px] transition-colors",
                   "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-400",
                   isItemActive
-                    ? "bg-zinc-900/90 text-zinc-100 font-medium border border-white/[0.08] shadow-xs"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40"
+                    ? "bg-muted text-foreground font-medium border border-border shadow-xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
               >
                 {/* Active Indicator Dot */}
                 {isItemActive && (
                   <span
                     aria-hidden="true"
-                    className="size-1.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"
+                    className="size-1.5 shrink-0 rounded-full bg-foreground"
                   />
                 )}
 

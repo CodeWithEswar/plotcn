@@ -69,14 +69,14 @@ export interface PalettePresetGroup {
  * Canonical Plotcn theme tokens (--chart-1 through --chart-8)
  */
 export const THEME_CHART_TOKENS: readonly ColorPresetItem[] = [
-  { id: "chart-1", label: "Chart 1 (Primary)", value: "var(--chart-1)", hex: "#3b82f6", isToken: true },
-  { id: "chart-2", label: "Chart 2 (Secondary)", value: "var(--chart-2)", hex: "#10b981", isToken: true },
-  { id: "chart-3", label: "Chart 3 (Tertiary)", value: "var(--chart-3)", hex: "#8b5cf6", isToken: true },
-  { id: "chart-4", label: "Chart 4 (Supporting)", value: "var(--chart-4)", hex: "#f59e0b", isToken: true },
-  { id: "chart-5", label: "Chart 5 (Accent)", value: "var(--chart-5)", hex: "#ef4444", isToken: true },
-  { id: "chart-6", label: "Chart 6 (Indigo)", value: "var(--chart-6)", hex: "#6366f1", isToken: true },
-  { id: "chart-7", label: "Chart 7 (Teal)", value: "var(--chart-7)", hex: "#14b8a6", isToken: true },
-  { id: "chart-8", label: "Chart 8 (Orange)", value: "var(--chart-8)", hex: "#f97316", isToken: true },
+  { id: "chart-1", label: "Monochrome · Chart 1", value: "var(--chart-1)", hex: "#f4f4f5", isToken: true },
+  { id: "chart-2", label: "Monochrome · Chart 2", value: "var(--chart-2)", hex: "#d4d4d8", isToken: true },
+  { id: "chart-3", label: "Monochrome · Chart 3", value: "var(--chart-3)", hex: "#a1a1aa", isToken: true },
+  { id: "chart-4", label: "Monochrome · Chart 4", value: "var(--chart-4)", hex: "#71717a", isToken: true },
+  { id: "chart-5", label: "Monochrome · Chart 5", value: "var(--chart-5)", hex: "#52525b", isToken: true },
+  { id: "chart-6", label: "Monochrome · Chart 6", value: "var(--chart-6)", hex: "#3f3f46", isToken: true },
+  { id: "chart-7", label: "Monochrome · Chart 7", value: "var(--chart-7)", hex: "#e4e4e7", isToken: true },
+  { id: "chart-8", label: "Monochrome · Chart 8", value: "var(--chart-8)", hex: "#27272a", isToken: true },
 ]
 
 /**
@@ -84,21 +84,8 @@ export const THEME_CHART_TOKENS: readonly ColorPresetItem[] = [
  */
 export const CURATED_COLOR_GROUPS: readonly PalettePresetGroup[] = [
   {
-    name: "Theme Tokens",
+    name: "Theme Tokens (Monochrome)",
     presets: THEME_CHART_TOKENS,
-  },
-  {
-    name: "Plotcn Signature",
-    presets: [
-      { id: "blue", label: "Electric Blue", value: "#3b82f6", hex: "#3b82f6" },
-      { id: "emerald", label: "Emerald", value: "#10b981", hex: "#10b981" },
-      { id: "violet", label: "Violet", value: "#8b5cf6", hex: "#8b5cf6" },
-      { id: "amber", label: "Amber", value: "#f59e0b", hex: "#f59e0b" },
-      { id: "rose", label: "Rose", value: "#f43f5e", hex: "#f43f5e" },
-      { id: "cyan", label: "Cyan", value: "#06b6d4", hex: "#06b6d4" },
-      { id: "sky", label: "Sky", value: "#0ea5e9", hex: "#0ea5e9" },
-      { id: "lime", label: "Lime", value: "#84cc16", hex: "#84cc16" },
-    ],
   },
   {
     name: "Monochrome",
@@ -121,6 +108,19 @@ export const CURATED_COLOR_GROUPS: readonly PalettePresetGroup[] = [
       { id: "cb-blue", label: "Blue", value: "#0072b2", hex: "#0072b2" },
       { id: "cb-vermilion", label: "Vermilion", value: "#d55e00", hex: "#d55e00" },
       { id: "cb-reddish-purple", label: "Reddish Purple", value: "#cc79a7", hex: "#cc79a7" },
+    ],
+  },
+  {
+    name: "Plotcn Signature (Custom)",
+    presets: [
+      { id: "blue", label: "Electric Blue", value: "#3b82f6", hex: "#3b82f6" },
+      { id: "emerald", label: "Emerald", value: "#10b981", hex: "#10b981" },
+      { id: "violet", label: "Violet", value: "#8b5cf6", hex: "#8b5cf6" },
+      { id: "amber", label: "Amber", value: "#f59e0b", hex: "#f59e0b" },
+      { id: "rose", label: "Rose", value: "#f43f5e", hex: "#f43f5e" },
+      { id: "cyan", label: "Cyan", value: "#06b6d4", hex: "#06b6d4" },
+      { id: "sky", label: "Sky", value: "#0ea5e9", hex: "#0ea5e9" },
+      { id: "lime", label: "Lime", value: "#84cc16", hex: "#84cc16" },
     ],
   },
 ]
@@ -1623,18 +1623,18 @@ export function resolveDisplayHex(
   if (!val || val === "theme" || val.startsWith("var(")) {
     const token = val && val !== "theme" ? val : fallbackToken
     // Map standard tokens to representative hex values
-    if (token.includes("--chart-1")) return isDark ? "#3b82f6" : "#2563eb"
-    if (token.includes("--chart-2")) return isDark ? "#10b981" : "#059669"
-    if (token.includes("--chart-3")) return isDark ? "#8b5cf6" : "#7c3aed"
-    if (token.includes("--chart-4")) return isDark ? "#f59e0b" : "#d97706"
-    if (token.includes("--chart-5")) return isDark ? "#ef4444" : "#dc2626"
+    if (token.includes("--chart-1")) return isDark ? "#f4f4f5" : "#18181b"
+    if (token.includes("--chart-2")) return isDark ? "#d4d4d8" : "#3f3f46"
+    if (token.includes("--chart-3")) return isDark ? "#a1a1aa" : "#52525b"
+    if (token.includes("--chart-4")) return "#71717a"
+    if (token.includes("--chart-5")) return isDark ? "#52525b" : "#a1a1aa"
     if (token.includes("--chart-milestone-pin") || token.includes("--chart-muted")) return isDark ? "#a1a1aa" : "#71717a"
-    return isDark ? "#3b82f6" : "#2563eb"
+    return isDark ? "#f4f4f5" : "#18181b"
   }
 
   if (val.startsWith("#")) {
     return val
   }
 
-  return "#3b82f6"
+  return isDark ? "#f4f4f5" : "#18181b"
 }

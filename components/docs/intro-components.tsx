@@ -505,24 +505,24 @@ export function PlotcnArchitecture() {
  */
 export function ProjectStatus() {
   const milestones = [
-    { name: "Architecture Foundation", status: "Ready", badge: "bg-emerald-950/40 text-emerald-400 border-emerald-800/40" },
-    { name: "Documentation Shell", status: "Ready", badge: "bg-emerald-950/40 text-emerald-400 border-emerald-800/40" },
-    { name: "Recharts Components", status: "Available", badge: "bg-zinc-800 text-zinc-200 border-zinc-700" },
-    { name: "D3.js Components", status: "Available", badge: "bg-zinc-800 text-zinc-200 border-zinc-700" },
-    { name: "Google Charts / GeoChart", status: "Available", badge: "bg-zinc-800 text-zinc-200 border-zinc-700" },
-    { name: "shadcn Registry Distribution", status: "Staged", badge: "bg-zinc-900 text-zinc-400 border-zinc-800" },
+    { name: "Architecture Foundation", status: "Ready" },
+    { name: "Documentation Shell", status: "Ready" },
+    { name: "Recharts Components", status: "Available" },
+    { name: "D3.js Components", status: "Available" },
+    { name: "Google Charts / GeoChart", status: "Available" },
+    { name: "shadcn Registry Distribution", status: "Staged" },
   ]
 
   return (
-    <div className="my-6 w-full rounded-xl border border-white/[0.08] bg-zinc-950/60 p-5 sm:p-6 not-prose">
+    <div className="my-6 w-full rounded-xl border border-border bg-card p-5 sm:p-6 not-prose">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {milestones.map((item) => (
           <div
             key={item.name}
-            className="flex items-center justify-between p-3 rounded-lg border border-white/[0.05] bg-zinc-900/40"
+            className="flex items-center justify-between p-3 rounded-lg border border-border bg-background"
           >
-            <span className="text-xs text-zinc-300 font-medium">{item.name}</span>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${item.badge}`}>
+            <span className="text-xs text-foreground font-medium">{item.name}</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-border bg-muted text-muted-foreground">
               {item.status}
             </span>
           </div>
@@ -836,27 +836,27 @@ export function EngineIsolationOverview() {
     <div className="my-6 space-y-3 not-prose">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {items.map((item) => (
-          <div key={item.pkg} className="p-4 rounded-xl border border-white/[0.08] bg-zinc-950/60 space-y-2.5">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-              <span className="font-mono text-xs text-white font-semibold">{item.pkg}</span>
-              <span className="text-[10px] font-mono text-zinc-400 px-1.5 py-0.5 rounded bg-zinc-900 border border-white/[0.06]">{item.engine}</span>
+          <div key={item.pkg} className="p-4 rounded-xl border border-border bg-card space-y-2.5">
+            <div className="flex items-center justify-between border-b border-border pb-2">
+              <span className="font-mono text-xs text-foreground font-semibold">{item.pkg}</span>
+              <span className="text-[10px] font-mono text-muted-foreground px-1.5 py-0.5 rounded bg-muted border border-border">{item.engine}</span>
             </div>
             <div>
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block mb-1">Installed Dependencies</span>
+              <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider block mb-1">Installed Dependencies</span>
               <div className="flex flex-wrap gap-1">
                 {item.installs.map((dep) => (
-                  <span key={dep} className="px-1.5 py-0.5 rounded bg-emerald-950/40 text-emerald-300 border border-emerald-500/20 font-mono text-[10px]">
+                  <span key={dep} className="px-1.5 py-0.5 rounded bg-muted text-foreground border border-border font-mono text-[10px]">
                     {dep}
                   </span>
                 ))}
               </div>
             </div>
-            <p className="text-[11px] text-zinc-400 leading-snug pt-1 border-t border-white/[0.04]">{item.isolation}</p>
+            <p className="text-[11px] text-muted-foreground leading-snug pt-1 border-t border-border">{item.isolation}</p>
           </div>
         ))}
       </div>
-      <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-950/10 flex items-center gap-2 text-xs text-emerald-300">
-        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="shrink-0 text-emerald-400" />
+      <div className="p-3 rounded-lg border border-border bg-muted/50 flex items-center gap-2 text-xs text-foreground">
+        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} className="shrink-0 text-muted-foreground" />
         <span><strong>Bundle Cleanliness</strong>: Plotcn components never install monolithic packages or cross-engine code. Your production bundle only pays for the exact charts you mount.</span>
       </div>
     </div>
@@ -1247,4 +1247,3 @@ export function InstalledFilesCard() {
     </div>
   )
 }
-

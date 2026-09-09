@@ -46,45 +46,40 @@ export function ComponentHeader({ chart }: ComponentHeaderProps) {
           <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">{chart.description}</p>
           
           {/* Professional Technical Specification Strip */}
-          <div className="mt-6 rounded-2xl border border-white/[0.08] bg-zinc-950/60 p-2 sm:p-2.5 backdrop-blur-sm shadow-xs">
+          <div className="mt-6 rounded-2xl border border-border bg-card/60 p-2 sm:p-2.5 backdrop-blur-sm shadow-xs">
             <dl className="flex flex-wrap items-center gap-2 font-mono text-xs">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03]">
-                <dt className="text-[10px] text-zinc-500 font-medium tracking-wider">SPEC</dt>
-                <dd className="font-semibold text-emerald-400">#{number}</dd>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/70 bg-muted/40">
+                <dt className="text-[10px] text-muted-foreground font-medium tracking-wider">SPEC</dt>
+                <dd className="font-semibold text-foreground">#{number}</dd>
               </div>
 
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03]">
-                <dt className="text-[10px] text-zinc-500 font-medium tracking-wider">ENGINE</dt>
-                <dd className="text-zinc-200 font-medium">{engineLabels[chart.engine]}</dd>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/70 bg-muted/40">
+                <dt className="text-[10px] text-muted-foreground font-medium tracking-wider">ENGINE</dt>
+                <dd className="text-foreground font-medium">{engineLabels[chart.engine]}</dd>
               </div>
 
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.03]">
-                <dt className="text-[10px] text-zinc-500 font-medium tracking-wider">FAMILY</dt>
-                <dd className="text-zinc-200 font-medium">{getCategoryLabel(chart.category)}</dd>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/70 bg-muted/40">
+                <dt className="text-[10px] text-muted-foreground font-medium tracking-wider">FAMILY</dt>
+                <dd className="text-foreground font-medium">{getCategoryLabel(chart.category)}</dd>
               </div>
 
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-sky-500/20 bg-sky-500/[0.08]">
-                <dt className="text-[10px] text-sky-400/70 font-medium tracking-wider">RENDERER</dt>
-                <dd className="text-sky-300 font-semibold uppercase">{chart.renderer}</dd>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/70 bg-muted/40">
+                <dt className="text-[10px] text-muted-foreground font-medium tracking-wider">RENDERER</dt>
+                <dd className="text-foreground font-semibold uppercase">{chart.renderer}</dd>
               </div>
 
               <div
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border",
-                  chart.status === "stable"
-                    ? "border-emerald-500/20 bg-emerald-500/[0.08]"
-                    : chart.status === "preview"
-                    ? "border-amber-500/20 bg-amber-500/[0.08]"
-                    : "border-purple-500/20 bg-purple-500/[0.08]"
+                  "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border/70 bg-muted/40"
                 )}
               >
-                <dt className="text-[10px] text-zinc-500 font-medium tracking-wider">STATUS</dt>
+                <dt className="text-[10px] text-muted-foreground font-medium tracking-wider">STATUS</dt>
                 <dd className="flex items-center gap-1.5">
                   <span
                     className={cn(
                       "size-1.5 rounded-full shrink-0",
                       chart.status === "stable"
-                        ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"
+                        ? "bg-foreground/70"
                         : chart.status === "preview"
                         ? "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)] animate-pulse"
                         : "bg-purple-400"
@@ -94,7 +89,7 @@ export function ComponentHeader({ chart }: ComponentHeaderProps) {
                     className={cn(
                       "font-semibold uppercase tracking-tight text-[11px]",
                       chart.status === "stable"
-                        ? "text-emerald-400"
+                        ? "text-foreground"
                         : chart.status === "preview"
                         ? "text-amber-300"
                         : "text-purple-300"

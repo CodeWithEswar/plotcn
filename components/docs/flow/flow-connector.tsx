@@ -20,23 +20,23 @@ export function FlowConnector({
         <div className="hidden md:flex items-center justify-center relative w-full px-2 py-1">
           <div
             className={`w-full h-px ${
-              isDashed ? "border-t border-dashed border-zinc-700" : "bg-zinc-800"
+              isDashed ? "border-t border-dashed border-border" : "bg-border"
             }`}
           />
           {label && (
-            <span className="absolute bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-[10px] font-mono text-zinc-500 whitespace-nowrap">
+            <span className="absolute bg-card px-2 py-0.5 rounded border border-border text-[10px] font-mono text-muted-foreground whitespace-nowrap">
               {label}
             </span>
           )}
           <svg
-            className="w-2.5 h-2.5 text-zinc-600 -ml-1 shrink-0"
+            className="w-2.5 h-2.5 text-muted-foreground -ml-1 shrink-0"
             viewBox="0 0 10 10"
             fill="currentColor"
           >
             <polygon points="0,1 8,5 0,9" />
           </svg>
           {animated && (
-            <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/70 animate-ping motion-reduce:hidden" />
+            <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-foreground/70 animate-ping motion-reduce:hidden" />
           )}
         </div>
 
@@ -44,16 +44,16 @@ export function FlowConnector({
         <div className="flex md:hidden flex-col items-center justify-center py-2 relative my-1">
           <div
             className={`h-6 w-px ${
-              isDashed ? "border-l border-dashed border-zinc-700" : "bg-zinc-800"
+              isDashed ? "border-l border-dashed border-border" : "bg-border"
             }`}
           />
           {label && (
-            <span className="my-1 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-[10px] font-mono text-zinc-500 whitespace-nowrap">
+            <span className="my-1 bg-card px-2 py-0.5 rounded border border-border text-[10px] font-mono text-muted-foreground whitespace-nowrap">
               {label}
             </span>
           )}
           <svg
-            className="w-2.5 h-2.5 text-zinc-600 -mt-0.5 shrink-0"
+            className="w-2.5 h-2.5 text-muted-foreground -mt-0.5 shrink-0"
             viewBox="0 0 10 10"
             fill="currentColor"
           >
@@ -72,16 +72,16 @@ export function FlowConnector({
       >
         <div
           className={`w-full h-px ${
-            isDashed ? "border-t border-dashed border-zinc-700" : "bg-zinc-800"
+            isDashed ? "border-t border-dashed border-border" : "bg-border"
           }`}
         />
         {label && (
-          <span className="absolute bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800 text-[9px] font-mono text-zinc-500 whitespace-nowrap">
+          <span className="absolute bg-card px-1.5 py-0.5 rounded border border-border text-[9px] font-mono text-muted-foreground whitespace-nowrap">
             {label}
           </span>
         )}
         <svg
-          className="w-2.5 h-2.5 text-zinc-600 -ml-1 shrink-0"
+          className="w-2.5 h-2.5 text-muted-foreground -ml-1 shrink-0"
           viewBox="0 0 10 10"
           fill="currentColor"
         >
@@ -99,23 +99,23 @@ export function FlowConnector({
     >
       <div
         className={`h-5 sm:h-6 w-px ${
-          isDashed ? "border-l border-dashed border-zinc-700" : "bg-zinc-800"
+          isDashed ? "border-l border-dashed border-border" : "bg-border"
         }`}
       />
       {label && (
-        <span className="my-1 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800 text-[10px] font-mono text-zinc-400 whitespace-nowrap">
+        <span className="my-1 bg-card px-2 py-0.5 rounded border border-border text-[10px] font-mono text-muted-foreground whitespace-nowrap">
           {label}
         </span>
       )}
       <svg
-        className="w-2.5 h-2.5 text-zinc-600 -mt-0.5 shrink-0"
+        className="w-2.5 h-2.5 text-muted-foreground -mt-0.5 shrink-0"
         viewBox="0 0 10 10"
         fill="currentColor"
       >
         <polygon points="1,0 5,8 9,0" />
       </svg>
       {animated && (
-        <div className="absolute top-2 w-1.5 h-1.5 rounded-full bg-white/70 animate-pulse motion-reduce:hidden" />
+        <div className="absolute top-2 w-1.5 h-1.5 rounded-full bg-foreground/70 animate-pulse motion-reduce:hidden" />
       )}
     </div>
   )

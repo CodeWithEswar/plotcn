@@ -68,7 +68,7 @@ function AlertTriangleIcon({ size = 15, className = "" }: { size?: number; class
 
 export function ShadcnSetupHero() {
   return (
-    <header className="relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
+    <header className="docs-theme-hero relative mb-10 overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-zinc-900/70 via-zinc-950/80 to-zinc-950 p-6 sm:p-8">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.035]"
         style={{
@@ -301,7 +301,7 @@ export function ComponentsJsonExplorer() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Left Column: Code Preview with Clickable Rows */}
         <div className="lg:col-span-7 rounded-xl border border-white/[0.08] bg-zinc-900/60 p-4 font-mono text-xs overflow-x-auto leading-relaxed">
-          <div className="text-zinc-500 mb-1 font-mono text-[10px] select-none">// components.json</div>
+          <div className="text-zinc-500 mb-1 font-mono text-[10px] select-none">{"// components.json"}</div>
           <div className="text-zinc-400">{`{`}</div>
 
           {/* Section: $schema */}
@@ -650,9 +650,9 @@ export function ComponentInstallFlow() {
         <span
           className="inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-[10px] font-mono"
           style={{
-            borderColor: pkgTokens.borderColor,
-            backgroundColor: pkgTokens.bgTint,
-            color: pkgTokens.accentColor,
+            borderColor: "var(--border)",
+            backgroundColor: "var(--muted)",
+            color: "var(--foreground)",
           }}
         >
           <PackageManagerIcon pkg={packageManager} size={13} />

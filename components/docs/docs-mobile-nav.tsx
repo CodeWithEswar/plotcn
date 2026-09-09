@@ -18,7 +18,7 @@ interface DocsMobileNavProps {
   toc?: TocItem[]
 }
 
-export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: DocsMobileNavProps) {
+export function DocsMobileNav({ toc = [] }: DocsMobileNavProps) {
   const [openSidebar, setOpenSidebar] = useState(false)
   const [openToc, setOpenToc] = useState(false)
 
@@ -32,7 +32,7 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
   }
 
   return (
-    <div className="lg:hidden sticky top-[68px] z-30 w-full border-b border-white/[0.08] bg-zinc-950/90 backdrop-blur-md px-4 py-2.5">
+    <div className="lg:hidden sticky top-[var(--site-header-height,48px)] z-30 w-full border-b border-border bg-background/90 backdrop-blur-md px-4 py-2.5">
       <div className="flex items-center justify-between gap-3 text-xs">
         {/* Left: Open Navigation Drawer */}
         <Sheet open={openSidebar} onOpenChange={setOpenSidebar}>
@@ -41,7 +41,7 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 gap-2 border-zinc-800 bg-zinc-900/80 text-zinc-300 hover:text-white hover:bg-zinc-800 text-xs px-2.5"
+                className="h-8 gap-2 border-border bg-muted/80 text-foreground hover:bg-muted text-xs px-2.5"
               />
             }
           >
@@ -51,15 +51,15 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
           <SheetContent
             side="left"
             showCloseButton={false}
-            className="dark docs-sheet !w-[245px] !max-w-[80vw] !p-0 !gap-0 !bg-[#0c0c0e] !border-r !border-white/[0.08] shadow-2xl flex flex-col overflow-hidden"
+            className="docs-sheet !w-[245px] !max-w-[80vw] !p-0 !gap-0 !bg-background !border-r !border-border shadow-2xl flex flex-col overflow-hidden"
             style={{ width: "245px", maxWidth: "80vw" }}
           >
-            <div className="flex items-center justify-between p-4 pb-3 border-b border-white/[0.08] shrink-0">
+            <div className="flex items-center justify-between p-4 pb-3 border-b border-border shrink-0">
               <div className="flex flex-col gap-0.5 min-w-0 text-left">
-                <SheetTitle className="!text-[15px] !font-semibold !leading-tight tracking-tight text-white m-0">
+                <SheetTitle className="!text-[15px] !font-semibold !leading-tight tracking-tight text-foreground m-0">
                   Documentation
                 </SheetTitle>
-                <SheetDescription className="!text-[11px] !leading-normal text-zinc-400 m-0">
+                <SheetDescription className="!text-[11px] !leading-normal text-muted-foreground m-0">
                   Browse installation and guides
                 </SheetDescription>
               </div>
@@ -68,7 +68,7 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className="size-7 shrink-0 text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-md cursor-pointer -mr-1"
+                    className="size-7 shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md cursor-pointer -mr-1"
                   />
                 }
               >
@@ -89,7 +89,7 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
               variant="ghost"
               size="sm"
               onClick={() => setOpenToc(!openToc)}
-              className="h-8 gap-1.5 text-zinc-400 hover:text-zinc-200 text-xs px-2"
+              className="h-8 gap-1.5 text-muted-foreground hover:text-foreground text-xs px-2"
             >
               <HugeiconsIcon icon={MenuSquareIcon} size={14} strokeWidth={1.8} />
               <span>On this page</span>
@@ -107,8 +107,8 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
                   onClick={() => setOpenToc(false)}
                   aria-hidden="true"
                 />
-                <div className="absolute right-0 top-full mt-2 w-64 max-h-[320px] overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-900/95 p-3 shadow-2xl z-50 backdrop-blur-xl">
-                  <p className="text-[11px] font-mono uppercase text-zinc-500 mb-2 px-2">
+                <div className="absolute right-0 top-full mt-2 w-64 max-h-[320px] overflow-y-auto rounded-xl border border-border bg-popover/95 p-3 shadow-2xl z-50 backdrop-blur-xl">
+                  <p className="text-[11px] font-mono uppercase text-muted-foreground mb-2 px-2">
                     Sections
                   </p>
                   <ul className="flex flex-col gap-1 text-xs">
@@ -117,8 +117,8 @@ export function DocsMobileNav({ currentTitle = "Documentation", toc = [] }: Docs
                         <button
                           type="button"
                           onClick={() => handleTocClick(item.id)}
-                          className={`w-full text-left px-2 py-1.5 rounded-md truncate hover:bg-zinc-800 text-zinc-300 hover:text-white transition-colors ${
-                            item.level === 3 ? "pl-4 text-zinc-400 text-[11px]" : ""
+                          className={`w-full text-left px-2 py-1.5 rounded-md truncate hover:bg-muted text-foreground transition-colors ${
+                            item.level === 3 ? "pl-4 text-muted-foreground text-[11px]" : ""
                           }`}
                         >
                           {item.title}

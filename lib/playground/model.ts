@@ -2,9 +2,9 @@ import { getChartById } from "@/config/charts"
 export const playgroundIds = ["line-basic", "bar-basic", "donut-basic", "d3-animated-line"] as const
 export type PlaygroundId = typeof playgroundIds[number]
 export type PlaygroundRow = Record<string, string | number>
-export interface PlaygroundSettings { curve: "linear" | "monotone" | "step"; showXAxis: boolean; showYAxis: boolean; grid: "off" | "horizontal" | "both"; tooltip: boolean; legend: boolean; motion: boolean; duration: number; reducedMotion: boolean; height: number; width: number; theme: "dark" | "light" | "system"; palette: "default" | "mono"; innerRadius: number }
+export interface PlaygroundSettings { curve: "linear" | "monotone" | "step"; showXAxis: boolean; showYAxis: boolean; grid: "off" | "horizontal" | "both"; tooltip: boolean; legend: boolean; motion: boolean; duration: number; reducedMotion: boolean; height: number; width: number; theme: "follow" | "dark" | "light" | "system"; palette: "default" | "mono"; innerRadius: number }
 export function isPlaygroundId(value: unknown): value is PlaygroundId { return playgroundIds.some(id => id === value) }
-export function playgroundDefaults(id: PlaygroundId): PlaygroundSettings { return { curve: "monotone", showXAxis: true, showYAxis: true, grid: "horizontal", tooltip: true, legend: id === "donut-basic", motion: true, duration: id === "d3-animated-line" ? .35 : .3, reducedMotion: false, height: id === "donut-basic" ? 320 : id === "d3-animated-line" ? 300 : 280, width: 1100, theme: "dark", palette: "default", innerRadius: 62 } }
+export function playgroundDefaults(id: PlaygroundId): PlaygroundSettings { return { curve: "monotone", showXAxis: true, showYAxis: true, grid: "horizontal", tooltip: true, legend: id === "donut-basic", motion: true, duration: id === "d3-animated-line" ? .35 : .3, reducedMotion: false, height: id === "donut-basic" ? 320 : id === "d3-animated-line" ? 300 : 280, width: 1100, theme: "follow", palette: "default", innerRadius: 62 } }
 export function playgroundFixture(id: PlaygroundId): PlaygroundRow[] {
   if (id === "donut-basic") return [{label:"Direct",value:42},{label:"Search",value:31},{label:"Referral",value:18},{label:"Social",value:9}]
   if (id === "d3-animated-line") return [28,48,35,72,64,96,88].map((y,x) => ({x,y}))
@@ -36,7 +36,7 @@ export function generatePlaygroundUsage(id: PlaygroundId, settings: PlaygroundSe
   emit("height")
   if (!settings.motion || settings.reducedMotion) props.push("motion={false}")
   else if (settings.duration !== defaults.duration) props.push(`motion={{ duration: ${settings.duration} }}`)
-  const palette: Record<string,string> = settings.theme === "light" ? {"--background":"#fafafa","--foreground":"#18181b","--border":"#dedee4","--chart-axis":"#62626d","--chart-grid":"#dedee4","--chart-1":"#059669","--chart-2":"#2563eb"} : {"--background":"#09090b","--foreground":"#fafafa","--border":"#29292e","--chart-axis":"#a1a1aa","--chart-grid":"#27272a","--chart-1":"#34d399","--chart-2":"#60a5fa"}
+  const palette: Record<string,string> = settings.theme === "light" ? {"--background":"#fafafa","--foreground":"#18181b","--border":"#e4e4e7","--chart-axis":"#71717a","--chart-grid":"#f4f4f5","--chart-1":"#18181b","--chart-2":"#3f3f46"} : {"--background":"#09090b","--foreground":"#fafafa","--border":"#27272a","--chart-axis":"#a1a1aa","--chart-grid":"#18181b","--chart-1":"#f4f4f5","--chart-2":"#d4d4d8"}
   if (settings.palette === "mono") Object.assign(palette,{"--chart-1":"var(--foreground)","--chart-2":"#a1a1aa","--chart-3":"#71717a","--chart-4":"#52525b"})
   const style = JSON.stringify({width:"100%",maxWidth:settings.width,background:"var(--background)",color:"var(--foreground)",...palette},null,2)
   const cleanPath = chart.componentPath.replace(/\\/g, "/").replace(/^registry\//, "components/charts/").replace(/\.tsx$/, "")

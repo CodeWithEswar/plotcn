@@ -14,6 +14,7 @@ export function PnpmIcon({ className = "", size = 16 }: IconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      data-package-manager-icon="pnpm"
       aria-hidden="true"
     >
       <rect x="2" y="2" width="5.5" height="5.5" fill="#F9AD00" rx="0.5" />
@@ -37,6 +38,7 @@ export function NpmIcon({ className = "", size = 16 }: IconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      data-package-manager-icon="npm"
       aria-hidden="true"
     >
       <rect width="24" height="24" rx="3" fill="#CB3837" />
@@ -57,6 +59,7 @@ export function YarnIcon({ className = "", size = 16 }: IconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      data-package-manager-icon="yarn"
       aria-hidden="true"
     >
       <path
@@ -83,6 +86,7 @@ export function BunIcon({ className = "", size = 16 }: IconProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      data-package-manager-icon="bun"
       aria-hidden="true"
     >
       <ellipse cx="12" cy="13" rx="9" ry="7" fill="#FBF0DF" />
@@ -127,4 +131,3 @@ export function PackageManagerIcon({
       return <PnpmIcon size={size} className={className} />
   }
 }
-

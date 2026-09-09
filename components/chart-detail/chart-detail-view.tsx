@@ -24,7 +24,7 @@ export function ChartDetailView({
   return (
     <>
       <SiteHeader />
-      <div className="charts-surface min-h-[calc(100dvh-80px)]" data-theme="system">
+      <div className="charts-surface min-h-[calc(100dvh-var(--site-header-height,52px))]" data-theme="follow">
         <main id="main" tabIndex={-1} className="chart-detail-page">
           <ChartDetailShell
             chart={chart}

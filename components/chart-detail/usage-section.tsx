@@ -26,7 +26,7 @@ export function UsageSection({ chart, basicSnippet }: UsageSectionProps) {
   return (
     <section id="section-usage" className="space-y-6 pt-4 scroll-mt-20">
       <div className="space-y-1">
-        <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
+        <div className="text-[11px] font-mono tracking-widest text-muted-foreground font-semibold uppercase">
           01 / Component Usage
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground font-sans">
@@ -87,7 +87,7 @@ export function UsageSection({ chart, basicSnippet }: UsageSectionProps) {
         <div className="lg:col-span-5 flex flex-col justify-between space-y-2 pt-2 lg:pt-0 lg:border-l lg:border-white/[0.06] lg:pl-5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-mono text-zinc-400 font-medium">Expected Result</span>
-            <span className="text-[10px] font-mono text-emerald-400">Live 220px</span>
+            <span className="text-[10px] font-mono text-muted-foreground">Live 220px</span>
           </div>
 
           <div className="charts-surface rounded-xl border border-white/[0.06] bg-black/40 p-2 overflow-hidden shadow-inner flex items-center justify-center min-h-[220px]">

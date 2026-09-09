@@ -1,4 +1,7 @@
 import React from "react"
+import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons"
 import type { ChartMetadata } from "@/lib/charts/metadata"
 import type { ChartDetailDoc } from "@/lib/charts/detail-docs/types"
 import type { ChartMdxData } from "@/lib/charts/chart-mdx"
@@ -125,7 +128,15 @@ export default function ChartDemo() {
         <ChartDetailSidebar current={chart} charts={charts} />
         {/* Main Documentation Column */}
         <article className="chart-detail-main min-w-0 space-y-14">
-          <div className="chart-detail-mobile-controls">
+          <div className="chart-detail-mobile-controls flex flex-row items-center gap-2 w-full">
+            <Link
+              href="/charts"
+              className="chart-detail-back-link inline-flex items-center justify-center size-9 min-h-[36px] max-h-[36px] rounded-lg border border-white/[0.1] bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white shrink-0 transition-colors shadow-xs"
+              aria-label="Back to charts gallery"
+              title="Back to charts gallery"
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={15} />
+            </Link>
             <ChartDetailMobileSidebar current={chart} charts={charts} />
             <ChartDetailToc items={mdxData ? mdxTocItems : undefined} chart={chart} compact />
           </div>
@@ -151,8 +162,6 @@ export default function ChartDemo() {
               <span id="component-props" className="sr-only" aria-hidden="true" />
               <PropsExplorer
                 propsList={doc.props}
-                chartId={chart.id}
-                sampleData={sampleData}
                 registryName={chart.registryName}
               />
             </div>
@@ -233,8 +242,6 @@ export default function ChartDemo() {
             <div id="section-props-explorer">
               <PropsExplorer
                 propsList={doc.props}
-                chartId={chart.id}
-                sampleData={sampleData}
                 registryName={chart.registryName}
               />
             </div>

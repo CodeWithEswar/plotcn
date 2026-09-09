@@ -13,22 +13,22 @@
   --chart-zero-line: var(--muted-foreground, oklch(0.556 0 0));
   --chart-crosshair: var(--muted-foreground, oklch(0.708 0 0));
   --chart-focus: var(--foreground, oklch(0.985 0 0));
-  --chart-selection: var(--chart-warning, oklch(0.75 0.18 75));
-  --chart-positive: oklch(0.65 0.18 155);
-  --chart-negative: oklch(0.65 0.22 25);
-  --chart-warning: oklch(0.75 0.18 75);
-  --chart-1: var(--color-chart-1, #3b82f6);
-  --chart-2: var(--color-chart-2, #f97316);
-  --chart-3: var(--color-chart-3, #8b5cf6);
-  --chart-4: var(--color-chart-4, #f59e0b);
-  --chart-5: var(--color-chart-5, #ef4444);
-  --chart-6: var(--color-chart-6, #6366f1);
-  --chart-7: var(--color-chart-7, #14b8a6);
-  --chart-8: var(--color-chart-8, #0ea5e9);
-  --chart-tooltip-background: var(--background, oklch(0.145 0 0));
-  --chart-tooltip-foreground: var(--foreground, oklch(0.985 0 0));
-  --chart-tooltip-muted: var(--muted-foreground, oklch(0.708 0 0));
-  --chart-tooltip-border: var(--border, oklch(0.269 0 0));
+  --chart-selection: var(--foreground, oklch(0.985 0 0));
+  --chart-positive: var(--foreground, oklch(0.985 0 0));
+  --chart-negative: var(--muted-foreground, oklch(0.708 0 0));
+  --chart-warning: var(--muted-foreground, oklch(0.708 0 0));
+  --chart-1: var(--color-chart-1, #f4f4f5);
+  --chart-2: var(--color-chart-2, #d4d4d8);
+  --chart-3: var(--color-chart-3, #a1a1aa);
+  --chart-4: var(--color-chart-4, #71717a);
+  --chart-5: var(--color-chart-5, #52525b);
+  --chart-6: var(--color-chart-6, #3f3f46);
+  --chart-7: var(--color-chart-7, #e4e4e7);
+  --chart-8: var(--color-chart-8, #27272a);
+  --chart-tooltip-background: var(--chart-tooltip-background, var(--card, var(--background, oklch(0.145 0 0))));
+  --chart-tooltip-foreground: var(--chart-tooltip-foreground, var(--card-foreground, var(--foreground, oklch(0.985 0 0))));
+  --chart-tooltip-muted: var(--chart-tooltip-muted, var(--muted-foreground, oklch(0.708 0 0)));
+  --chart-tooltip-border: var(--chart-tooltip-border, var(--border, oklch(0.269 0 0)));
   color: var(--chart-foreground); background: var(--chart-background); font-family: inherit; font-variant-numeric: tabular-nums;
 }
 [data-chart-palette="mono"] { --chart-1: var(--foreground); --chart-2: oklch(.65 0 0); --chart-3: oklch(.55 0 0); --chart-4: oklch(.45 0 0); --chart-5: oklch(.75 0 0); --chart-6: oklch(.35 0 0); --chart-7: oklch(.85 0 0); --chart-8: oklch(.6 0 0); }
@@ -69,9 +69,18 @@
   overflow-y: auto;
   scrollbar-width: thin;
   pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
   transition: all 0.15s ease-out;
+}
+
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"], html:not(.dark)) .plotcn-chart-tooltip,
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"], html:not(.dark)) [role="tooltip"].plotcn-chart-tooltip,
+:is(.charts-surface[data-theme="light"], html:not(.dark) .charts-surface[data-theme="follow"], html:not(.dark)) .recharts-default-tooltip {
+  border-color: var(--chart-tooltip-border, #e4e4e7);
+  background: var(--chart-tooltip-background, #ffffff);
+  color: var(--chart-tooltip-foreground, #09090b);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .plotcn-chart-tooltip-compact {
