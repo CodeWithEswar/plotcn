@@ -53,9 +53,9 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
         href={githubUrl}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 transition-colors shadow-sm"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground bg-secondary/60 hover:bg-secondary border border-border transition-colors shadow-xs"
       >
-        <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={1.8} className="text-zinc-400" />
+        <HugeiconsIcon icon={Edit02Icon} size={14} strokeWidth={1.8} className="text-muted-foreground" />
         <span>Edit on GitHub</span>
       </a>
 
@@ -63,13 +63,13 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
       <button
         type="button"
         onClick={handleCopyMarkdown}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 transition-colors shadow-sm"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground bg-secondary/60 hover:bg-secondary border border-border transition-colors shadow-xs"
       >
         <HugeiconsIcon
           icon={copied ? CheckmarkCircle01Icon : Copy01Icon}
           size={14}
           strokeWidth={1.8}
-          className={copied ? "text-emerald-400" : "text-zinc-400"}
+          className={copied ? "text-foreground" : "text-muted-foreground"}
         />
         <span>{copied ? "Copied Markdown" : "Copy Markdown"}</span>
       </button>
@@ -79,13 +79,13 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
         <button
           type="button"
           onClick={() => setOpenDropdown(!openDropdown)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-300 hover:text-white bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 transition-colors shadow-sm"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground bg-secondary/60 hover:bg-secondary border border-border transition-colors shadow-xs"
         >
           <span>Open</span>
           <HugeiconsIcon
             icon={ArrowDown01Icon}
             size={12}
-            className={`text-zinc-400 transition-transform ${openDropdown ? "rotate-180" : ""}`}
+            className={`text-muted-foreground transition-transform ${openDropdown ? "rotate-180" : ""}`}
           />
         </button>
 
@@ -96,15 +96,15 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
               onClick={() => setOpenDropdown(false)}
               aria-hidden="true"
             />
-            <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 w-52 rounded-xl border border-zinc-800 bg-zinc-950/95 p-1.5 shadow-2xl z-50 backdrop-blur-xl">
+            <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 w-52 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-xl z-50 backdrop-blur-xl">
               <a
                 href={githubUrl}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setOpenDropdown(false)}
-                className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800/80 rounded-lg transition-colors"
+                className="group flex items-center gap-2 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
               >
-                <HugeiconsIcon icon={GithubIcon} size={14} className="text-zinc-400" />
+                <HugeiconsIcon icon={GithubIcon} size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span>View on GitHub</span>
               </a>
               <a
@@ -112,9 +112,9 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setOpenDropdown(false)}
-                className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800/80 rounded-lg transition-colors"
+                className="group flex items-center gap-2 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
               >
-                <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-zinc-400" />
+                <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span>View Raw Content</span>
               </a>
               <a
@@ -122,9 +122,9 @@ export function DocsArticleActions({ rawContent, slug }: DocsArticleActionsProps
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => setOpenDropdown(false)}
-                className="flex items-center gap-2 px-2.5 py-1.5 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800/80 rounded-lg transition-colors"
+                className="group flex items-center gap-2 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
               >
-                <HugeiconsIcon icon={AlertCircleIcon} size={14} className="text-zinc-400" />
+                <HugeiconsIcon icon={AlertCircleIcon} size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span>Report Issue</span>
               </a>
             </div>

@@ -48,7 +48,7 @@ export function ChartPreview({ registryName: propRegistryName, name, title }: Ch
             title="Tablet view (768px)"
             className={cn(
               "p-1.5 rounded text-xs transition-colors",
-              device === "tablet" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+              device === "tablet" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <HugeiconsIcon icon={Tablet01Icon} size={15} />
@@ -58,7 +58,7 @@ export function ChartPreview({ registryName: propRegistryName, name, title }: Ch
             title="Mobile view (480px)"
             className={cn(
               "p-1.5 rounded text-xs transition-colors",
-              device === "mobile" ? "bg-white/15 text-white" : "text-zinc-400 hover:text-white"
+              device === "mobile" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <HugeiconsIcon icon={SmartPhone01Icon} size={15} />
@@ -67,14 +67,14 @@ export function ChartPreview({ registryName: propRegistryName, name, title }: Ch
       </div>
 
       {/* Preview Stage */}
-      <div className="flex items-center justify-center p-6 sm:p-10 bg-zinc-950/40 min-h-[360px] overflow-hidden">
+      <div className="flex items-center justify-center p-6 sm:p-10 bg-muted/20 min-h-[360px] overflow-hidden">
         <div className={cn("transition-all duration-300 mx-auto", widthClasses[device])}>
           <DynamicChartRenderer registryName={registryName} height={320} />
         </div>
       </div>
 
       {/* Bottom Status / Meta */}
-      <div className="flex items-center justify-between border-t border-white/[0.06] px-4 py-2 text-[11px] font-mono text-zinc-400 bg-white/[0.01]">
+      <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[11px] font-mono text-muted-foreground bg-muted/10">
         <span>Isolated Preview Boundary</span>
         <span>Viewport: {device.toUpperCase()}</span>
       </div>

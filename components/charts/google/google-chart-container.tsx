@@ -40,7 +40,7 @@ export function GoogleChartContainer({
       aria-label={accessibility?.title || "Google Chart visualization"}
       className={`relative w-full transition-colors flex flex-col justify-center min-w-0 ${
         bordered
-          ? "rounded-xl border border-zinc-800/80 bg-zinc-950/60 p-4"
+          ? "rounded-xl border border-border bg-card/60 p-4"
           : "p-0 border-0 bg-transparent"
       } ${isFullHeight ? "h-full" : ""} ${className}`}
       style={{
@@ -60,25 +60,25 @@ export function GoogleChartContainer({
       {/* 1. Loading Skeleton */}
       {status === "loading" && (
         <div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-zinc-950/70 backdrop-blur-sm rounded-xl select-none"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/70 backdrop-blur-sm rounded-xl select-none"
           aria-live="polite"
         >
-          <div className="size-6 rounded-full border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
-          <span className="text-xs font-mono text-zinc-400">Loading visualization engine…</span>
+          <div className="size-6 rounded-full border-2 border-muted-foreground/30 border-t-foreground animate-spin" />
+          <span className="text-xs font-mono text-muted-foreground">Loading visualization engine…</span>
         </div>
       )}
 
       {/* 2. Error Boundary State */}
       {status === "error" && (
         <div
-          className="flex flex-col items-center justify-center gap-2.5 p-6 text-center text-zinc-400"
+          className="flex flex-col items-center justify-center gap-2.5 p-6 text-center text-muted-foreground"
           role="alert"
         >
-          <div className="size-8 rounded-full bg-red-950/50 border border-red-800/40 flex items-center justify-center text-red-400">
+          <div className="size-8 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center text-destructive">
             <HugeiconsIcon icon={AlertCircleIcon} size={16} strokeWidth={1.8} />
           </div>
-          <p className="text-xs font-medium text-zinc-200">Unable to load Google Charts</p>
-          <p className="font-mono text-[11px] text-zinc-500 max-w-sm">
+          <p className="text-xs font-medium text-foreground">Unable to load Google Charts</p>
+          <p className="font-mono text-[11px] text-muted-foreground max-w-sm">
             {errorMessage || "The external Google visualization runtime could not be reached. Verify network connectivity."}
           </p>
           {onRetry && (
@@ -86,7 +86,7 @@ export function GoogleChartContainer({
               variant="outline"
               size="sm"
               onClick={onRetry}
-              className="mt-2 h-7 text-xs gap-1.5 border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300"
+              className="mt-2 h-7 text-xs gap-1.5 border-border bg-secondary/80 hover:bg-secondary text-secondary-foreground"
             >
               <HugeiconsIcon icon={RefreshIcon} size={12} strokeWidth={1.8} />
               Retry
@@ -97,9 +97,9 @@ export function GoogleChartContainer({
 
       {/* 3. Empty Data State */}
       {status === "ready" && isEmpty && (
-        <div className="flex flex-col items-center justify-center gap-1.5 p-6 text-center text-zinc-500">
-          <p className="text-xs font-medium text-zinc-400">No chart data available</p>
-          <p className="text-[11px] font-mono text-zinc-600">Provide at least one data record to render visualization.</p>
+        <div className="flex flex-col items-center justify-center gap-1.5 p-6 text-center text-muted-foreground">
+          <p className="text-xs font-medium text-foreground">No chart data available</p>
+          <p className="text-[11px] font-mono text-muted-foreground">Provide at least one data record to render visualization.</p>
         </div>
       )}
 
