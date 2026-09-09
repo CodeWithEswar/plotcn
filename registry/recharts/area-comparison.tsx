@@ -880,57 +880,58 @@ export function ComparisonArea<TData extends Record<string, unknown> = Record<st
         </div>
       ) : (
         <div className="flex-1 w-full min-h-0">
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-            minWidth={0}
-            minHeight={0}
-            initialDimension={{ width: 600, height: typeof height === "number" ? height : 320 }}
-          >
-            <AreaChart
-              data={normalizedData}
-              onClick={handleChartClick}
-              onMouseMove={(e: any) => {
-                if (lockedIndex === null && e?.activeTooltipIndex !== undefined) {
-                  setHoverIndex(Number(e.activeTooltipIndex))
-                }
-              }}
-              onMouseLeave={() => {
-                if (lockedIndex === null) setHoverIndex(null)
-              }}
-              margin={{ top: 12, right: 16, bottom: 8, left: 4 }}
+          <ChartContainer className="h-full w-full">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+              minWidth={0}
+              minHeight={0}
+              initialDimension={{ width: 600, height: typeof height === "number" ? height : 320 }}
             >
-              {showGrid && (
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="var(--chart-grid)"
-                  vertical={false}
-                  strokeOpacity={0.7}
-                />
-              )}
+              <AreaChart
+                data={normalizedData}
+                onClick={handleChartClick}
+                onMouseMove={(e: any) => {
+                  if (lockedIndex === null && e?.activeTooltipIndex !== undefined) {
+                    setHoverIndex(Number(e.activeTooltipIndex))
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (lockedIndex === null) setHoverIndex(null)
+                }}
+                margin={{ top: 12, right: 16, bottom: 8, left: 4 }}
+              >
+                {showGrid && (
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--chart-grid)"
+                    vertical={false}
+                    strokeOpacity={0.7}
+                  />
+                )}
 
-              {showXAxis && (
-                <XAxis
-                  dataKey={xKey as any}
-                  stroke="var(--chart-axis)"
-                  tick={{ fill: "var(--chart-axis-label)", fontSize: isCompact ? 10 : 11 }}
-                  tickLine={false}
-                  axisLine={{ stroke: "var(--chart-axis-line)", strokeOpacity: 0.5 }}
-                  tickFormatter={xFormatter}
-                />
-              )}
+                {showXAxis && (
+                  <XAxis
+                    dataKey={xKey as any}
+                    stroke="var(--chart-axis, #a1a1aa)"
+                    tick={{ fill: "var(--chart-axis, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
+                    tickLine={false}
+                    axisLine={{ stroke: "var(--chart-axis-line, rgba(255,255,255,0.12))", strokeOpacity: 0.5 }}
+                    tickFormatter={xFormatter}
+                  />
+                )}
 
-              {showYAxis && (
-                <YAxis
-                  domain={sharedDomain as any}
-                  stroke="var(--chart-axis)"
-                  tick={{ fill: "var(--chart-axis-label)", fontSize: isCompact ? 10 : 11 }}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={valueFormatter}
-                  width={isCompact ? 40 : 50}
-                />
-              )}
+                {showYAxis && (
+                  <YAxis
+                    domain={sharedDomain as any}
+                    stroke="var(--chart-axis, #a1a1aa)"
+                    tick={{ fill: "var(--chart-axis, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={valueFormatter}
+                    width={isCompact ? 40 : 50}
+                  />
+                )}
 
               <Tooltip
                 isAnimationActive={false}
@@ -1004,7 +1005,8 @@ export function ComparisonArea<TData extends Record<string, unknown> = Record<st
               />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </ChartContainer>
+      </div>
       )}
 
       {/* Series Legend */}

@@ -664,7 +664,7 @@ export function GradientDepthArea<
                 <XAxis
                   dataKey={xKey as any}
                   stroke="var(--chart-axis, rgba(255,255,255,0.12))"
-                  tick={{ fill: "var(--chart-axis-label, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
+                  tick={{ fill: "var(--chart-axis, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
                   tickLine={false}
                   axisLine={{ stroke: "var(--chart-axis-line, rgba(255,255,255,0.12))", strokeOpacity: 0.5 }}
                   tickFormatter={xFormatter}
@@ -675,7 +675,7 @@ export function GradientDepthArea<
                 <YAxis
                   domain={safeDomain as any}
                   stroke="var(--chart-axis, rgba(255,255,255,0.12))"
-                  tick={{ fill: "var(--chart-axis-label, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
+                  tick={{ fill: "var(--chart-axis, #a1a1aa)", fontSize: isCompact ? 10 : 11 }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={valueFormatter}

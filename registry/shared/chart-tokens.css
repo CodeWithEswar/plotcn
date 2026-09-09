@@ -8,6 +8,8 @@
   --chart-grid-emphasis: var(--muted-foreground, oklch(0.556 0 0));
   --chart-axis: var(--muted-foreground, oklch(0.708 0 0));
   --chart-axis-emphasis: var(--foreground, oklch(0.985 0 0));
+  --chart-axis-label: var(--chart-axis);
+  --chart-axis-line: var(--chart-border);
   --chart-zero-line: var(--muted-foreground, oklch(0.556 0 0));
   --chart-crosshair: var(--muted-foreground, oklch(0.708 0 0));
   --chart-focus: var(--foreground, oklch(0.985 0 0));

@@ -29,6 +29,8 @@
   --chart-grid-emphasis: rgba(255, 255, 255, 0.16);
   --chart-axis: #a1a1aa;
   --chart-axis-emphasis: #fafafa;
+  --chart-axis-label: var(--chart-axis);
+  --chart-axis-line: var(--chart-border);
   --chart-zero-line: rgba(255, 255, 255, 0.24);
   --chart-crosshair: rgba(255, 255, 255, 0.4);
   --chart-focus: #10b981;
@@ -91,6 +93,8 @@
   --chart-grid-emphasis: #e4e4e7;
   --chart-axis: #71717a;
   --chart-axis-emphasis: #09090b;
+  --chart-axis-label: var(--chart-axis);
+  --chart-axis-line: var(--chart-border);
   --chart-zero-line: #d4d4d8;
   --chart-crosshair: #71717a;
   --chart-focus: #059669;
@@ -141,6 +145,8 @@
     --chart-grid-emphasis: #e4e4e7;
     --chart-axis: #71717a;
     --chart-axis-emphasis: #09090b;
+    --chart-axis-label: var(--chart-axis);
+    --chart-axis-line: var(--chart-border);
     --chart-zero-line: #d4d4d8;
     --chart-crosshair: #71717a;
     --chart-focus: #059669;
