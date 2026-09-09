@@ -116,7 +116,7 @@ export function MobileThemeSelector({ className }: { className?: string }) {
       <div className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground px-1">
         Appearance
       </div>
-      <div className="grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-muted/40 border border-border">
+      <div className="grid grid-cols-3 gap-1 p-0.5 rounded-lg bg-muted/40 border border-border">
         {options.map((opt) => {
           const isSelected = theme === opt.value
           return (
@@ -127,13 +127,13 @@ export function MobileThemeSelector({ className }: { className?: string }) {
               aria-pressed={isSelected}
               aria-label={`${opt.label} appearance`}
               className={cn(
-                "flex items-center justify-center gap-1.5 h-10 px-2 rounded-md text-xs font-medium transition-all select-none cursor-pointer",
+                "flex items-center justify-center gap-1.5 h-[30px] px-2 rounded-md text-xs font-medium transition-all select-none cursor-pointer",
                 isSelected
                   ? "bg-background text-foreground shadow-xs border border-border/80 font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-background/40"
               )}
             >
-              <HugeiconsIcon icon={opt.icon} size={14} strokeWidth={1.8} className="shrink-0" />
+              <HugeiconsIcon icon={opt.icon} size={13.5} strokeWidth={1.8} className="shrink-0" />
               <span>{opt.label}</span>
             </button>
           )

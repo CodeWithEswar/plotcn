@@ -351,8 +351,10 @@ export function SiteHeader() {
 
                   <div className="my-1.5 border-t border-border" />
 
-                  <Link
-                    href="#open-source"
+                  <a
+                    href={site.github}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={() => setMenu(false)}
                     className="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all group"
                   >
@@ -363,7 +365,7 @@ export function SiteHeader() {
                       strokeWidth={1.8}
                       className="shrink-0 text-muted-foreground group-hover:text-foreground"
                     />
-                  </Link>
+                  </a>
                 </nav>
 
                 <div className="p-3 pt-2.5 border-t border-border bg-popover/80 backdrop-blur-sm">
