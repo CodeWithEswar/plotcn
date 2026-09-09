@@ -1,0 +1,268 @@
+---
+title: "Stack Flow Area"
+description: "A stacked area chart for showing how multiple additive series combine into a total and how each series' contribution changes across an ordered domain."
+component: "StackFlowArea"
+engine: "recharts"
+registryName: "area-stack-flow"
+number: "012"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Stack Flow Area** is the multi-series composition chart of the Plotcn **Area family**. Engineered around strict additive semantics, stable series identity, and truthful missing-data policies, it visualizes how several independent parts combine into a meaningful whole across an ordered domain.
+
+The primary analytical question answered by Stack Flow Area is:
+
+> **"How does the total change over time, and how does each contributor participate in that total?"**
+
+> **Additive Identity Equation**: $\text{Series A} + \text{Series B} + \text{Series C} = \text{Stack Total}$
+
+```tsx
+import { StackFlowArea } from "@/components/charts/recharts/area-stack-flow"
+
+const platformData = [
+  { month: "Jan", web: 120, ios: 80, android: 95 },
+  { month: "Feb", web: 130, ios: 94, android: 103 },
+  { month: "Mar", web: 138, ios: 112, android: 119 },
+  { month: "Apr", web: 149, ios: 123, android: 131 },
+  { month: "May", web: 162, ios: 135, android: 142 },
+  { month: "Jun", web: 175, ios: 148, android: 156 },
+]
+
+export function PlatformTrafficOverview() {
+  return (
+    <StackFlowArea
+      data={platformData}
+      xKey="month"
+      series={[
+        { key: "web", label: "Web Requests" },
+        { key: "ios", label: "iOS App" },
+        { key: "android", label: "Android App" },
+      ]}
+      stackMode="absolute"
+      showLegend
+      interactiveLegend
+      lockableTooltip
+      valueFormatter={(v) => `${v.toLocaleString()} req/s`}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+Plotcn distinguishes clearly between single-magnitude and multi-series additive areas:
+
+| Consideration | Prism Area (Component 011) | Stack Flow Area (Component 012) |
+| :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude exists relative to baseline?"* | *"How do multiple parts assemble into a total over time?"* |
+| **Input Structure** | Single series (`series={...}`) | Multiple additive series (`series={[...]}`) |
+| **Visual Meaning** | Area under one curve = accumulated volume | Vertical thickness = contribution; top edge = total sum |
+| **Baseline Rule** | Configurable (`"zero"`, `"domain-min"`, custom) | **Fixed at zero** (additive composition requires zero baseline) |
+| **Ideal Metrics** | Single service bandwidth, battery level, storage | Platform traffic, regional revenue, departmental headcounts |
+| **Unit Constraint** | One unit | **Strictly one shared unit across all stacked series** |
+
+> **Area-Family Principle**: Use Stack Flow Area only when the configured series can truthfully and meaningfully be added together into a shared total.
+
+---
+
+## Stack Model & Composition Geometry
+
+<StackFlowCompositionFlow />
+
+At every coordinate $x$:
+1. **Layer 1 (Bottom)** anchors directly to the zero baseline $y = 0$.
+2. **Layer 2 (Middle)** rests upon the top boundary of Layer 1.
+3. **Layer 3 (Top)** rests upon the top boundary of Layer 2.
+4. **Top Silhouette** represents the arithmetic sum of all visible, valid series contributions.
+5. **Layer Thickness** represents that specific series' contribution at that observation.
+
+### Deterministic Stacking Order
+Series order in the stack is **strictly deterministic** and matches the input `series` array. Series are never reordered dynamically by instantaneous value, total contribution, or alphabetical label. Dynamic reordering creates visual disjunctions ("layer flipping") that destroy temporal continuity.
+
+---
+
+## Additive Data Contract
+
+To preserve truthful visualization semantics, Stack Flow Area enforces three non-negotiable contract rules:
+
+### 1. Values Must Be Additive
+All series must represent mutually exclusive, additive quantities. Summing web requests, iOS requests, and Android requests yields total requests. Do **not** stack non-additive metrics such as percentages, temperatures, conversion rates, or latencies.
+
+### 2. No Mixed Units
+All series must share the identical physical, financial, or operational unit. Stacking USD with EUR or megabytes with milliseconds is mathematically invalid.
+
+### 3. Non-Negative Additive Values
+In V1, standard additive stacking requires non-negative values ($v \ge 0$). If negative values are detected in the dataset:
+- Plotcn **never silently clamps** with `Math.max(0, val)` (which falsifies data).
+- Plotcn **never silently takes absolute values**.
+- The component halts rendering and displays a truthful `ChartErrorState` explaining that negative values violate additive composition semantics.
+
+---
+
+## Missing-Value Semantics: Missing is Not Zero
+
+<StackFlowMissingModelFlow />
+
+### 1. Gap Policy (`missingValuePolicy="gap"`, Default)
+When any visible series has a missing (`null` or `undefined`) contribution at coordinate $x$:
+- The stacked layer geometry breaks cleanly at that $x$ coordinate rather than silently tapering to zero.
+- Tooltip displays `—` for the missing series.
+- **Incomplete Total Safeguard**: The total is reported as **`Incomplete`** instead of displaying a deceptive partial sum that misleads viewers into thinking overall traffic plummeted.
+
+### 2. Zero Policy (`missingValuePolicy="zero"`)
+If an application specifically and intentionally defines missing data as zero contribution (e.g. an API service with zero activity on weekends), setting `missingValuePolicy="zero"` explicitly substitutes $0$. This behavior is documented as an opt-in caller interpretation.
+
+---
+
+## Stack Modes: Absolute vs. Percent
+
+Stack Flow Area provides two purpose-built analytical modes:
+
+| Mode | Layer Thickness | Top Silhouette | Scale Domain |
+| :--- | :--- | :--- | :--- |
+| **`stackMode="absolute"`** (Default) | Raw contributor magnitude (e.g. $149\text{ req/s}$) | Total sum of visible series (e.g. $403\text{ req/s}$) | Dynamic: $0 \rightarrow \text{Max Total}$ |
+| **`stackMode="percent"`** | Normalized proportional share (e.g. $37.0\%$) | Constant $100\%$ ceiling | Fixed: $0\% \rightarrow 100\%$ |
+
+### Percent Mode Precision & Zero-Total Protection
+In percent mode:
+- Proportions are derived dynamically from the visible series at each $x$.
+- **Zero-Total Safety**: If all visible series at an observation equal zero ($0 + 0 + 0 = 0$), the denominator is zero. Rather than producing `NaN` or crashing SVG paths, Plotcn safely normalizes each share to `0%` and renders a zero-height baseline stack.
+- **Tooltip Reporting**: In percent mode, tooltips display both the normalized percentage and the raw contributing value (e.g. `120 · 35.3%`).
+
+---
+
+## Deterministic Series Identity & Color Precedence
+
+Series identity remains invariant under dynamic changes:
+
+| Series Order | Default Semantic Token | Fallback Hex |
+| :--- | :--- | :--- |
+| `series[0]` (Bottom) | `var(--chart-1)` | `#3b82f6` (Theme Blue) |
+| `series[1]` (Middle) | `var(--chart-2)` | `#10b981` (Emerald) |
+| `series[2]` (Top) | `var(--chart-3)` | `#f59e0b` (Amber) |
+| `series[3]` | `var(--chart-4)` | `#8b5cf6` (Purple) |
+| `series[4]` | `var(--chart-5)` | `#ec4899` (Pink) |
+
+### Stable Identity When Toggling Series
+When a user hides a series via the interactive legend:
+1. Remaining visible layers **restack** to form a valid contiguous area.
+2. The Y-axis domain recomputes to the new visible total.
+3. **Crucial Invariant**: Hidden series do **not** cause color reassignments. If `iOS` (`--chart-2`) is hidden, `Android` remains `--chart-3`. It never shifts to `--chart-2`.
+
+### Color Precedence
+Color assignment follows standard Plotcn multi-series rules:
+1. **Explicit Series Override**: `series.color` (e.g. `color: "#2563eb"`).
+2. **Palette Token Fallback**: Theme semantic CSS variable `var(--chart-N)`.
+
+---
+
+## Interactive Legend Controls
+
+For multi-series area composition, a legend is vital for layer identification. Stack Flow Area provides a fully interactive, keyboard-accessible legend:
+- **Click / Tap**: Toggle visibility of any series.
+- **Keyboard (<kbd>Tab</kbd> + <kbd>Enter</kbd> / <kbd>Space</kbd>)**: Standard accessible focus and toggle flow with live `aria-pressed` states.
+- **Area Fill Swatches**: Swatches render as rectangular filled area blocks matching each layer's fill and border styling.
+- **All-Hidden Recovery**: If all series are toggled off, the chart displays a clean recovery state with an action to restore all series.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g., month, date). |
+| `series` | `readonly StackFlowSeries<TData>[]` | — | Yes | Array of series descriptors (`{ key, label, color?, valueFormatter? }`). |
+| `stackMode` | `"absolute" \| "percent"` | `"absolute"` | No | Composition mode: raw additive totals or 100% normalized relative shares. |
+| `missingValuePolicy` | `"gap" \| "zero"` | `"gap"` | No | Missing-value handling: honest break with incomplete total, or explicit zero-fill. |
+| `height` | `number \| string` | `320` | No | Container height in pixels or standard CSS dimension strings. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm shared identically across all stacked layers. |
+| `fillOpacity` | `number` | `0.45` | No | Controlled fill opacity between 0 and 1, ensuring layer distinction without mud. |
+| `gradientMode` | `"none" \| "vertical-fade"` | `"none"` | No | Optional vertical opacity gradient per layer with collision-safe `React.useId()`. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showLegend` | `boolean` | `true` | No | Whether to render the series identity legend. |
+| `interactiveLegend` | `boolean` | `true` | No | Enables clickable/keyboard buttons in the legend to toggle series visibility. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click, tap, or Enter/Space. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for the locked crosshair and inspection status indicator. |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Restrained entrance reveal animation. Bypassed under `prefers-reduced-motion`. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Formatter for Y-axis scale ticks and default tooltip contributor values. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for horizontal domain tick labels. |
+| `title` | `string` | `"Stack Flow Area Chart"` | No | Accessible title for assistive technologies and screen readers. |
+| `description` | `string` | `undefined` | No | Accessible description detailing series composition and keyboard shortcuts. |
+
+---
+
+## Installation
+
+Install Stack Flow Area directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/area-stack-flow.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/area-stack-flow` will become available.
+
+---
+
+## Keyboard Navigation Reference
+
+Stack Flow Area provides a dual-surface keyboard accessibility model:
+
+| Key | Control Target | Action |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Plot Surface | Inspect next observation across all visible stacked series |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Plot Surface | Inspect previous observation across all visible stacked series |
+| <kbd>Home</kbd> | Plot Surface | Jump inspection directly to the first observation |
+| <kbd>End</kbd> | Plot Surface | Jump inspection directly to the latest observation |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Plot Surface | Lock or unlock persistent inspection at the active coordinate |
+| <kbd>Escape</kbd> | Plot Surface | Dismiss locked inspection and release pinned tooltip |
+| <kbd>Tab</kbd> | Legend Items | Cycle focus through interactive series toggle buttons |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Legend Button | Toggle visibility of focused series (re-stacks layers and recalculates total) |
+
+---
+
+## Responsive Behavior
+
+Stack Flow Area maintains full compositional integrity across all viewport widths without clipping or dropping layers:
+
+- **Desktop ($\ge 1024\text{px}$)**: Full-width stacked visualization with horizontal legend swatches, complete Y-axis numeric scale, and multi-row shared tooltip with individual contributions and stack total.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Wrapped legend layout, reduced horizontal tick density, and synchronized nearest-X inspection.
+- **Mobile ($< 640\text{px}$)**: 
+  - All layers remain visible in the stack (layers are never silently pruned to save space).
+  - Legend controls wrap cleanly into 32px touch targets with no horizontal document overflow.
+  - Locked inspection tooltip displays compactly with high-contrast badge and dismiss shortcut.
+- **State Preservation**: Switching viewport sizes, rotating devices, or toggling themes preserves all active series selections and locked inspection coordinates.
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Stack Flow Area is designed from first principles for assistive technology compliance:
+
+1. **Semantic Shell**: Encapsulated within a `<figure role="region" tabIndex={0}>` element with comprehensive `aria-labelledby` and `aria-describedby` associations.
+2. **Fact-Based Screen Reader Summary**: Announces the total number of series, visible series count, number of time observations, current stack mode (`absolute` or `percent`), and domain bounds.
+3. **Structured Data Alternative**: Includes an accessible, off-screen semantic HTML `<table>` rendering all observations, individual series contributions, and computed stack totals for screen readers.
+4. **Decoupled Focus Flow**: A single tab stop accesses the chart observation plot, while series toggle buttons in the legend are standard focusable `<button>` elements in the natural DOM tab flow.
+5. **Missing vs. Zero Distinction**: Screen reader announcements clearly distinguish between a known zero contribution and an unavailable observation.
+6. **Reduced Motion**: All layer entrance transitions and restacking animations immediately render their final geometry when `prefers-reduced-motion: reduce` is detected.
+
+---
+
+## Data Safety Guarantee
+
+Stack Flow Area guarantees complete data integrity and contract enforcement:
+
+- **✓ Additive Consistency**: Enforces single-unit additive composition across all stacked series.
+- **✓ Missing is Not Zero**: Missing values (`null`, `undefined`) produce an honest break; incomplete totals are explicitly flagged as `Incomplete`.
+- **✓ Zero Remains Valid**: Real zero contributions ($0$) are accurately rendered at zero thickness without being dropped as falsy.
+- **✓ Negative Rejection**: Negative values are never clamped or altered; they trigger a truthful `ChartErrorState`.
+- **✓ Divide-by-Zero Protection**: In percent mode, observations where all series equal zero safely resolve to 0% without generating `NaN` or invalid SVG coordinates.
+- **✓ Stable Series Identity**: Canonical series order governs palette tokens; toggling series visibility never recolors remaining layers.
+- **✓ Deterministic Stacking**: Stack order is fixed to input series definition; layers never rearrange dynamically over time.
+- **✓ Immutability**: Caller data arrays and series descriptors are treated as readonly and are never mutated.

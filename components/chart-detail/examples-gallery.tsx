@@ -6,6 +6,7 @@ import { DynamicChartRenderer } from "@/components/chart-gallery/chart-renderer"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Copy01Icon, Tick02Icon, InformationCircleIcon } from "@hugeicons/core-free-icons"
 import { CodeHighlight } from "./code-highlight"
+import { useChartColors } from "./chart-color-context"
 
 interface ExamplesGalleryProps {
   examples: readonly ExampleVariantDoc[]
@@ -13,6 +14,8 @@ interface ExamplesGalleryProps {
 }
 
 export function ExamplesGallery({ examples, registryName }: ExamplesGalleryProps) {
+  const colorContext = useChartColors()
+
   return (
     <section id="section-examples" className="space-y-8 pt-4 scroll-mt-20">
       <div className="space-y-1">
@@ -28,56 +31,68 @@ export function ExamplesGallery({ examples, registryName }: ExamplesGalleryProps
       </div>
 
       {/* ── Feature Variants ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 min-w-0 w-full max-w-full">
         {examples.map((example) => (
           <VariantCard
             key={example.id}
             example={example}
             registryName={registryName}
+            customColors={colorContext.customColors}
+            cssVariables={colorContext.cssVariables}
           />
         ))}
       </div>
 
       {/* ── Lifecycle & Data Safety States (Loading, Empty, Error) ────── */}
-      <div className="space-y-3 pt-4">
+      <div className="space-y-3 pt-4 min-w-0 w-full max-w-full">
         <div className="flex items-center gap-2 text-xs font-mono text-zinc-300 font-medium uppercase tracking-wider">
           <HugeiconsIcon icon={InformationCircleIcon} size={14} className="text-sky-400" />
           <span>Lifecycle & Exception States</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-0 w-full max-w-full">
           {/* 1. Loading State */}
-          <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
+          <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
             <div className="text-xs font-mono font-medium text-amber-400">01. Loading State</div>
             <p className="text-[11px] text-zinc-400 font-sans">Skeletons indicate runtime fetch or pending data queries.</p>
-            <div className="charts-surface rounded-xl overflow-hidden min-h-[160px] border border-white/[0.04] p-4 flex flex-col justify-end gap-2 bg-zinc-950/40">
-              <div className="h-2 w-20 bg-white/10 rounded animate-pulse" />
-              <div className="h-24 w-full bg-white/5 rounded-lg animate-pulse flex items-end gap-2 p-2">
-                <div className="h-1/3 w-full bg-emerald-500/20 rounded" />
-                <div className="h-2/3 w-full bg-emerald-500/25 rounded" />
-                <div className="h-1/2 w-full bg-emerald-500/20 rounded" />
-                <div className="h-5/6 w-full bg-emerald-500/30 rounded" />
-              </div>
+            <div className="charts-surface w-full min-w-0 max-w-full rounded-xl overflow-hidden min-h-[170px] border border-white/[0.04] p-2 flex items-center justify-center bg-zinc-950/40">
+              <DynamicChartRenderer
+                registryName={registryName}
+                height={150}
+                motion={false}
+                chartProps={{ loading: true }}
+                className="w-full min-w-0 max-w-full overflow-hidden"
+              />
             </div>
           </div>
 
           {/* 2. Empty Data State */}
-          <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
+          <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
             <div className="text-xs font-mono font-medium text-zinc-300">02. Empty Data State</div>
             <p className="text-[11px] text-zinc-400 font-sans">Handles empty collections (<code className="text-zinc-400">[]</code>) gracefully without crashing.</p>
-            <div className="charts-surface rounded-xl overflow-hidden min-h-[160px] border border-white/[0.04] flex flex-col items-center justify-center p-4 text-center bg-zinc-950/40">
-              <span className="text-xs font-mono text-zinc-400">No data points provided</span>
-              <span className="text-[11px] text-zinc-500 mt-1">Empty collection fallback</span>
+            <div className="charts-surface w-full min-w-0 max-w-full rounded-xl overflow-hidden min-h-[170px] border border-white/[0.04] p-2 flex items-center justify-center bg-zinc-950/40">
+              <DynamicChartRenderer
+                registryName={registryName}
+                height={150}
+                motion={false}
+                chartProps={{ data: [] }}
+                className="w-full min-w-0 max-w-full overflow-hidden"
+              />
             </div>
           </div>
 
           {/* 3. Error Recovery State */}
-          <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
+          <div className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-2.5">
             <div className="text-xs font-mono font-medium text-rose-400">03. Error State</div>
             <p className="text-[11px] text-zinc-400 font-sans">Graceful failure banner when data source or script fails.</p>
-            <div className="charts-surface rounded-xl overflow-hidden min-h-[160px] border border-rose-500/20 bg-rose-500/5 flex flex-col items-center justify-center p-4 text-center">
-              <span className="text-xs font-mono text-rose-400 font-medium">Render Exception Handled</span>
-              <span className="text-[11px] text-zinc-400 mt-1">Component caught error without unmounting</span>
+            <div className="charts-surface w-full min-w-0 max-w-full rounded-xl overflow-hidden min-h-[170px] border border-rose-500/20 bg-rose-500/5 p-2 flex items-center justify-center">
+              <DynamicChartRenderer
+                registryName={registryName}
+                height={150}
+                motion={false}
+                chartProps={{ error: "Failed to connect to metric telemetry host" }}
+                className="w-full min-w-0 max-w-full overflow-hidden"
+              />
             </div>
           </div>
         </div>
@@ -89,9 +104,13 @@ export function ExamplesGallery({ examples, registryName }: ExamplesGalleryProps
 function VariantCard({
   example,
   registryName,
+  customColors,
+  cssVariables,
 }: {
   example: ExampleVariantDoc
   registryName: string
+  customColors: Record<string, string>
+  cssVariables: React.CSSProperties
 }) {
   const [copied, setCopied] = useState(false)
 
@@ -101,12 +120,36 @@ function VariantCard({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // Supply truthful data with a gap for missing-data variants
+  const customData = example.props?.missingValuePolicy === "gap" || example.id === "missing-data"
+    ? [
+        { label: "Jan", date: "Jan", time: "00:00", value: 180, latency: 40, current: 180, previous: 120, users: 45000, limit: 10000 },
+        { label: "Feb", date: "Feb", time: "04:00", value: 240, latency: 55, current: 240, previous: 190, users: 52000, limit: 10000 },
+        { label: "Mar", date: "Mar", time: "08:00", value: null, latency: null, current: null, previous: 220, users: null, limit: null },
+        { label: "Apr", date: "Apr", time: "12:00", value: 280, latency: 45, current: 280, previous: 260, users: 63000, limit: 12000 },
+        { label: "May", date: "May", time: "16:00", value: 390, latency: 70, current: 390, previous: 310, users: 78000, limit: 12000 },
+        { label: "Jun", date: "Jun", time: "20:00", value: 460, latency: 85, current: 460, previous: 380, users: 84000, limit: 20000 },
+        { label: "Jul", date: "Jul", time: "23:59", value: 520, latency: 95, current: 520, previous: 410, users: 95000, limit: 20000 },
+      ]
+    : undefined
+
+  const variantHeight = typeof example.props?.height === "number"
+    ? Math.min(Math.max(example.props.height, 180), 320)
+    : 220
+
+  const chartProps = {
+    ...customColors,
+    ...example.props,
+    height: variantHeight,
+    ...(customData ? { data: customData } : {}),
+  }
+
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-3 shadow-sm hover:border-white/[0.12] transition-colors">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-zinc-200 font-sans">{example.title}</h3>
-          <p className="text-xs text-zinc-400 font-sans mt-0.5">{example.description}</p>
+    <div className="flex flex-col justify-between w-full min-w-0 max-w-full rounded-2xl border border-white/[0.08] bg-zinc-950/70 p-4 space-y-3 shadow-sm hover:border-white/[0.12] transition-colors overflow-hidden">
+      <div className="flex items-start justify-between gap-2 min-w-0">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-semibold text-zinc-200 font-sans truncate">{example.title}</h3>
+          <p className="text-xs text-zinc-400 font-sans mt-0.5 line-clamp-2">{example.description}</p>
         </div>
         <button
           type="button"
@@ -118,16 +161,22 @@ function VariantCard({
         </button>
       </div>
 
-      <div className="charts-surface rounded-xl border border-white/[0.06] bg-black/50 p-2 overflow-hidden min-h-[180px] flex items-center justify-center">
+      <div
+        className="charts-surface w-full min-w-0 max-w-full rounded-xl border border-white/[0.06] bg-black/50 p-2 overflow-hidden flex items-center justify-center transition-[height,min-height] duration-200"
+        style={{ minHeight: variantHeight + 16, height: variantHeight + 16, ...cssVariables }}
+      >
         <DynamicChartRenderer
           registryName={registryName}
-          height={170}
+          height={variantHeight}
           motion={false}
+          color={example.props?.color || customColors["color"] || customColors["primaryColor"]}
+          chartProps={chartProps}
+          className="w-full min-w-0 max-w-full overflow-hidden"
         />
       </div>
 
-      <div className="rounded-lg overflow-hidden border border-white/[0.04] bg-black/40 p-2">
-        <CodeHighlight code={example.snippet} language="tsx" showLineNumbers={false} />
+      <div className="w-full min-w-0 max-w-full rounded-lg overflow-hidden border border-white/[0.04] bg-black/40 p-2">
+        <CodeHighlight code={example.snippet} language="tsx" showLineNumbers={false} className="w-full min-w-0 max-w-full overflow-x-auto" />
       </div>
     </div>
   )

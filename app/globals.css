@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "katex/dist/katex.min.css";
+@import "../registry/shared/chart-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -607,4 +609,328 @@ div.google-visualization-tooltip td {
   font-weight: 600 !important;
   color: #f4f4f5 !important;
   letter-spacing: 0.02em !important;
+}
+
+/* ==========================================================================
+   Plotcn Standard Responsive API & Props Table System
+   ========================================================================== */
+.plotcn-api-table-shell {
+  container: api-table / inline-size;
+  width: 100%;
+  min-width: 0;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+}
+
+.plotcn-api-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: start;
+  font-size: 0.8125rem;
+}
+
+.plotcn-api-table th {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 45%, transparent);
+  color: var(--muted-foreground);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.plotcn-api-table td {
+  min-width: 0;
+  padding: 13px 16px;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  color: var(--foreground);
+  line-height: 1.6;
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.plotcn-api-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.plotcn-api-table tbody tr:hover {
+  background: color-mix(in oklab, var(--muted) 35%, transparent);
+}
+
+.plotcn-api-table code,
+.plotcn-api-name,
+.plotcn-api-type,
+.plotcn-api-default {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.plotcn-api-table td code {
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+  border: 1px solid var(--border);
+}
+
+.plotcn-api-name {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.plotcn-api-type {
+  color: var(--foreground);
+}
+
+.plotcn-api-default,
+.plotcn-api-status {
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.plotcn-api-desc {
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+.plotcn-api-desc p {
+  margin: 0;
+  color: inherit;
+}
+
+.plotcn-api-desc p + p {
+  margin-top: 6px;
+}
+
+.plotcn-api-link {
+  color: var(--foreground);
+  text-decoration: none;
+  font-family: var(--font-geist-mono), monospace;
+  font-weight: 600;
+  scroll-margin-top: 5rem;
+}
+
+.plotcn-api-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.plotcn-api-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.plotcn-api-badge-req {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-family: var(--font-geist-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+.plotcn-api-badge-opt {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.625rem;
+  font-family: var(--font-geist-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+  border: 1px solid var(--border);
+}
+
+.plotcn-api-note {
+  margin-top: 6px !important;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.plotcn-api-note strong {
+  color: var(--foreground);
+}
+
+.plotcn-api-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+/* ── Container Query: Mobile & Narrow (< 650px) ─────────────────────── */
+@container api-table (max-width: 649px) {
+  .plotcn-api-table,
+  .plotcn-api-table tbody,
+  .plotcn-api-table tr,
+  .plotcn-api-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .plotcn-api-table colgroup {
+    display: none;
+  }
+
+  .plotcn-api-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .plotcn-api-table tbody tr {
+    padding: 16px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .plotcn-api-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .plotcn-api-table td {
+    padding: 5px 0;
+    border-bottom: 0;
+  }
+
+  .plotcn-api-table td.plotcn-api-name {
+    padding-top: 0;
+    padding-bottom: 6px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .plotcn-api-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted-foreground);
+    margin-bottom: 3px;
+  }
+
+  .plotcn-api-table td.plotcn-api-name::before {
+    display: none;
+  }
+
+  .plotcn-api-table td.plotcn-api-desc {
+    padding-top: 8px;
+    padding-bottom: 4px;
+  }
+}
+
+/* ── Container Query: Very Narrow Mobile (< 420px) ─────────────────── */
+@container api-table (max-width: 420px) {
+  .plotcn-api-table-shell {
+    border-radius: 8px;
+  }
+
+  .plotcn-api-table tbody tr {
+    padding: 14px 12px;
+  }
+
+  .plotcn-api-table td.plotcn-api-name {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Print Stylesheet ───────────────────────────────────────────────── */
+@media print {
+  .plotcn-api-table-shell {
+    overflow: visible;
+    border: 1px solid #ddd;
+    margin: 12px 0;
+  }
+
+  .plotcn-api-table {
+    display: table !important;
+    table-layout: fixed;
+  }
+
+  .plotcn-api-table colgroup {
+    display: table-column-group !important;
+  }
+
+  .plotcn-api-table thead {
+    display: table-header-group !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    clip: auto !important;
+  }
+
+  .plotcn-api-table tbody {
+    display: table-row-group !important;
+  }
+
+  .plotcn-api-table tr {
+    display: table-row !important;
+  }
+
+  .plotcn-api-table td {
+    display: table-cell !important;
+    border-bottom: 1px solid #ddd !important;
+    padding: 8px 12px !important;
+  }
+
+  .plotcn-api-table td::before {
+    display: none !important;
+  }
+}
+
+/* Docs & Technical Content Keyboard Badges */
+.docs-content kbd,
+.chart-detail-main kbd,
+kbd[data-slot="kbd"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(39, 39, 42, 0.85);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  padding: 0.125rem 0.375rem;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  color: #e4e4e7;
+  user-select: none;
+  vertical-align: baseline;
+  margin: 0 0.125rem;
 }

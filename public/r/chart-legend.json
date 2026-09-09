@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chart-legend",
+  "type": "registry:ui",
+  "title": "Chart Legend Primitive",
+  "description": "Series-aware line, area, bar, and point legend treatment.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "components/charts/shared/chart-legend.tsx",
+      "content": "import type { ReactNode } from \"react\"\nexport interface ChartLegendItem {value?: ReactNode;color?:string;type?:string;payload?:{strokeDasharray?:string;fill?:string}}\nexport function ChartLegend({payload,kind=\"line\"}:{payload?:readonly ChartLegendItem[];kind?:\"line\"|\"area\"|\"bar\"|\"point\"}) {return <ul className=\"flex flex-wrap justify-center gap-x-4 gap-y-2 py-2 text-[11px]\" style={{color:\"var(--chart-muted-foreground)\"}} aria-label=\"Chart legend\">{payload?.filter(item=>item.type!==\"none\").map((item,i)=><li key={i} className=\"flex items-center gap-2\"><span aria-hidden=\"true\" style={kind===\"line\"?{width:16,borderTop:\"2px \"+(item.payload?.strokeDasharray?\"dashed\":\"solid\")+\" \"+item.color}:{width:8,height:8,background:item.color,borderRadius:kind===\"point\"?\"50%\":1}}/>{item.value}</li>)}</ul>}\n",
+      "type": "registry:ui",
+      "target": "components/charts/shared/chart-legend.tsx"
+    }
+  ],
+  "categories": [
+    "primitives"
+  ]
+}

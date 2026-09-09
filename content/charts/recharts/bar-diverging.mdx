@@ -1,0 +1,283 @@
+---
+title: "Diverging Bars"
+description: "Signed categorical comparison around an explicit neutral reference, with truthful deviation geometry, symmetric scaling, touch-safe inspection, and neutral above/below semantics."
+component: "DivergingBars"
+engine: "recharts"
+registryName: "bar-diverging"
+number: "024"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Diverging Bars** is Plotcn's canonical signed categorical visualization component designed specifically for comparing categorical deviations around an explicit neutral reference. It answers the fundamental analytical question:
+
+> **“How does each categorical value deviate above or below a meaningful neutral reference?”**
+
+Secondary analytical questions answered by this component include:
+
+- *“What is the direction of the deviation (above, on, or below the reference)?”*
+- *“How large is that deviation from the baseline?”*
+- *“Which categories are above, below, or exactly on the reference?”*
+- *“What was the original raw consumer observation before deviation was computed?”*
+
+```tsx
+import { DivergingBars } from "@/components/charts/recharts/bar-diverging"
+
+const regionalVariance = [
+  { region: "North", variance: 18 },
+  { region: "South", variance: -12 },
+  { region: "East", variance: 31 },
+  { region: "West", variance: -24 },
+  { region: "Central", variance: 0 },
+]
+
+export function RegionalVarianceChart() {
+  return (
+    <DivergingBars
+      data={regionalVariance}
+      categoryKey="region"
+      series={{
+        key: "variance",
+        label: "Variance from Plan",
+        valueFormatter: (v) => `${v}%`,
+      }}
+      baseline={0}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Governing Principle
+
+> **Diverging Bars encodes signed deviation around an explicit neutral reference. Position relative to the baseline communicates direction; bar length communicates magnitude of deviation. Neither direction is automatically positive or negative in the moral or evaluative sense.**
+
+This principle governs:
+- API design and caller data immutability;
+- derivation of deviation in mathematical comparison space;
+- symmetrical quantitative domain resolution;
+- direction-aware outward corner rounding;
+- factual, non-judgmental tooltip language and accessibility narration;
+- keyboard traversal and container-aware responsive layout.
+
+---
+
+## Bar-Family Positioning
+
+The Plotcn Bar family provides six distinct analytical specializations:
+
+| Component | Registry ID | Primary Analytical Question | Quantitative Scale |
+| :--- | :--- | :--- | :--- |
+| **Signal Bars (019)** | `bar-signal` | *"How do discrete categories compare on single or grouped measures?"* | Grounded Zero ($0 \to \text{Max}$) |
+| **Rank Bars (020)** | `bar-rank` | *"Which categories perform highest or lowest in top-N rank?"* | Grounded Zero ($0 \to \text{Max}$) |
+| **Group Compare (021)** | `bar-group-compare` | *"How do peer measures compare directly against each other?"* | Shared Grounded Zero ($0 \to \text{Max}$) |
+| **Stack Ledger (022)** | `bar-stack-ledger` | *"How do additive contributors compose the total magnitude?"* | Additive Total ($0 \to \text{Max Total}$) |
+| **Percent Stack (023)** | `bar-percent-stack` | *"How does the internal percentage composition differ across categories?"* | Fixed Normalized ($0\% \to 100\%$) |
+| **Diverging Bars (024)** | `bar-diverging` | **"How does each value deviate above or below a neutral reference?"** | **Symmetric Deviation ($-\text{Max} \to 0 \to +\text{Max}$)** |
+
+Do not turn Diverging Bars into a generic mode of Signal Bars. Its baseline math, domain symmetry, color semantics, and directional labeling justify a dedicated component.
+
+---
+
+## Diverging Model
+
+<DivergingModelDiagram />
+
+In the Diverging Bars analytical model:
+- **Baseline Spine**: Represents the neutral reference (defaults to `0`, but supports any finite numeric value).
+- **Position Relative to Reference**: Values above the reference extend outward to the positive side (right in horizontal layout, up in vertical layout). Values below extend to the negative side (left in horizontal layout, down in vertical layout).
+- **Bar Length**: Strictly encodes the magnitude of the derived deviation `|value - baseline|`.
+- **Zero Deviation**: Sits exactly on the reference baseline with a neutral marker and zero bar length.
+
+---
+
+## Reference Baseline
+
+<ZeroBaselineDiagram />
+
+### Canonical Zero Baseline
+When `baseline = 0`, the component operates in classical zero-centered signed mode:
+- `value > 0` &rarr; Above reference (+ deviation)
+- `value = 0` &rarr; On reference (0 deviation)
+- `value < 0` &rarr; Below reference (&minus; deviation)
+
+### Explicit Non-Zero Benchmark or Target
+Diverging Bars truthfully supports non-zero baselines such as service targets, SLA budgets, quarterly goals, or industry averages:
+
+<NonZeroReferenceDiagram />
+
+```tsx
+<DivergingBars
+  data={serviceLatencies}
+  categoryKey="service"
+  series={{
+    key: "latency",
+    label: "API Latency",
+    valueFormatter: (v) => `${v} ms`,
+  }}
+  baseline={250}
+  baselineLabel="Target"
+/>
+```
+
+For a raw observation of `310 ms` against a baseline of `250 ms`, the derived deviation is `+60 ms`. The bar geometry encodes the 60-unit deviation from the target, not 310 units from zero.
+
+### Negative Reference Baseline
+A negative baseline reference is mathematically valid and fully supported:
+
+<NegativeReferenceDiagram />
+
+For `baseline = -100` and `rawValue = -80`, the derived deviation is `+20` (`-80 - (-100) = +20`). The observation sits **above the reference line** even though the raw value is negative.
+
+---
+
+## Raw Value vs Deviation
+
+<RawValueVsDeviationDiagram />
+
+Plotcn strictly preserves consumer raw values canonical. Caller data records are never mutated.
+1. The consumer supplies raw observations (`value`).
+2. Plotcn derives `deviation = value - baseline`.
+3. Recharts renders bars inside zero-centered **deviation space**.
+4. Tooltips and accessibility layers present both raw values, reference baseline, and derived deviation.
+
+---
+
+## Symmetric Domain
+
+<SymmetricDomainDiagram />
+
+A diverging chart benefits from equal visual distance on opposite sides of the neutral baseline.
+- **Default Symmetry**: `[-maxAbsDeviation, +maxAbsDeviation]`
+- Under this model, equal geometric bar lengths on opposite sides represent equal deviation magnitudes.
+- If deviations range from `-20` to `+80`, Plotcn scales the axis from `-80` to `+80` (or symmetrically niced bounds like `[-100, +100]`), preventing the misleading illusion that a small negative value is comparable to a large positive value.
+- **All-Above & All-Below Datasets**: Symmetrical domaining preserves the neutral baseline spine and opposing space, preventing the chart from silently collapsing into an ordinary one-sided bar chart.
+
+---
+
+## Direction Semantics
+
+<AboveBelowOnReferenceDiagram />
+
+Plotcn uses factual, non-judgmental directional language:
+- `Above reference` (deviation &gt; 0)
+- `On reference` (deviation = 0)
+- `Below reference` (deviation &lt; 0)
+
+### Direction Is Not Judgment
+
+<DirectionNotJudgmentDiagram />
+
+Never confuse:
+- `positive number` or `above baseline` with a `good outcome`;
+- `negative number` or `below baseline` with a `bad outcome`.
+
+For API latency, lower is better. For operational variance, zero deviation is ideal. Plotcn maintains semantic neutrality and avoids red/green moral judgment.
+
+---
+
+## Installation
+
+:::package-manager
+pnpm dlx shadcn@latest add "https://plotcn.vercel.app/r/bar-diverging.json"
+:::
+
+---
+
+## Missing vs On Reference
+
+<MissingVsOnReferenceDiagram />
+
+Plotcn maintains a strict distinction between known zero deviation and missing observations:
+- **On Reference (`deviation = 0`)**: A valid numeric observation was measured and exactly equals the baseline. Rendered with a neutral baseline tick.
+- **Missing (`null` / `undefined`)**: No numeric observation was recorded. Plotcn never substitutes zero. No bar is drawn, and tooltips report `"Unavailable"`.
+
+---
+
+## Orientation & Layout
+
+<DivergingOrientationDiagram />
+
+Diverging Bars supports both `horizontal` and `vertical` orientations:
+- **Horizontal (`layout="horizontal"`, default)**: Categories on vertical Y-axis, bars extend left/right from central vertical baseline spine. Optimal for signed categorical comparison and long category labels.
+- **Vertical (`layout="vertical"`)**: Categories on horizontal X-axis, bars extend up/down from horizontal baseline.
+
+---
+
+## Category Hit Regions
+
+<CategoryHitRegionDiagram />
+
+To ensure accessibility and touch safety:
+- Hit testing uses the full category band rather than only the visible bar rectangle.
+- Zero-deviation and tiny-deviation bars remain easily inspectable on mobile devices without artificial visible inflation.
+
+---
+
+## Animation & Baseline Crossing
+
+<DataUpdateCrossingBaselineDiagram />
+
+- Bars originate at the neutral baseline and grow outward.
+- Data updates transitioning across the baseline contract toward zero before expanding into the opposing direction, preventing teleportation or overshoot.
+- Fully honors `prefers-reduced-motion`.
+
+---
+
+## Rendering Architecture
+
+<DivergingArchitectureFlowDiagram />
+
+---
+
+## Data Contract
+
+```ts
+interface DivergingDatum {
+  region: string
+  variance: number | null
+}
+```
+
+- Categories preserve caller order strictly without dynamic sorting or ranking.
+- Raw values must be finite numbers; `NaN` and `Infinity` are rejected as unavailable.
+- Baseline must be a finite number.
+
+---
+
+## Props Reference
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Categorical data observations. Order preserved strictly. |
+| `categoryKey` | `keyof TData & string` | — | Property key identifying discrete categories. |
+| `series` | `DivergingBarSeries<TData>` | — | Semantic quantitative series `{ key, label, valueFormatter }`. |
+| `layout` | `"horizontal" \| "vertical"` | `"horizontal"` | Visual orientation layout. |
+| `baseline` | `number` | `0` | Explicit neutral reference baseline. |
+| `baselineLabel` | `string` | — | Optional semantic label (e.g. "Target", "SLA"). |
+| `domain` | `[number, number] \| "symmetric"` | `"symmetric"` | Quantitative scale domain in deviation space. |
+| `aboveColor` | `string` | `"var(--chart-1)"` | Fill color for bars above the reference baseline. |
+| `belowColor` | `string` | `"var(--chart-2)"` | Fill color for bars below the reference baseline. |
+| `baselineColor` | `string` | `"var(--chart-axis)"` | Stroke color for reference baseline line. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | Stroke emphasis for active/selected bar. |
+| `height` | `number \| string` | `340` | Chart container height in pixels. |
+| `showGrid` | `boolean` | `true` | Whether to render background grid lines. |
+| `showLegend` | `boolean` | `false` | Whether to render directional legend. |
+| `valueLabel` | `"none" \| "value" \| "deviation" \| "auto"` | `"none"` | Inline numeric label rendering mode. |
+| `maxBarSize` | `number` | `36` | Maximum bar thickness in pixels. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Animation toggle honoring reduced-motion preferences. |
+
+---
+
+## Accessibility
+
+- Screen readers receive a descriptive analytical summary detailing categories above, below, and on reference.
+- Offscreen HTML table includes Category, Raw Value, Reference Baseline, Deviation, and Position columns.
+- Single chart tab stop with keyboard navigation:
+  - Horizontal: `ArrowUp` / `ArrowDown`
+  - Vertical: `ArrowLeft` / `ArrowRight`
+  - `Home` / `End` to jump to first / last category.

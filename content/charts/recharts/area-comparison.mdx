@@ -1,0 +1,235 @@
+---
+title: "Comparison Area"
+description: "A two-series area visualization for comparing a primary magnitude against a meaningful reference magnitude across the same ordered domain, using restrained overlap, deterministic semantic identity, shared nearest-X inspection, and non-color differentiation."
+component: "ComparisonArea"
+engine: "recharts"
+registryName: "area-comparison"
+number: "015"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Comparison Area** is the comparative-specialized chart of the Plotcn **Area family**. It visualizes a dominant primary magnitude against a reference magnitude across the same ordered domain, filling both toward a shared baseline while using restrained overlap and deterministic visual hierarchy.
+
+The primary analytical question answered by Comparison Area is:
+
+> **"How does the primary series compare with the reference across the same domain?"**
+
+The secondary analytical question is:
+
+> **"At this observation, what is the factual difference between them?"**
+
+Unlike multi-series stacked charts that accumulate values into an aggregate sum, Comparison Area displays **independent magnitudes measured in the exact same unit on a shared Y-axis**. The overlap between the two areas communicates comparison—it is not an additive contribution nor a separate third metric.
+
+```tsx
+import { ComparisonArea } from "@/components/charts/recharts/area-comparison"
+
+const revenueData = [
+  { month: "Jan", current: 125, previous: 110 },
+  { month: "Feb", current: 142, previous: 120 },
+  { month: "Mar", current: 138, previous: 135 },
+  { month: "Apr", current: 165, previous: 140 },
+  { month: "May", current: 158, previous: 162 },
+  { month: "Jun", current: 184, previous: 155 },
+]
+
+export function MonthlyRevenueComparison() {
+  return (
+    <ComparisonArea
+      data={revenueData}
+      xKey="month"
+      series={{
+        primary: { key: "current", label: "2026 (Current)" },
+        reference: { key: "previous", label: "2025 (Previous)" },
+      }}
+      primaryColor="var(--chart-1)"
+      referenceColor="var(--chart-2)"
+      valueFormatter={(v) => `$${v.toLocaleString()}k`}
+      showGrid
+      showLegend
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides five distinct analytical instruments:
+
+| Consideration | Prism Area (011) | Stack Flow Area (012) | Percent Stream Area (013) | Range Area (014) | Comparison Area (015) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude exists relative to baseline?"* | *"How do parts and total magnitude combine?"* | *"How does the composition of the whole evolve?"* | *"What envelope contains the observations?"* | **"How does primary compare against reference?"** |
+| **Fill Geometry** | Fills between metric and baseline | Fills additive layers from bottom to top | Fills 100% normalized proportional shares | Fills between lower and upper bounds | **Fills both toward the same baseline (overlapping)** |
+| **Baseline Role** | Configurable baseline ($y = 0$ or min) | Fixed baseline ($y = 0$) | Fixed baseline ($0\%$) | No baseline fill; lower bound is floor | **Single shared baseline for both roles** |
+| **Series Roles** | Single series | $N$ additive series | $N$ proportional series | Bounded envelope + optional centerline | **Exactly two roles: Primary & Reference** |
+| **Overlap Treatment** | Not applicable | Stacks without overlap | Stacks to 100% | Single bounded band | **Restrained translucent overlap** |
+
+### Comparison Area vs Twinline Compare (003)
+
+- **Twinline Compare**: Focuses purely on linear trajectories, precise line crossings, and high-density multi-point inspection where shaded fills would create excessive visual clutter.
+- **Comparison Area**: Focuses on quantitative magnitude relative to a shared baseline. Shaded fills convey volume and cumulative presence, making cumulative gaps and overall scale differences immediately intuitive.
+
+---
+
+## Comparison Model
+
+<ComparisonAreaModelFlow />
+
+Primary and Reference:
+1. Share the exact same horizontal X domain.
+2. Share the exact same quantitative measurement unit.
+3. Share the exact same Y scale and zero-reference baseline.
+4. Overlap with controlled alpha rather than stacking vertically.
+
+---
+
+## Comparison vs Stacking
+
+<ComparisonVsStackFlow />
+
+A frequent charting anti-pattern is using a stacked area chart when comparing two time periods:
+
+In a stacked area chart, the visual top of the stack would reach **$260k** when comparing $140k against $120k, misleading viewers into believing that revenue totaled $260k in that period.
+
+In **Comparison Area**, both series start from the baseline ($y = 0$). At that coordinate, the chart clearly shows two heights: $140k$ and $120k$, with an overlapping shaded region of $120k$ and an upper primary extension of $20k$.
+
+---
+
+## Overlap Treatment
+
+Comparison Area deliberately enforces strict structural hierarchy so both roles remain clearly identifiable even when printed in grayscale or rendered with identical colors:
+
+```text
+Primary Role:
+→ Rendered SECOND (on top)
+→ Stronger opacity (default: 0.28)
+→ Solid 2px boundary stroke
+→ Solid rectangle indicator in legend
+
+Reference Role:
+→ Rendered FIRST (underneath)
+→ Quieter opacity (default: ~0.14)
+→ Dashed boundary stroke (strokeDasharray="4 3")
+→ Dashed indicator in legend
+```
+
+> [!NOTE]
+> **Overlap Is Not a Third Metric**:
+> The overlapping region created by the two translucent fills is a comparative visual cue, not a third mathematical quantity. Plotcn avoids synthetic blend modes (`mix-blend-mode: multiply`) that vary unpredictably across Light and Dark themes.
+
+---
+
+## Difference Semantics
+
+When both primary and reference observations exist at an inspected coordinate, the inspection card computes the factual delta:
+
+$$\Delta = \text{Primary} - \text{Reference}$$
+
+- **Factual Arithmetic**: The difference represents pure arithmetic. It is formatted with a leading sign (`+16,000` or `−4,200`).
+- **Neutral Styling**: Plotcn renders deltas in neutral typography. A positive delta is not inherently "good" (green) and a negative delta is not inherently "bad" (red)—in metrics like server latency, defect rates, or infrastructure costs, higher values represent regressions.
+- **Truthful Missing Handling**: If either primary or reference is missing at coordinate $x$, the delta row reports `"Unavailable"`. Zero is never substituted.
+
+---
+
+## Data Contract
+
+Comparison Area accepts a readonly array of objects. Caller data is never mutated or sorted in place.
+
+```typescript
+export interface RevenueComparisonPoint {
+  month: string             // Chronological or ordinal domain key
+  current: number | null    // Primary series magnitude
+  previous: number | null   // Reference series magnitude
+}
+```
+
+### Truthful Missing Values
+
+| Condition at Coordinate $x$ | Primary Area | Reference Area | Tooltip Primary | Tooltip Reference | Delta Readout |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Both Valid** | Rendered | Rendered | Formatted value | Formatted value | Formatted $\Delta$ |
+| **Primary Missing ($null$)** | **Visual gap** | Rendered | `"Unavailable"` | Formatted value | `"Unavailable"` |
+| **Reference Missing ($null$)** | Rendered | **Visual gap** | Formatted value | `"Unavailable"` | `"Unavailable"` |
+| **Both Missing ($null$)** | **Visual gap** | **Visual gap** | `"Unavailable"` | `"Unavailable"` | `"Unavailable"` |
+| **Primary or Reference = 0** | Rendered at $y=0$ | Rendered at $y=0$ | `$0` | `$0` | Formatted $\Delta$ |
+
+---
+
+## Series Contract
+
+Comparison Area requires exactly two semantic roles configured via the `series` prop:
+
+| Role | Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary** | `key` | `NumericKeyOf<TData>` | **Yes** | Key in observation records for primary magnitude |
+| **Primary** | `label` | `string` | **Yes** | Descriptive label for primary series (e.g. "Current year") |
+| **Primary** | `color` | `string` | No | Optional series-level color override |
+| **Reference** | `key` | `NumericKeyOf<TData>` | **Yes** | Key in observation records for reference magnitude |
+| **Reference** | `label` | `string` | **Yes** | Descriptive label for reference series (e.g. "Previous year") |
+| **Reference** | `color` | `string` | No | Optional series-level color override |
+
+---
+
+## Color Customization
+
+Comparison Area accepts semantic CSS theme tokens or explicit custom color overrides:
+
+```tsx
+<ComparisonArea
+  data={data}
+  xKey="month"
+  series={{
+    primary: { key: "current", label: "Current year" },
+    reference: { key: "previous", label: "Previous year" },
+  }}
+  primaryColor="var(--chart-1)"
+  referenceColor="var(--chart-2)"
+  selectionColor="var(--chart-selection)"
+  fillOpacity={0.28}
+/>
+```
+
+- **Theme Synchronization**: Changing `primaryColor` or `referenceColor` instantly updates fills, boundaries, active inspection markers, and legend indicators without remounting or resetting inspection state.
+- **Same-Color Distinction**: If `primaryColor === referenceColor`, the primary solid 2px stroke and 0.28 opacity remain readily distinguishable from the reference dashed 1.5px stroke and 0.14 opacity.
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property name representing horizontal domain coordinates. |
+| `series` | `ComparisonAreaSeries<TData>` | *required* | Semantic configuration defining `primary` and `reference` keys and labels. |
+| `height` | `number \| string` | `320` | Container height in pixels or CSS units. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | Shared interpolation curve applied identically to both series. |
+| `domain` | `[number, number] \| "auto"` | `"auto"` | Shared vertical domain override covering both roles. |
+| `primaryColor` | `string` | `var(--chart-1)` | Color for primary area fill, boundary stroke, and legend indicator. |
+| `referenceColor` | `string` | `var(--chart-2)` | Color for reference area fill, boundary stroke, and legend indicator. |
+| `fillOpacity` | `number` | `0.28` | Primary area fill opacity. Reference opacity derives quieter (~0.14). |
+| `showDelta` | `boolean` | `true` | Whether to render factual difference arithmetic in tooltips. |
+| `deltaType` | `"absolute" \| "percentage" \| "both"` | `"both"` | Formatting style for comparison delta. |
+| `showGrid` | `boolean` | `true` | Whether to render horizontal Cartesian reference rules. |
+| `showXAxis` | `boolean` | `true` | Whether to render horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Whether to render vertical metric scale ticks. |
+| `showLegend` | `boolean` | `true` | Whether to render series identity legend with structural samples. |
+| `interactiveLegend` | `boolean` | `true` | Enables toggling role visibility by clicking legend items. |
+| `lockableTooltip` | `boolean` | `true` | Enables persistent tooltip pinning on click, tap, or Enter/Space. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Entry reveal animation. Automatically bypassed under reduced motion. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | Formatter for metric values and comparison delta. |
+
+---
+
+## Data Safety Guarantees
+
+1. **Deterministic Semantic Roles**: Primary and Reference represent fixed semantic roles. Neither role inherits the other's identity when hidden.
+2. **One Shared Y Scale**: Primary and Reference are always measured against the exact same scale and baseline. Dual-axis scaling is prohibited.
+3. **No Stacking Distortion**: Primary and Reference overlap independently. Values are never added together to fabricate a combined sum.
+4. **No Fabricated Data**: Missing values ($null$) produce explicit breaks in the area geometry; zero is never substituted.
+5. **Finite Coordinates Only**: Non-finite values (`NaN`, `Infinity`) are sanitized before rendering SVG paths.
+6. **Neutral Comparison**: Difference arithmetic is presented factually without forced positive/negative value judgments.
+7. **Accessibility Disclosure**: Structured HTML data table disclosure provides full non-visual access to all primary, reference, and difference values.

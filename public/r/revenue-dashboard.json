@@ -6,10 +6,10 @@
   "description": "Revenue trend, channel comparison and contribution with real period and channel filters.",
   "dependencies": [],
   "registryDependencies": [
-    "@plotcn/line-basic",
-    "@plotcn/bar-basic",
-    "@plotcn/donut-basic",
-    "@plotcn/block-frame",
+    "https://plotcn.vercel.app/r/line-basic.json",
+    "https://plotcn.vercel.app/r/bar-basic.json",
+    "https://plotcn.vercel.app/r/donut-basic.json",
+    "https://plotcn.vercel.app/r/block-frame.json",
     "select"
   ],
   "files": [

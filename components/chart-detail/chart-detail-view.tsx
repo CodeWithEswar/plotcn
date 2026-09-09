@@ -3,7 +3,6 @@ import type { ChartMdxData } from "@/lib/charts/chart-mdx"
 import { getChartDetailDoc } from "@/lib/charts/detail-docs"
 import { ChartDetailShell } from "./chart-detail-shell"
 import { SiteHeader } from "@/components/site/site-header"
-import { SiteFooter } from "@/components/site/site-footer"
 
 export interface ChartDetailViewProps {
   chart: ChartMetadata
@@ -25,8 +24,8 @@ export function ChartDetailView({
   return (
     <>
       <SiteHeader />
-      <div className="charts-surface min-h-screen" data-theme="dark">
-        <main id="main" tabIndex={-1} className="w-full max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+      <div className="charts-surface min-h-[calc(100dvh-80px)]" data-theme="system">
+        <main id="main" tabIndex={-1} className="chart-detail-page">
           <ChartDetailShell
             chart={chart}
             doc={doc}
@@ -37,7 +36,6 @@ export function ChartDetailView({
           />
         </main>
       </div>
-      <SiteFooter />
     </>
   )
 }

@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   loadGoogleChartsPackages,
   resolveGoogleColor,
+  escapeGoogleTooltipText,
   type GoogleChartsLoaderState,
   type GoogleVisualizationChart,
 } from "./google-chart-loader"
@@ -40,8 +41,8 @@ export function GoogleGeoChart({
   region = "world",
   displayMode = "regions",
   color,
-  colorMin = "#1e293b",
-  colorMax = "#10b981",
+  colorMin = "var(--chart-grid-emphasis)",
+  colorMax = "var(--chart-1)",
   height = 360,
   className,
   onRegionSelect,
@@ -90,13 +91,14 @@ export function GoogleGeoChart({
 
     data.forEach((item) => {
       const regionName = String(item[regionKey])
+      const safeRegionName = escapeGoogleTooltipText(regionName)
       const val = Number(item[valueKey])
       const displayVal = Number.isFinite(val) ? val.toLocaleString() : String(item[valueKey])
       const tooltipHtml = `
         <div class="plotcn-tooltip-card">
           <div class="plotcn-tooltip-header">
-            <span class="plotcn-tooltip-indicator" style="background-color: ${resolvedMax}; box-shadow: 0 0 8px ${resolvedMax}80;"></span>
-            <span class="plotcn-tooltip-title">${regionName}</span>
+            <span class="plotcn-tooltip-indicator" style="background-color: ${resolvedMax};"></span>
+            <span class="plotcn-tooltip-title">${safeRegionName}</span>
           </div>
           <div class="plotcn-tooltip-metric">
             <span class="plotcn-tooltip-label">${valueKey}</span>

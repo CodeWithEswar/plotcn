@@ -1,0 +1,238 @@
+---
+title: "Range Area"
+description: "A bounded area visualization for showing a lower/upper envelope across an ordered domain, with optional central trend, truthful interval semantics, and explicit missing-bound behavior."
+component: "RangeArea"
+engine: "recharts"
+registryName: "area-range"
+number: "014"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Range Area** is the envelope-specialized chart of the Plotcn **Area family**. It visualizes a bounded lower and upper range across an ordered domain, with an optional central trend line.
+
+The primary analytical question answered by Range Area is:
+
+> **"What range or envelope contains the values across the ordered domain?"**
+
+The optional secondary question is:
+
+> **"Where does the central or expected value sit inside that range?"**
+
+Unlike regular area charts that fill between a single metric and a zero baseline, Range Area **fills strictly between two supplied boundary values** (`lower(x) → upper(x)`). The filled region is the quantitative data itself—not a decorative background.
+
+```tsx
+import { RangeArea } from "@/components/charts/recharts/area-range"
+
+const latencyData = [
+  { time: "10:00", min: 18, max: 26, median: 22 },
+  { time: "11:00", min: 19, max: 28, median: 23 },
+  { time: "12:00", min: 20, max: 36, median: 28 },
+  { time: "13:00", min: 17, max: 29, median: 21 },
+  { time: "14:00", min: 18, max: 25, median: 21 },
+  { time: "15:00", min: 21, max: 32, median: 25 },
+]
+
+export function ApiLatencyEnvelope() {
+  return (
+    <RangeArea
+      data={latencyData}
+      xKey="time"
+      series={{
+        lowerKey: "min",
+        upperKey: "max",
+        valueKey: "median",
+        label: "Latency envelope",
+        lowerLabel: "Min latency",
+        upperLabel: "Max latency",
+        valueLabel: "Median latency",
+      }}
+      color="var(--chart-1)"
+      valueColor="var(--chart-2)"
+      fillOpacity={0.25}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides four distinct analytical instruments:
+
+| Consideration | Prism Area (011) | Stack Flow Area (012) | Percent Stream Area (013) | Range Area (014) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude exists relative to baseline?"* | *"How do parts and total magnitude combine?"* | *"How does the composition of the whole evolve?"* | *"What envelope or interval contains the observations?"* |
+| **Fill Geometry** | Fills between metric and baseline | Fills additive layers from bottom to top | Fills 100% normalized proportional shares | **Fills between supplied lower and upper bounds** |
+| **Baseline Role** | Configurable baseline ($y = 0$ or domain min) | Fixed baseline ($y = 0$) | Fixed baseline ($0\%$) | **No baseline fill; lower bound defines floor** |
+| **Primary Identity** | Single continuous area | Stacked additive layers | 100% normalized stream | **Bounded range envelope; centerline is optional** |
+| **Centerline** | Not applicable | Not applicable | Not applicable | **Supported via optional `valueKey`** |
+
+### Critical Analytical Distinctions
+
+1. **Range Area vs Range Line (004)**:
+   - **Range Line**: The central line is the primary visual and analytical object; the envelope is secondary supporting context.
+   - **Range Area**: The bounded envelope itself is the primary visual and analytical object; the centerline is optional supporting context.
+2. **Range Area vs Forecast Line (010)**:
+   - **Forecast Line**: Implements an explicit transition from observed historical records to predicted future values.
+   - **Range Area**: Displays an envelope across the entire ordered domain with no implied observation-versus-forecast transition.
+3. **Range Area vs Threshold Area**:
+   - **Threshold Area**: Contextual reference limits are static horizontal lines.
+   - **Range Area**: Lower and upper bounds vary dynamically at every observation coordinate across the domain.
+
+---
+
+## Range Envelope Model
+
+<RangeAreaEnvelopeFlow />
+
+### 1. Bounded Fill Geometry
+
+At every domain coordinate $x$:
+
+$$\text{Envelope}(x) = [\text{lower}(x), \text{upper}(x)]$$
+
+The SVG area polygon fills the vertical span between $\text{lower}(x)$ and $\text{upper}(x)$. Neither zero nor the chart canvas bottom acts as an implicit baseline.
+
+### 2. Optional Centerline
+
+When `valueKey` is provided in `series`, a solid signal line renders over the envelope.
+- **No Midpoint Synthesis**: If `valueKey` is omitted, Plotcn **never invents a midpoint** ($(\text{lower} + \text{upper}) / 2$). The mathematical midpoint may not represent any real statistic.
+- **No Range Clamping**: If the central value falls outside the envelope (e.g. an observed metric breaching an SLA tolerance band), Plotcn **never clamps the centerline into the band**. Values are rendered truthfully.
+
+---
+
+## Truthful State Matrix & Missing Bounds
+
+<RangeAreaValidityFlow />
+
+Range Area handles missing bounds and malformed intervals with strict quantitative integrity:
+
+| Observation Condition | Range Band Behavior | Centerline Behavior | Tooltip Range Status | Tooltip Center Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Valid Interval & Center** | Full filled band | Rendered point / line | Formatted `lower – upper` | Formatted value |
+| **Missing Lower Bound** | **Band gaps** | Rendered if valid | `"Unavailable"` | Formatted value |
+| **Missing Upper Bound** | **Band gaps** | Rendered if valid | `"Unavailable"` | Formatted value |
+| **Both Bounds Missing** | **Band gaps** | Rendered if valid | `"Unavailable"` | Formatted value |
+| **Missing Centerline** | Full filled band | **Centerline gaps** | Formatted `lower – upper` | `"Unavailable"` |
+| **Equal Bounds ($lower = upper$)** | **Zero-width line/point** | Rendered if valid | Formatted `value (Zero width)` | Formatted value |
+| **Inverted Bounds ($lower > upper$)** | **Band segment omitted** | Rendered if valid | `"Invalid bounds"` | Formatted value |
+
+> [!CAUTION]
+> **Data Integrity Guarantee**: If $lower > upper$, Plotcn **never silently swaps the bounds**. Silent swapping falsifies user data. Instead, the invalid segment is omitted from the envelope, an `"Invalid bounds"` badge appears in inspection tooltips, and a developmental warning is logged.
+
+---
+
+## Curve Safety & Smoothing Invariants
+
+Upper and lower envelope boundaries and the optional centerline **must share the exact same curve interpolation algorithm**:
+
+```tsx
+<RangeArea
+  data={data}
+  xKey="time"
+  series={series}
+  curve="linear" // "linear" | "monotone" | "step"
+/>
+```
+
+- **Default is `linear`**: For interval envelopes, piecewise linear interpolation guarantees that if $lower(x) \le upper(x)$ at every point, the interpolated band will never self-intersect or invert between points.
+- **`monotone` Safety**: When using `"monotone"`, ensure sample points are sufficiently dense to prevent cubic spline overshoot near sudden inflection steps.
+- **Equal Curves Mandatory**: Plotcn prohibits configuring different curves for lower and upper boundaries, which would create impossible synthetic self-intersections.
+
+---
+
+## Data Contract
+
+Range Area accepts a readonly array of objects. Caller data is never mutated or sorted in place.
+
+```ts
+interface LatencyObservation {
+  time: string
+  min: number | null
+  max: number | null
+  median?: number | null
+}
+```
+
+```tsx
+<RangeArea
+  data={observations}
+  xKey="time"
+  series={{
+    lowerKey: "min",
+    upperKey: "max",
+    valueKey: "median",
+    label: "Operating envelope",
+  }}
+/>
+```
+
+### Negative & Cross-Zero Bounds
+
+Unlike additive stacked area charts, Range Area **naturally supports negative numbers and cross-zero intervals**:
+- **Negative Envelopes**: E.g. temperature anomalies spanning $[-12^\circ\text{C}, -4^\circ\text{C}]$.
+- **Zero-Crossing Envelopes**: E.g. cash flow variance spanning $[-5\text{k}, +15\text{k}]$.
+- **Zero Is Valid**: Observations with $0$ are treated as truthful quantitative coordinates, not missing values.
+
+---
+
+## Color Customization & Theme Roles
+
+Range Area accepts semantic CSS theme tokens or custom color overrides:
+
+```tsx
+<RangeArea
+  data={data}
+  xKey="time"
+  series={series}
+  color="var(--chart-1)"        // Envelope fill & boundary strokes
+  valueColor="var(--chart-2)"   // Optional centerline
+  fillOpacity={0.25}            // Fill translucency (0.05 to 1.0)
+  selectionColor="var(--chart-selection)"
+/>
+```
+
+- **Distinguishability**: If `color === valueColor`, the envelope and centerline remain readily distinguishable via fill translucency, line weight, and geometry.
+- **Theme Adaptation**: Semantic tokens adapt automatically across Light and Dark themes.
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Property key for horizontal domain coordinates. |
+| `series` | `RangeAreaSeries<TData>` | — | Semantic configuration defining `lowerKey`, `upperKey`, optional `valueKey`, and labels. |
+| `height` | `number \| string` | `320` | Container height in pixels or CSS units. |
+| `curve` | `"linear" \| "monotone" \| "step"` | `"linear"` | Shared interpolation curve applied identically to envelope and centerline. |
+| `domain` | `[number, number] \| "auto"` | auto | Explicit vertical domain override. Defaults to auto-padded scale enclosing all bounds. |
+| `color` | `string` | `var(--chart-1)` | Primary color for range envelope fill and boundaries. |
+| `valueColor` | `string` | `var(--chart-2)` | Color for optional central signal line. |
+| `fillOpacity` | `number` | `0.25` | Translucency of the range envelope fill (0.05 to 1.0). |
+| `selectionColor`| `string` | `var(--chart-selection)` | Accent color for active crosshair and locked pin. |
+| `showGrid` | `boolean` | `true` | Whether to render subtle Cartesian grid reference lines. |
+| `showXAxis` | `boolean` | `true` | Whether to render horizontal domain labels. |
+| `showYAxis` | `boolean` | `true` | Whether to render vertical metric scale ticks. |
+| `showLegend` | `boolean` | `false` | Whether to render series identity legend. |
+| `lockableTooltip`| `boolean` | `true` | Enables persistent tooltip pinning on click, tap, or Enter/Space. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Controls entry animations. Automatically bypassed under reduced motion. |
+| `valueFormatter`| `(value: number) => string` | `n.toLocaleString()` | Formatter for bounds and metric values. |
+| `xFormatter` | `(value: string \| number) => string` | — | Formatter for horizontal tick labels. |
+
+---
+
+## Data Safety Guarantees
+
+1. **Supplied Bounds Only**: Plotcn fills only between supplied `lowerKey` and `upperKey` values.
+2. **No Midpoint Synthesis**: Never invents a central line if `valueKey` is omitted.
+3. **No Bound Swapping**: If $lower > upper$, data is flagged invalid and omitted from the band; bounds are never reversed.
+4. **No Zero Substitution**: Missing bounds ($null$) result in a gap; zero is never substituted.
+5. **No Clamping**: Centerlines outside the envelope are displayed truthfully without artificial clamping.
+6. **Caller Immutability**: Original data records are never mutated or sorted in place.
+7. **Accessibility Disclosure**: Structured HTML data table disclosure provides full non-visual access to all interval coordinates.

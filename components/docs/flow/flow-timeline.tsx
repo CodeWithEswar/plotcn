@@ -1,13 +1,18 @@
 import React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import type { FlowTimelineProps } from "./types"
+import { FlowDiagram } from "./flow-diagram"
 
 export function FlowTimeline({
   steps,
   activeStep,
   className = "",
+  title,
+  eyebrow,
+  description,
+  ariaLabel,
 }: FlowTimelineProps) {
-  return (
+  const timelineContent = (
     <ol
       className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 list-none p-0 m-0 ${className}`}
     >
@@ -83,4 +88,19 @@ export function FlowTimeline({
       })}
     </ol>
   )
+
+  if (title || eyebrow || description) {
+    return (
+      <FlowDiagram
+        title={title}
+        eyebrow={eyebrow}
+        description={description}
+        ariaLabel={ariaLabel}
+      >
+        {timelineContent}
+      </FlowDiagram>
+    )
+  }
+
+  return timelineContent
 }

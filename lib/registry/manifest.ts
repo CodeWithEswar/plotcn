@@ -27,6 +27,7 @@ export function getRegistryItemInfo(name: string): RegistryItemInfo | null {
     dependencies?: string[]
     registryDependencies?: string[]
     files?: unknown[]
+    categories?: string[]
   }>
 
   const item = items.find((i) => i.name === cleanName)
@@ -42,7 +43,7 @@ export function getRegistryItemInfo(name: string): RegistryItemInfo | null {
     dependencies: Array.isArray(item.dependencies) ? item.dependencies : [],
     registryDependencies: Array.isArray(item.registryDependencies) ? item.registryDependencies : [],
     fileCount: Array.isArray(item.files) ? item.files.length : 1,
-    categories: Array.isArray((item as any).categories) ? (item as any).categories : [],
-    isVerified: true,
+    categories: Array.isArray(item.categories) ? item.categories : [],
+    isVerified: false,
   }
 }

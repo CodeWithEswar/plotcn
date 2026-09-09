@@ -1,0 +1,238 @@
+---
+title: "Percent Stream Area"
+description: "A 100% normalized stacked area chart for showing how each contributor's share of a whole changes across an ordered domain while preserving access to the underlying raw values."
+component: "PercentStreamArea"
+engine: "recharts"
+registryName: "area-percent-stream"
+number: "013"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Percent Stream Area** is the composition-specialized chart of the Plotcn **Area family**. It normalizes multiple additive series so that their combined visual height strictly equals **100% of the visible whole** at every observation point across an ordered domain.
+
+The primary analytical question answered by Percent Stream Area is:
+
+> **"How is the composition of the whole changing over time?"**
+
+The secondary analytical question is:
+
+> **"What underlying raw values produced those proportional shares?"**
+
+Unlike general stacked area charts that communicate changes in absolute scale, Percent Stream Area **deliberately removes total-size information from its geometry**. A period with 1,000 total requests and a period with 10,000 total requests produce visually identical geometry if their constituent platform shares are both 50% / 30% / 20%.
+
+```tsx
+import { PercentStreamArea } from "@/components/charts/recharts/area-percent-stream"
+
+const trafficData = [
+  { month: "Jan", web: 500, ios: 300, android: 200 },
+  { month: "Feb", web: 5000, ios: 3000, android: 2000 },
+  { month: "Mar", web: 4800, ios: 3200, android: 2000 },
+  { month: "Apr", web: 4000, ios: 3600, android: 2400 },
+  { month: "May", web: 3600, ios: 3700, android: 2700 },
+  { month: "Jun", web: 3300, ios: 3900, android: 2800 },
+]
+
+export function MonthlyTrafficMix() {
+  return (
+    <PercentStreamArea
+      data={trafficData}
+      xKey="month"
+      series={[
+        { key: "web", label: "Web" },
+        { key: "ios", label: "iOS" },
+        { key: "android", label: "Android" },
+      ]}
+      showLegend
+      interactiveLegend
+      lockableTooltip
+      valueFormatter={(v) => `${v.toLocaleString()} req/s`}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides three distinct analytical instruments:
+
+| Consideration | Prism Area (011) | Stack Flow Area (012) | Percent Stream Area (013) |
+| :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude exists relative to baseline?"* | *"How do parts and total magnitude change?"* | *"How does the composition of the whole evolve?"* |
+| **Input Structure** | Single series (`series={...}`) | Multiple additive series (`series={[...]}`) | Multiple additive series (`series={[...]}`) |
+| **Scale Domain** | Absolute values ($0 \rightarrow \text{Max}$) | Absolute stack sum ($0 \rightarrow \Sigma \text{Max}$) | **Strictly normalized ($0\% \rightarrow 100\%$)** |
+| **Baseline Rule** | Configurable (`"zero"`, `"domain-min"`) | Fixed at zero baseline ($y = 0$) | **Fixed at zero percentage ($0\%$)** |
+| **Total Magnitude** | Explicitly visible in height | Explicitly visible in top silhouette | **Deliberately removed from geometry** |
+| **Unit Constraint** | One quantitative unit | Shared additive unit | **Shared additive unit before normalization** |
+
+> [!WARNING]
+> **Magnitude-Loss Warning**: A Percent Stream Area cannot show whether the underlying total grew from 1,000 to 10,000 when the internal composition remained the same. If communicating total volume or absolute capacity growth is essential, use **Stack Flow Area** instead.
+
+---
+
+## Composition Model & Mathematical Normalization
+
+<PercentStreamCompositionFlow />
+
+### 1. Governing Mathematical Model
+
+For all valid visible series at observation $x$:
+
+$$\text{Total}(x) = \sum_{s \in \text{Visible}} \text{RawValue}(s, x)$$
+
+For each individual series $s$:
+
+$$\text{Share}(s, x) = \frac{\text{RawValue}(s, x)}{\text{Total}(x)} \times 100\%$$
+
+### 2. Normalization Is Derived Data
+
+Plotcn **never mutates caller data**. Your original records (e.g. `{ month: "Jan", web: 500, ios: 300, android: 200 }`) remain completely untouched. Normalization occurs in a pure derived step, converting raw counts into internal percentage shares ($0 \rightarrow 100$) for SVG rendering while retaining original quantities for tooltips and screen readers.
+
+### 3. High Floating-Point Precision
+
+Internal shares retain complete 64-bit floating-point precision throughout path generation. Even if display rounding formats individual rows as `33.3% + 33.3% + 33.3% = 99.9%`, the underlying stacked SVG geometry terminates precisely at the 100% boundary.
+
+---
+
+## Missing & Zero-Total Semantics
+
+In 100% normalized composition, Plotcn enforces a strict distinction across three analytical states:
+
+| Scenario | Raw Observations | Resolved State | Tooltip Readout | Geometry Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| **Known Zero** | `web: 80, ios: 20, android: 0` | `valid` | `0.0%` (raw 0) | Valid 0-height layer; remaining layers stack to 100% |
+| **Missing Contributor** | `web: 80, ios: null, android: 20` | `incomplete` | `— (Composition Incomplete)` | Honest break (gap); no deceptive subtotal normalization |
+| **Zero Total** | `web: 0, ios: 0, android: 0` | `zero-total` | `share unavailable` (raw 0) | Zero stacked height; no divide-by-zero, `NaN%`, or `Infinity%` |
+
+### 1. Known Zero Is a Valid Measurement ($v = 0$)
+A contributor recording 0 is not missing. It represents a truthful, known contribution of zero. The series contributes 0 height, and the remaining series normalize accurately.
+
+### 2. Missing Is Not Zero (`null ≠ 0`)
+Under the default `missingValuePolicy="gap"`, an absent contributor (`null` or `undefined`) is unknown. Plotcn **never normalizes known partial subtotals** to 100% (e.g., calculating $500 / 700 = 71.4\%$ when iOS is missing), because doing so would fabricate a false total and misrepresent market share. Instead, the geometry breaks cleanly, and the tooltip reports `Composition Incomplete`.
+
+### 3. Zero Total Is Mathematically Undefined ($0 / 0$)
+When all visible contributors record zero, calculating percentage shares would divide by zero. Plotcn handles this gracefully: zero total is classified explicitly as `"zero-total"`, tooltips report raw zeros with `share unavailable`, and screen readers announce that percentages are undefined.
+
+---
+
+## Legend & Visible-Series Re-Normalization
+
+<PercentStreamReNormalizationFlow />
+
+When an interactive legend is enabled, clicking a series toggles its visibility. Plotcn implements **Model A: Visible-Series Normalization**:
+
+1. **Dynamic Visible Basis**: Hiding a series recalculates the normalization denominator across remaining visible contributors:
+   $$\text{Visible Whole} = \sum_{s \in \text{Visible}} \text{RawValue}(s, x) = 100\%$$
+2. **Stable Identity Preservation**: Hiding a series **never shifts or reassigns color tokens**. If `Web` is assigned `--chart-1`, `iOS` `--chart-2`, and `Android` `--chart-3`, hiding `iOS` leaves `Android` bound to `--chart-3`.
+3. **Single Visible Series**: If only one visible series remains, its share truthfully normalizes to $100\%$ across all positive observations.
+4. **All Series Hidden**: If all series are toggled off, Percent Stream Area renders an accessible, recoverable prompt (*"All Series Hidden"*) with active legend buttons to restore visibility without page reloading.
+
+---
+
+## Data & Series Contracts
+
+Percent Stream Area accepts an ordered array of data records:
+
+```ts
+type TrafficMixDatum = {
+  month: string | Date
+  web: number | null
+  ios: number | null
+  android: number | null
+}
+```
+
+### Series Configuration Object
+
+```ts
+interface PercentStreamSeries<TData> {
+  key: NumericKeyOf<TData>
+  label: string
+  color?: string
+  valueFormatter?: (value: number) => string
+}
+```
+
+### Contract Requirements
+- **Same Unit Requirement**: All contributors must share the identical physical, operational, or financial unit (e.g. all requests, all users, or all dollars). Do not stack disparate metrics like revenue and latency.
+- **Non-Negative Values**: In V1, additive composition requires non-negative quantities ($v \ge 0$). If negative values are detected, Plotcn halts rendering and presents a truthful `ChartErrorState` explaining that signed values violate 100% composition semantics. Negative values are never silently clamped.
+
+---
+
+## Installation
+
+Install Percent Stream Area directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/area-percent-stream.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/area-percent-stream` will become available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name on data records for horizontal domain coordinates. |
+| `series` | `readonly PercentStreamSeries<TData>[]` | — | Yes | Canonical array of additive series. Stack order is strictly bottom-to-top. |
+| `height` | `number \| string` | `320` | No | Container height in pixels or CSS dimension string. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm for layer boundaries. |
+| `fillOpacity` | `number` | `0.75` | No | Layer fill opacity between 0 and 1. |
+| `gradientMode` | `"none" \| "vertical-fade"` | `"none"` | No | Decorative gradient treatment. Never encodes data certainty. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for pinned crosshair and inspection markers. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showXAxis` | `boolean` | `true` | No | Whether to render horizontal category scale. |
+| `showYAxis` | `boolean` | `true` | No | Whether to render vertical percentage ticks (0%, 25%, 50%, 75%, 100%). |
+| `showLegend` | `boolean` | `true` | No | Whether to render the series identity legend. |
+| `interactiveLegend` | `boolean` | `true` | No | Enables pointer and keyboard series visibility toggles. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click or Enter/Space. |
+| `missingValuePolicy` | `"gap" \| "zero"` | `"gap"` | No | Handling of missing values: 'gap' marks incomplete; 'zero' substitutes 0. |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Entry reveal animation. Bypassed automatically under reduced motion. |
+| `shareFormatter` | `(share: number) => string` | `${share.toFixed(1)}%` | No | Formatter for normalized percentage readouts in tooltips. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Formatter for raw underlying quantities in tooltips and tables. |
+| `title` | `string` | `"Percent Stream Area Chart"` | No | Accessible title for screen readers. |
+| `description` | `string` | `undefined` | No | Accessible description detailing 100% normalized composition. |
+
+---
+
+## Keyboard Navigation Reference
+
+Percent Stream Area provides a single focused entry point for Cartesian exploration:
+
+| Key | Control Target | Action |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Plot Inspection | Inspect next chronological observation |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Plot Inspection | Inspect previous chronological observation |
+| <kbd>Home</kbd> | Plot Inspection | Jump inspection to the first observation |
+| <kbd>End</kbd> | Plot Inspection | Jump inspection to the latest observation |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Plot Inspection | Lock or unlock persistent inspection at the active coordinate |
+| <kbd>Escape</kbd> | Plot Inspection | Dismiss locked inspection and release pinned tooltip |
+
+---
+
+## Data Safety Checklist
+
+- **✓ Total Magnitude Deliberately Removed**: Geometry strictly communicates relative shares; total volume changes are not visible in polygon height.
+- **✓ Input Immutability**: Caller data arrays and series configuration objects are never mutated.
+- **✓ Missing Contributor Never Coerced to 0%**: Under default `gap` policy, missing data breaks the stack honestly (`null ≠ 0`).
+- **✓ Zero Total Handled Safely**: $0 / 0$ avoids divide-by-zero, `NaN%`, or `Infinity%`.
+- **✓ Non-Negative Enforcement**: Negative values trigger a descriptive error state rather than silent clamping.
+- **✓ Stable Series Identity**: Canonical series index determines palette tokens; toggling series in the legend never reassigns colors.
+- **✓ Floating-Point Precision**: Internal geometry calculations use full precision to reach the exact 100% boundary.
+- **✓ Responsive Integrity**: Narrow viewports simplify labels and ticks; they **never silently remove series** to save space.
+
+---
+
+## Related Charts
+
+- **[Stack Flow Area](/charts/recharts/area-stack-flow)**: Multi-series additive stacking for communicating both individual contributions and changing total magnitude.
+- **[Prism Area](/charts/recharts/area-prism)**: Single-series magnitude visualization anchored to an explicit baseline.
+- **[Multi-Signal Line](/charts/recharts/line-multi-signal)**: Multi-series trend comparison without area filling or composition constraints.

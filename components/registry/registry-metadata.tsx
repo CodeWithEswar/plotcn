@@ -28,7 +28,7 @@ export function RegistryMetadata({
     >
       <div className="flex items-center gap-3 flex-wrap">
         <span>
-          <strong className="text-foreground/80 font-medium">REGISTRY</strong> @plotcn
+          <strong className="text-foreground/80 font-medium">REGISTRY</strong> direct URL
         </span>
         <span className="text-muted-foreground/40">·</span>
         <span>

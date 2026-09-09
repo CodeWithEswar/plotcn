@@ -87,6 +87,67 @@ Use when data measures deviation from a meaningful central baseline or target (e
 
 ---
 
+## Chart colors & customization hierarchy
+
+Plotcn implements a four-tier color resolution hierarchy:
+
+```text
+Plotcn theme tokens (app/globals.css)
+        ↓
+component semantic defaults
+        ↓
+optional component color overrides (e.g. primaryColor, referenceColor)
+        ↓
+series-level overrides where supported
+```
+
+### 1. Theme-native defaults
+
+When no color prop is explicitly supplied, components resolve their marks from CSS variables:
+- `color` / `primaryColor` defaults to `var(--chart-1)`
+- `referenceColor` / `rangeColor` defaults to `var(--chart-2)`
+- `milestoneColor` defaults to `var(--chart-milestone-pin)`
+
+This ensures that switching between Light and Dark mode dynamically updates the visualization without hardcoded color lock-in.
+
+### 2. Component-level semantic overrides
+
+Every chart component exposes semantic color properties reflecting its specific visual architecture:
+
+```tsx
+// Single-series override
+<SignalLine data={data} xKey="date" color="#2563eb" />
+
+// Two-role comparison
+<TwinlineCompare
+  data={data}
+  xKey="date"
+  primaryColor="#2563eb"
+  referenceColor="#a1a1aa"
+/>
+
+// Forecast with range envelope
+<RangeLine
+  data={data}
+  xKey="date"
+  color="#2563eb"
+  rangeColor="#93c5fd"
+/>
+
+// Trend with milestones
+<MilestoneLine
+  data={data}
+  xKey="date"
+  color="#2563eb"
+  milestoneColor="#71717a"
+  milestones={milestones}
+/>
+```
+
+Explicit custom colors remain fixed across Light and Dark theme changes, preserving intentional brand styling while theme presets adapt automatically.
+
+---
+
 ## Grid, axes, and labels
 
 Visual hierarchy is essential for readable charts. The data marks must always command visual attention; supporting structure must remain secondary.

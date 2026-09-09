@@ -7,11 +7,13 @@ import { ComputerIcon, Tablet01Icon, SmartPhone01Icon } from "@hugeicons/core-fr
 import { cn } from "@/lib/utils"
 
 export interface ChartPreviewProps {
-  registryName: string
-  title: string
+  registryName?: string
+  name?: string
+  title?: string
 }
 
-export function ChartPreview({ registryName, title }: ChartPreviewProps) {
+export function ChartPreview({ registryName: propRegistryName, name, title }: ChartPreviewProps) {
+  const registryName = propRegistryName || name || ""
   const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop")
 
   const widthClasses = {

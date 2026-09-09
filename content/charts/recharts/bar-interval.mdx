@@ -1,0 +1,276 @@
+---
+title: Interval Bars
+description: Floating categorical ranges with explicit start and end bounds for schedules, maintenance windows, operating durations, and bounded quantitative intervals.
+component: IntervalBars
+engine: recharts
+renderer: svg
+family: bar
+status: preview
+blueprint: "027"
+---
+
+# 027 / RECHARTS / BAR — Interval Bars
+
+<ChartDetailHeader
+  blueprint="027"
+  engine="recharts"
+  renderer="svg"
+  family="bar"
+  status="preview"
+  title="Interval Bars"
+  description="Floating categorical ranges with explicit start and end bounds for schedules, maintenance windows, operating durations, and bounded quantitative intervals."
+/>
+
+## Overview
+
+**Interval Bars** visualizes supplied bounded ranges where each category is defined by an explicit **start** bound and an explicit **end** bound along a continuous quantitative or temporal axis.
+
+Unlike conventional bar charts that measure magnitude from an implicit zero baseline:
+
+<ConventionalVsIntervalAnimationDiagram />
+
+both endpoints represent first-class data. The position of the interval along the axis conveys when or where the range occurs, while the bar length represents the derived **span** (`end - start`).
+
+Neither boundary is ever defaulted to zero, the axis minimum, or an inferred reference point.
+
+---
+
+## Live Preview
+
+<ChartPreview registryName="bar-interval" />
+
+---
+
+## Installation
+
+:::package-manager
+pnpm dlx shadcn@latest add "https://plotcn.vercel.app/r/bar-interval.json"
+:::
+
+---
+
+## Usage
+
+```tsx
+import { IntervalBars } from "@/components/charts/recharts/bar-interval"
+
+const data = [
+  { service: "Authentication", start: 9.0, end: 10.5 },
+  { service: "Payments API", start: 10.0, end: 12.25 },
+  { service: "Notifications", start: 8.5, end: 9.75 },
+  { service: "Analytics Engine", start: 11.0, end: 13.0 },
+  { service: "Data Exporter", start: 12.25, end: 14.0 },
+]
+
+export function MaintenanceScheduleChart() {
+  return (
+    <IntervalBars
+      data={data}
+      categoryKey="service"
+      series={{
+        startKey: "start",
+        endKey: "end",
+        label: "Maintenance Window",
+        startLabel: "Window Start",
+        endLabel: "Window End",
+        spanLabel: "Duration",
+        valueFormatter: (h) => `${Math.floor(h).toString().padStart(2, "0")}:${((h % 1) * 60).toString().padStart(2, "0")}`,
+        spanFormatter: (span) => `${Math.floor(span)}h ${(span % 1) * 60}m`,
+      }}
+    />
+  )
+}
+```
+
+---
+
+## Interval Model
+
+<IntervalModelDiagram />
+
+The fundamental mathematical relationship for each categorical interval is:
+
+```text
+span = end - start
+```
+
+For every valid interval:
+1. `start` represents the coordinate where the interval opens.
+2. `end` represents the coordinate where the interval closes.
+3. `span` is the non-negative scalar distance between `start` and `end`.
+
+Interval Bars does not rebase ranges to zero. An interval spanning `100` to `120` has the exact same span (`20`) as an interval spanning `0` to `20`, but their coordinates represent completely distinct observations.
+
+---
+
+## Floating Bars vs Baseline Bars
+
+<FloatingVsBaselineBarDiagram />
+
+In standard bar charts, bar length directly encodes magnitude from zero. In Interval Bars, the bar **floats** between two supplied numbers:
+
+| Feature | Conventional Bar | Interval Bar |
+| :--- | :--- | :--- |
+| **Origin** | Implicit zero baseline (`0`) | Supplied `start` coordinate |
+| **Termination** | Supplied value | Supplied `end` coordinate |
+| **Visual Geometry** | Rectangle anchored to baseline | Floating rectangle between bounds |
+| **Primary Meaning** | Absolute scalar magnitude | Continuous bounded range / window |
+| **Zero Baseline** | Semantically mandatory | Just a number along the domain |
+
+> **Critical Distinction:** Zero is not an implicit baseline in Interval Bars. If your data ranges from `100` to `180`, the plot domain adjusts directly to those bounds rather than anchoring to zero.
+
+---
+
+## Start, End, and Span Anatomy
+
+<StartEndSpanAnatomyDiagram />
+
+Each categorical row consists of:
+- **Category Label**: Positioned along the discrete categorical axis.
+- **Start Boundary**: The lower coordinate where the range begins.
+- **End Boundary**: The upper coordinate where the range concludes.
+- **Interval Span**: The visual bar width between `x(start)` and `x(end)`.
+- **Rounded Outer Radii**: Both outer edges receive restrained corner rounding (`rx=4, ry=4`) because neither edge is a grounded baseline.
+
+---
+
+## Bounds Validation: Valid, Zero-Width, and Invalid Reversed
+
+<BoundsValidationDiagram />
+
+Interval Bars enforces strict mathematical bounds validation:
+
+### 1. Valid Intervals (`start < end`)
+The standard case. Renders a floating bar spanning between `start` and `end`. Span is calculated as `end - start > 0`.
+
+### 2. Zero-Width Intervals (`start === end`)
+When `start === end`, the interval is mathematically valid with `span = 0`. Plotcn renders a crisp 3px marker line at the coordinate rather than inventing an artificial minimum bar width. The category row remains fully interactive and hoverable.
+
+### 3. Invalid Reversed Bounds (`start > end`)
+If a record provides a start value greater than its end value (e.g. `20 &rarr; 10`), Plotcn strictly marks the interval as **Invalid bounds**.
+- **No silent swapping:** Plotcn will **never** silently invert `start` and `end` or apply `Math.abs()`.
+- **No misleading geometry:** No bar is drawn for invalid bounds.
+- **Inspection preserved:** The row remains inspectable, with the tooltip explicitly warning `"Invalid bounds"`.
+
+---
+
+## Missing-Bounds Semantics
+
+<MissingBoundsDiagram />
+
+A valid interval requires **both** boundaries to be finite numbers:
+
+```text
+start is finite AND end is finite
+```
+
+If either bound is missing (`null`, `undefined`, `NaN`, `Infinity`, or `-Infinity`):
+- The interval is reported as **Unavailable**.
+- Missing `start` is **never** replaced with `0` or the domain minimum.
+- Missing `end` is **never** replaced with current time ("now") or domain maximum.
+- Structured data and tooltips explicitly indicate that the interval is unavailable.
+
+---
+
+## Domain Model: Bounds-Driven Resolution
+
+<NumericDomainResolutionDiagram />
+
+Automatic domain calculation considers all valid `start` coordinates and all valid `end` coordinates across the dataset:
+
+```text
+domain = [min(valid starts, valid ends), max(valid starts, valid ends)]
+```
+
+### Why Bounds-Driven Domain Matters
+If a dataset contains maintenance windows occurring between `09:00` and `14:00`, forcing zero into the domain would waste more than half the chart area with irrelevant space. Bounds-driven domain guarantees optimal visual resolution for comparative scanning.
+
+---
+
+## Temporal Intervals & Timestamps
+
+<TemporalIntervalModelDiagram />
+
+For temporal schedules, epoch timestamps (e.g. `1770000000000`) or numeric fractional hours (e.g. `9.5` for `09:30`) can be supplied directly:
+- **Axis & Boundary Formatter (`valueFormatter`)**: Formats coordinates into wall-clock time (`09:00`, `13:30`).
+- **Span Formatter (`spanFormatter`)**: Formats the derived duration (`4h 30m`).
+
+Temporal formatting does not alter chart geometry or create clock-dependent state.
+
+---
+
+## Negative and Cross-Zero Floating Ranges
+
+<NegativeCrossZeroDiagram />
+
+Interval Bars naturally handles negative values and ranges that cross zero:
+- **Purely Negative Ranges**: e.g. `-80 &rarr; -40` (span `40`).
+- **Cross-Zero Ranges**: e.g. `-20 &rarr; +30` (span `50`). Cross-zero intervals are rendered as a single continuous bar without splitting into artificial positive and negative colors.
+
+---
+
+## Category Band & Zero-Width Hit Regions
+
+<CategoryBandHitRegionDiagram />
+
+<ZeroWidthInteractionDiagram />
+
+Because intervals can be narrow, short, or zero-width (`span = 0`), hit testing is anchored to the **entire category band**:
+- Hovering or tapping anywhere within the row band activates the category.
+- Exact cursor precision on a thin bar or marker tick is never required.
+- Touch interactions remain forgiving on mobile viewports.
+
+---
+
+## Orientation: Horizontal vs Vertical
+
+<IntervalOrientationDiagram />
+
+Interval Bars defaults to `orientation="horizontal"` because:
+1. Schedules, durations, and timelines read left-to-right naturally.
+2. Long category names (e.g. "Customer Data Migration Pipeline") have ample horizontal breathing room.
+
+For numeric min/max comparisons (e.g. daily operating temperatures), `orientation="vertical"` can be configured explicitly.
+
+---
+
+## Rendering Architecture
+
+<IntervalRenderingArchitectureDiagram />
+
+The rendering pipeline executes deterministically:
+1. **Data Ingestion**: Immutable intake of caller data.
+2. **Pairwise Validation**: Verifies finite numeric boundaries.
+3. **Bounds Check**: Verifies `start <= end`.
+4. **Domain Resolution**: Bounds-driven auto-scaling.
+5. **Recharts Floating Layout**: Computes coordinate mappings via array tuples `[start, end]`.
+6. **Custom Shape**: Renders floating bars with outer radii and zero-width markers.
+7. **Accessible Table**: Emits offscreen semantic HTML table for assistive technology.
+
+---
+
+## Props Reference
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Array of categorical data records. Order is strictly preserved. |
+| `categoryKey` | `keyof TData & string` | &mdash; | Key representing the discrete category label. |
+| `series` | `IntervalBarSeries<TData>` | &mdash; | Series definition specifying `startKey`, `endKey`, `label`, and formatters. |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Layout orientation. |
+| `height` | `number \| string` | `340` | Chart container height. |
+| `domain` | `[number, number] \| "auto"` | `"auto"` | Bounds-driven domain or explicit limits. |
+| `color` | `string` | `"var(--chart-1)"` | Fill color for floating interval bars. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | Emphasis outline color for the active category. |
+| `showGrid` | `boolean` | `true` | Whether to render background Cartesian gridlines. |
+| `showLegend` | `boolean` | `false` | Whether to display series legend. |
+| `tooltipMode` | `"bounds" \| "bounds-and-span"` | `"bounds-and-span"` | Tooltip detail mode. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Animation toggle honoring reduced motion. |
+
+---
+
+## Accessibility
+
+- **Keyboard Traversal**: Uses `ArrowDown`/`ArrowUp` in horizontal mode and `ArrowLeft`/`ArrowRight` in vertical mode, with `Home` and `End` support.
+- **Single Tab Stop**: The chart container receives a single focus stop (`tabIndex={0}`).
+- **Screen Reader Support**: An offscreen semantic table details category, start, end, duration, and status for every row.
+- **Factual Summaries**: Audio announcements describe positions and spans factually without assuming operational delays or conflicts.

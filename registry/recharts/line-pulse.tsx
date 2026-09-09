@@ -13,6 +13,7 @@ import {
   ReferenceLine,
 } from "recharts"
 import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartLegend } from "../shared/chart-legend"
 import { ChartContainer } from "../shared/chart-container"
 import { ChartTooltip } from "../shared/chart-tooltip"
 import {
@@ -120,7 +121,7 @@ export interface PulseLineProps<TData extends Record<string, unknown> = Record<s
 
   /**
    * Primary series stroke color.
-   * Default: "var(--chart-1, #10b981)"
+   * Default: "var(--chart-1)"
    */
   color?: string
 
@@ -332,7 +333,7 @@ function calculateSafeDomain(
 /* -------------------------------------------------------------------------- */
 
 export function PulseLine<TData extends Record<string, unknown> = Record<string, unknown>>({
-  data,
+  data = [],
   xKey,
   seriesKey,
   series,
@@ -345,7 +346,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
   showLatestValue = false,
   latestValueFormatter,
   updateMode = "direct",
-  color = "var(--chart-1, #10b981)",
+  color = "var(--chart-1)",
   showGrid = true,
   showXAxis = true,
   showYAxis = true,
@@ -375,79 +376,6 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
 
   // Keyboard navigation active index
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null)
-
-  // 1. Error state handling
-  if (error) {
-    const errorMessage = typeof error === "string" ? error : error.message || "Failed to load signal"
-    if (errorContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {errorContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartErrorState
-          title="Unable to load signal"
-          description={errorMessage}
-          onRetry={onRetry}
-        />
-      </div>
-    )
-  }
-
-  // 2. Unavailable state handling
-  if (unavailable) {
-    const unavailMessage =
-      typeof unavailable === "string" ? unavailable : "This metric stream is currently unavailable."
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartUnavailableState
-          title="Signal stream unavailable"
-          description={unavailMessage}
-        />
-      </div>
-    )
-  }
-
-  // 3. Loading state handling
-  if (loading) {
-    if (loadingContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {loadingContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartLoadingState
-          title="Connecting to telemetry stream..."
-          description="Preparing rolling window and scaling signal axes"
-        />
-      </div>
-    )
-  }
-
-  // 4. Empty data handling
-  if (!data || data.length === 0) {
-    if (emptyContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {emptyContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartEmptyState
-          title="No telemetry yet"
-          description="Signal values will appear when observations are recorded."
-        />
-      </div>
-    )
-  }
 
   // Sliced rolling window
   const windowedData = applyRollingWindow(data, windowSize)
@@ -513,6 +441,24 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
     return "preserveStartEnd"
   }, [tickStrategy, safeData.length])
 
+  if (error) {
+    const message = typeof error === "string" ? error : error.message || "Failed to load signal"
+    if (errorContent) return <div className={cn("w-full", className)} style={{ height }}>{errorContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartErrorState title="Unable to load signal" description={message} onRetry={onRetry} /></div>
+  }
+  if (unavailable) {
+    const message = typeof unavailable === "string" ? unavailable : "This metric stream is currently unavailable."
+    return <div className={cn("w-full", className)} style={{ height }}><ChartUnavailableState title="Signal stream unavailable" description={message} /></div>
+  }
+  if (loading) {
+    if (loadingContent) return <div className={cn("w-full", className)} style={{ height }}>{loadingContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartLoadingState title="Connecting to telemetry stream..." description="Preparing rolling window and scaling signal axes" /></div>
+  }
+  if (data.length === 0) {
+    if (emptyContent) return <div className={cn("w-full", className)} style={{ height }}>{emptyContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartEmptyState title="No telemetry yet" description="Signal values will appear when observations are recorded." /></div>
+  }
+
   // Keyboard navigation across observations (Section 51, 52: End returns to latest signal)
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (safeData.length === 0) return
@@ -564,7 +510,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
             cy={cy}
             r={3.5}
             fill={color}
-            stroke="var(--chart-background, #09090b)"
+            stroke="var(--chart-background)"
             strokeWidth={1.5}
           />
         </g>
@@ -581,18 +527,18 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
       tabIndex={0}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group relative flex flex-col w-full outline-none focus-visible:ring-1 focus-visible:ring-[var(--chart-focus,#10b981)] rounded-xl transition-all",
+        "group relative flex flex-col w-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--chart-focus)] rounded-xl transition-all",
         className
       )}
-      style={{ height }}
+      style={{ height, minHeight: typeof height === "number" ? height : 300 }}
     >
       {/* Optional Latest Value Header Rail */}
       {showLatestValue && latestFormattedValue && (
         <div className="flex items-center justify-between px-1 pb-2 text-xs font-mono select-none">
-          <span className="text-zinc-500 uppercase tracking-widest text-[10px] font-semibold">
+          <span className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold">
             {activeSeriesLabel} · LATEST
           </span>
-          <span className="font-semibold text-zinc-100 bg-white/[0.06] border border-white/[0.08] px-2 py-0.5 rounded text-[11px]">
+          <span className="font-semibold text-foreground bg-muted border border-border px-2 py-0.5 rounded text-[11px]">
             {latestFormattedValue}
           </span>
         </div>
@@ -615,7 +561,13 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
         }}
         className="w-full h-full flex-1"
       >
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          minWidth={0}
+          minHeight={0}
+          initialDimension={{ width: 320, height: typeof height === "number" ? height : 300 }}
+        >
           <LineChart
             data={safeData}
             margin={{ top: 8, right: 12, left: -16, bottom: 4 }}
@@ -624,7 +576,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="var(--chart-grid, rgba(255,255,255,0.06))"
+                stroke="var(--chart-grid)"
               />
             )}
 
@@ -634,7 +586,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
               tickLine={false}
               axisLine={false}
               interval={tickInterval}
-              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis)" }}
               dy={6}
             />
 
@@ -643,7 +595,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
               domain={safeDomain as any}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis)" }}
               tickFormatter={valueFormatter ? (v) => valueFormatter(Number(v)) : undefined}
               dx={-4}
             />
@@ -654,10 +606,11 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
                   indicator="line"
                   formatter={(val) => defaultFormatter(val)}
                   labelFormatter={(label) => label}
+                  compact={typeof height === "number" ? height <= 260 : false}
                 />
               }
               cursor={{
-                stroke: "var(--chart-crosshair, rgba(255,255,255,0.25))",
+                stroke: "var(--chart-crosshair)",
                 strokeDasharray: "3 3",
                 strokeWidth: 1.2,
               }}
@@ -673,12 +626,12 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
                     ? {
                         value: ref.label,
                         position: "insideTopRight",
-                        fill: "var(--chart-muted-foreground, #71717a)",
+                        fill: "var(--chart-muted-foreground)",
                         fontSize: 10,
                       }
                     : undefined
                 }
-                stroke={ref.stroke ?? "var(--chart-muted-foreground, #71717a)"}
+                stroke={ref.stroke ?? "var(--chart-muted-foreground)"}
                 strokeDasharray={ref.strokeDasharray ?? "4 4"}
                 strokeOpacity={0.6}
               />
@@ -705,7 +658,7 @@ export function PulseLine<TData extends Record<string, unknown> = Record<string,
               activeDot={{
                 r: 4.5,
                 fill: color,
-                stroke: "var(--chart-background, #09090b)",
+                stroke: "var(--chart-background)",
                 strokeWidth: 2,
               }}
             />

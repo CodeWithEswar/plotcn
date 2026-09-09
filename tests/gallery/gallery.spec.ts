@@ -27,12 +27,12 @@ describe("Charts discovery", () => {
       filterCharts(charts, {
         ...defaultFilters,
         engine: "recharts",
-        category: "line",
+        category: "pie",
         feature: "legend",
         renderer: "svg",
         status: "stable",
       }).map((c) => c.registryName),
-      ["line-multiple"]
+      ["donut-basic"]
     )
     assert.equal(filterCharts(charts, defaultFilters).length, charts.length)
   })

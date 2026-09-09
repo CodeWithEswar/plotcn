@@ -5,6 +5,7 @@ import { scaleLinear } from "d3-scale"
 import { line, curveMonotoneX, curveLinear, curveStep } from "d3-shape"
 import { max, min } from "d3-array"
 import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartEmptyState, ChartErrorState } from "../shared/chart-state"
 import { cn } from "@/lib/utils"
 
 export interface D3LineDatum {
@@ -37,7 +38,7 @@ export function D3AnimatedLine({
   data,
   width = 600,
   height = 300,
-  color = "var(--chart-1, #10b981)",
+  color = "var(--chart-1)",
   className,
   curve = "monotone",
   grid = "horizontal",
@@ -59,7 +60,7 @@ export function D3AnimatedLine({
     // Defer mount trigger to next frame for transition to run
     const timer = setTimeout(() => setMounted(true), 16)
     return () => clearTimeout(timer)
-  }, [])
+  }, [data, width, height, curve])
 
   const yValues = data.map((d) => d.y)
   const minY = min(yValues) ?? 0
@@ -89,6 +90,11 @@ export function D3AnimatedLine({
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const svgRef = React.useRef<SVGSVGElement>(null)
 
+  if (!data.length) return <ChartEmptyState />
+  if (data.some((datum) => !Number.isFinite(datum.y))) {
+    return <ChartErrorState description="Values must be finite numbers. Missing values are not replaced with zero." />
+  }
+
   const isAnimated = motion !== false && !reducedMotion
   const duration = typeof motion === "object" && motion?.duration !== undefined ? motion.duration : 0.35
 
@@ -102,7 +108,7 @@ export function D3AnimatedLine({
       : {}
 
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-xl border border-[var(--chart-border,rgba(255,255,255,0.08))] bg-[var(--chart-background,#09090b)]/60 p-4", className)}>
+    <div className={cn("plotcn-chart relative w-full overflow-hidden rounded-xl border border-[var(--chart-border)] bg-[var(--chart-background)] p-4", className)}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${width} ${height}`}
@@ -120,7 +126,7 @@ export function D3AnimatedLine({
                 x2={innerWidth}
                 y1={yScale(tick)}
                 y2={yScale(tick)}
-                stroke="var(--chart-grid, rgba(255,255,255,0.1))"
+                stroke="var(--chart-grid)"
                 strokeDasharray="3 3"
               />
             ))}
@@ -145,17 +151,16 @@ export function D3AnimatedLine({
                 x2={xScale(hoveredIndex)}
                 y1={0}
                 y2={innerHeight}
-                stroke="rgba(255,255,255,0.25)"
+                stroke="var(--chart-crosshair)"
                 strokeDasharray="3 3"
               />
               <circle
                 cx={xScale(hoveredIndex)}
                 cy={yScale(data[hoveredIndex].y)}
                 r={6}
-                fill="#ffffff"
+                fill="var(--chart-background)"
                 stroke={color}
                 strokeWidth={2.5}
-                className="drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]"
               />
             </g>
           )}
@@ -167,7 +172,7 @@ export function D3AnimatedLine({
               cx={xScale(i)}
               cy={yScale(d.y)}
               r={hoveredIndex === i ? 5.5 : 3.5}
-              fill="var(--chart-background, var(--background, #09090b))"
+              fill="var(--chart-background)"
               stroke={color}
               strokeWidth={2}
               className="transition-all duration-150"
@@ -204,17 +209,17 @@ export function D3AnimatedLine({
             marginTop: "-12px",
           }}
         >
-          <div className="rounded-lg border border-white/[0.14] bg-zinc-950/95 p-2.5 text-white shadow-xl backdrop-blur-md text-xs min-w-[130px]">
-            <div className="text-[11px] font-mono text-zinc-400 mb-1.5 pb-1 border-b border-white/[0.08] flex items-center justify-between gap-2">
+          <div className="plotcn-chart-tooltip">
+            <div className="mb-1.5 flex items-center justify-between gap-2 border-b border-[var(--chart-tooltip-border)] pb-1 font-mono text-[11px] text-[var(--chart-tooltip-muted)]">
               <span>{String(data[hoveredIndex].x)}</span>
               <span
-                className="size-2 rounded-full shadow-[0_0_8px]"
-                style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+                className="size-2 rounded-full"
+                style={{ backgroundColor: color }}
               />
             </div>
             <div className="flex items-center justify-between gap-3 font-mono">
-              <span className="text-[11px] text-zinc-400">Value</span>
-              <span className="text-xs font-semibold tabular-nums text-white">
+              <span className="text-[11px] text-[var(--chart-tooltip-muted)]">Value</span>
+              <span className="text-xs font-semibold tabular-nums text-[var(--chart-tooltip-foreground)]">
                 {data[hoveredIndex].y.toLocaleString()}
               </span>
             </div>

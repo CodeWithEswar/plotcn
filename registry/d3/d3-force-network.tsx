@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import { forceSimulation, forceManyBody, forceCenter, forceLink, type SimulationNodeDatum } from "d3-force"
+import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartEmptyState, ChartErrorState } from "../shared/chart-state"
 import { cn } from "@/lib/utils"
 
 export interface NetworkNode extends SimulationNodeDatum {
@@ -43,6 +45,7 @@ export function D3ForceNetwork({
   className,
   motion = true,
 }: D3ForceNetworkProps) {
+  const reducedMotion = useChartReducedMotion()
   const [nodes, setNodes] = React.useState<NetworkNode[]>([])
   const [links, setLinks] = React.useState<SimulationLink[]>([])
 
@@ -65,7 +68,7 @@ export function D3ForceNetwork({
       setLinks([...(linksCopy as unknown as SimulationLink[])])
     }
     let frame = 0
-    if (!motion || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (!motion || reducedMotion) {
       cancelAnimationFrame(frame)
       simulation.stop().tick(180)
       frame = requestAnimationFrame(publish)
@@ -74,12 +77,17 @@ export function D3ForceNetwork({
     return () => {
       simulation.stop()
     }
-  }, [initialNodes, initialLinks, width, height, motion])
+  }, [initialNodes, initialLinks, width, height, motion, reducedMotion])
 
   const [hoveredNode, setHoveredNode] = React.useState<NetworkNode | null>(null)
 
+  const invalidData = initialNodes.some((node) => !node.id || !node.label)
+
+  if (!initialNodes.length) return <ChartEmptyState />
+  if (invalidData) return <ChartErrorState description="Every node requires an id and label." />
+
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-xl border border-white/[0.08] bg-zinc-950/70 p-4 select-none", className)}>
+    <div className={cn("plotcn-chart relative w-full overflow-hidden rounded-xl border border-[var(--chart-border)] bg-[var(--chart-background)] p-4 select-none", className)}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto"
@@ -93,7 +101,7 @@ export function D3ForceNetwork({
               y1={link.source.y}
               x2={link.target.x}
               y2={link.target.y}
-              stroke="var(--chart-grid, rgba(255,255,255,0.15))"
+              stroke="var(--chart-grid)"
               strokeWidth={1.5}
             />
           ))}
@@ -111,15 +119,15 @@ export function D3ForceNetwork({
               >
                 <circle
                   r={isHovered ? 11 : 8}
-                  fill={isHovered ? "#ffffff" : "var(--chart-1, #10b981)"}
-                  stroke={isHovered ? "var(--chart-1, #10b981)" : "var(--background, #09090b)"}
+                  fill={isHovered ? "var(--chart-background)" : "var(--chart-1)"}
+                  stroke={isHovered ? "var(--chart-1)" : "var(--chart-background)"}
                   strokeWidth={isHovered ? 3 : 2}
-                  className="transition-all duration-150 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                  className="transition-all duration-150"
                 />
                 <text
                   dy={isHovered ? 20 : 16}
                   textAnchor="middle"
-                  fill={isHovered ? "#ffffff" : "var(--chart-axis, #a1a1aa)"}
+                  fill={isHovered ? "var(--chart-foreground)" : "var(--chart-axis)"}
                   className="text-[10px] font-mono select-none transition-colors"
                 >
                   {node.label}
@@ -140,19 +148,19 @@ export function D3ForceNetwork({
             marginTop: "-16px",
           }}
         >
-          <div className="rounded-lg border border-white/[0.14] bg-zinc-950/95 p-2.5 text-white shadow-xl backdrop-blur-md text-xs min-w-[130px]">
-            <div className="text-xs font-semibold text-white mb-1 flex items-center justify-between gap-2 border-b border-white/[0.08] pb-1">
+          <div className="plotcn-chart-tooltip">
+            <div className="mb-1 flex items-center justify-between gap-2 border-b border-[var(--chart-tooltip-border)] pb-1 text-xs font-semibold">
               <span>{hoveredNode.label}</span>
-              <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <span className="size-2 rounded-full bg-[var(--chart-1)]" />
             </div>
-            <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
+            <div className="flex items-center justify-between font-mono text-[11px] text-[var(--chart-tooltip-muted)]">
               <span>Node ID</span>
-              <span className="text-zinc-200">{hoveredNode.id}</span>
+              <span className="text-[var(--chart-tooltip-foreground)]">{hoveredNode.id}</span>
             </div>
             {hoveredNode.group !== undefined && (
-              <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 mt-1">
+              <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-[var(--chart-tooltip-muted)]">
                 <span>Cluster</span>
-                <span className="text-emerald-400 font-semibold font-mono">Group {hoveredNode.group}</span>
+                <span className="font-mono font-semibold text-[var(--chart-1)]">Group {hoveredNode.group}</span>
               </div>
             )}
           </div>

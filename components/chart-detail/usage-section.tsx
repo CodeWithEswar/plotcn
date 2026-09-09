@@ -41,30 +41,34 @@ export function UsageSection({ chart, basicSnippet }: UsageSectionProps) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 rounded-2xl border border-white/[0.08] bg-zinc-950/80 p-4 sm:p-5 overflow-hidden">
         {/* Left: Code Snippet */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-mono text-zinc-400 font-medium">page.tsx</span>
-            <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-mono text-zinc-400 font-medium truncate">page.tsx</span>
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setIsWrapped(!isWrapped)}
                 aria-label={isWrapped ? "Disable line wrapping" : "Enable line wrapping"}
                 className={cn(
-                  "inline-flex items-center gap-1 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors cursor-pointer",
+                  "h-7 sm:h-7.5 inline-flex items-center justify-center gap-1 px-2.5 rounded-md border text-xs font-mono whitespace-nowrap shrink-0 transition-colors cursor-pointer",
                   isWrapped
                     ? "bg-white/[0.15] border-white/20 text-white font-medium shadow-xs"
                     : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.06] text-zinc-400 hover:text-zinc-200"
                 )}
               >
-                <HugeiconsIcon icon={TextWrapIcon} size={13} />
+                <HugeiconsIcon icon={TextWrapIcon} size={13} className="shrink-0" />
                 <span>{isWrapped ? "Wrapped" : "Wrap"}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-mono text-zinc-300 transition-colors cursor-pointer"
+                className="h-7 sm:h-7.5 inline-flex items-center justify-center gap-1.5 px-2.5 rounded-md bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-mono text-zinc-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
-                <HugeiconsIcon icon={copied ? Tick02Icon : Copy01Icon} size={13} className={copied ? "text-emerald-400" : ""} />
+                <HugeiconsIcon
+                  icon={copied ? Tick02Icon : Copy01Icon}
+                  size={13}
+                  className={cn("shrink-0", copied ? "text-emerald-400" : "")}
+                />
                 <span>{copied ? "Copied" : "Copy"}</span>
               </button>
             </div>

@@ -1,0 +1,246 @@
+---
+title: "Forecast Line"
+description: "A time-series visualization that clearly separates observed values from forecast values, optionally visualizes uncertainty around the forecast, and preserves that distinction through line style, fill treatment, tooltip language, accessibility, and color customization."
+component: "ForecastLine"
+engine: "recharts"
+registryName: "line-forecast"
+number: "010"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Forecast Line** is an analytical time-series component engineered around the fundamental principle of **epistemic separation**: strictly distinguishing what has actually occurred from what is predicted to happen next.
+
+The central analytical question answered by this chart is:
+
+> **"What has actually happened, what is predicted to happen next, and how uncertain is that prediction?"**
+
+Forecast Line must never blur the semantic difference between observed data, predicted data, and uncertainty around predictions.
+
+<ForecastModelFlow />
+
+```tsx
+import { ForecastLine } from "@/components/charts/recharts/line-forecast"
+
+const activeUserData = [
+  { month: "Jan", actual: 82, forecast: null, lower: null, upper: null },
+  { month: "Feb", actual: 91, forecast: null, lower: null, upper: null },
+  { month: "Mar", actual: 104, forecast: 104, lower: 104, upper: 104 },
+  { month: "Apr", actual: null, forecast: 112, lower: 103, upper: 121 },
+  { month: "May", actual: null, forecast: 121, lower: 108, upper: 134 },
+  { month: "Jun", actual: null, forecast: 130, lower: 114, upper: 146 },
+]
+
+export function MonthlyUserForecast() {
+  return (
+    <ForecastLine
+      data={activeUserData}
+      xKey="month"
+      series={{
+        actualKey: "actual",
+        forecastKey: "forecast",
+        lowerKey: "lower",
+        upperKey: "upper",
+        actualLabel: "Actual Users",
+        forecastLabel: "Forecast Users",
+        confidenceLabel: "Forecast Range",
+        valueFormatter: (v) => `${v.toLocaleString()}k`,
+      }}
+      showLegend
+      lockableTooltip
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Line-Family Positioning
+
+Plotcn provides specialized line chart components for distinct analytical and operational roles. It is essential to select the component that accurately matches data semantics:
+
+| Component | Number | Primary Analytical Specialty |
+| :--- | :--- | :--- |
+| **Signal Line** | 001 | Single continuous quantitative trend |
+| **Pulse Line** | 002 | Live operational telemetry with rolling window and pulse marker |
+| **Twinline Compare** | 003 | Explicit two-role comparison (primary signal vs. reference baseline) |
+| **Range Line** | 004 | Continuous trend plus uncertainty envelope / confidence interval across all observations |
+| **Step Signal** | 005 | Discrete state transitions and quota tier changes |
+| **Milestone Line** | 006 | Trend line annotated with sparse releases and milestones |
+| **Threshold Line** | 007 | Quantitative trend evaluated against operational limits and bands |
+| **Focus Line** | 008 | High-precision single-series observation scrubbing and locked pins |
+| **Multi-Signal Line** | 009 | Multiple peer series with deterministic identity and interactive legend |
+| **Forecast Line** | 010 | **Observed history transitioning into predicted future with uncertainty** |
+
+### Critical Distinction — Forecast vs. Twinline Compare
+
+In **Twinline Compare**, both lines (Current and Previous) are typically real historical peer series. In **Forecast Line**, the observed series and predicted series represent different epistemic realities: facts versus projections. Forecast Line uses distinct line styles (solid vs. dashed), independent confidence treatment, and differentiated tooltip semantics.
+
+### Critical Distinction — Forecast vs. Range Line
+
+In **Range Line**, the interval envelope belongs to the primary series throughout the entire observation domain. In **Forecast Line**, uncertainty typically begins only where prediction begins. Historical facts have zero uncertainty unless explicitly documented in historical records.
+
+---
+
+## Forecast Model & Principles
+
+Forecast Line enforces strict analytical boundaries:
+
+1. **Plotcn Does Not Calculate Forecasts**: Forecast Line receives predicted values and bounds directly from your application or forecasting backend (e.g., ARIMA, Prophet, Holt-Winters, ML service). Plotcn never extrapolates lines or generates predictions.
+2. **Non-Color Distinction is Mandatory**: Observed data renders as a **solid line** (`strokeWidth={2}`). Predicted data renders as a **dashed line** (`strokeDasharray="5 5"`). This ensures clear separation under any color scheme, including Monochrome or high-contrast themes.
+3. **Restrained Presentation**: Forecast Line avoids distracting visual effects such as animated dash offset ("marching ants") or glowing projections. Predictions are uncertain, not "loading".
+
+---
+
+## Transition Boundary Semantics
+
+The forecast transition marks the chronological boundary where observed facts hand off to predicted values.
+
+<ForecastTransitionFlow />
+
+Forecast Line deterministically handles three data arrangements:
+
+### A. Shared Transition Bridge (Continuous Handoff)
+
+```
+Month     Actual    Forecast    Lower    Upper
+Mar       104       104         104      104
+Apr       —         112         103      121
+```
+
+The boundary observation (`Mar`) contains matching values for both actual and forecast. This creates a clean, continuous transition across the timeline without gaps.
+
+### B. Discontinuous Separation (Truthful Gap)
+
+```
+Month     Actual    Forecast    Lower    Upper
+Mar       104       —           —        —
+Apr       —         112         103      121
+```
+
+Observed history ends before prediction starts. Plotcn visually preserves this gap. **Plotcn never fabricates an artificial bridge point** just to make the chart look connected.
+
+### C. Overlapping Actual & Forecast (Evaluation / Backtesting)
+
+```
+Month     Actual    Forecast    Lower    Upper
+Mar       104       98          90       106
+Apr       112       105         97       113
+```
+
+When comparing historical model performance against observed outcomes, actual and forecast lines render concurrently, each retaining its respective visual style (solid vs. dashed).
+
+---
+
+## Confidence & Uncertainty Treatment
+
+When `lowerKey` and `upperKey` are configured, Forecast Line renders a translucent prediction band behind the forecast line:
+
+- **Supplied Bounds Only**: Plotcn never calculates synthetic confidence bounds (e.g., `±10%` or standard errors). All bounds are supplied data.
+- **Band Appears Only Where Bounds Exist**: If bounds are missing or null for any row, the uncertainty band cleanly gaps at that point.
+- **Invalid Bounds Safeguard**: If `lower > upper`, the interval at that observation is treated as invalid. The band is omitted locally. **Plotcn never silently swaps lower and upper bounds**.
+- **No Clamping**: If the forecast value falls outside the `[lower, upper]` interval, Plotcn renders the values truthfully without artificial clamping.
+- **Neutral Terminology**: Unless customized via `confidenceLabel`, default language refers to the range neutrally as "Forecast range" rather than making unverified statistical claims like "95% confidence interval".
+
+---
+
+## Data & Series Contracts
+
+Forecast Line accepts a single ordered array of data records:
+
+```ts
+type ForecastLineData = {
+  month: string | Date
+  actual: number | null
+  forecast: number | null
+  lower?: number | null
+  upper?: number | null
+}
+```
+
+### Series Configuration Object
+
+```ts
+interface ForecastLineSeries<TData> {
+  actualKey: NumericKeyOf<TData>
+  forecastKey: NumericKeyOf<TData>
+  lowerKey?: NumericKeyOf<TData>
+  upperKey?: NumericKeyOf<TData>
+
+  actualLabel?: string
+  forecastLabel?: string
+  confidenceLabel?: string
+
+  valueFormatter?: (value: number) => string
+}
+```
+
+---
+
+## Installation
+
+Install Forecast Line directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-forecast.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/line-forecast` will become available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g., month, date). |
+| `series` | `ForecastLineSeries<TData>` | — | Yes | Semantic series configuration mapping observed, forecast, and bound keys. |
+| `height` | `number \| string` | `320` | No | Container height in pixels or standard CSS dimension strings. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm shared between actual, forecast, and bounds. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `["auto", "auto"]` | No | Vertical Y scale domain. Automatically encloses actual, forecast, and range bounds. |
+| `actualColor` | `string` | `"var(--chart-1)"` | No | Color for observed history line, markers, and tooltip identity. |
+| `forecastColor` | `string` | `"var(--chart-2)"` | No | Color for predicted future line, markers, and tooltip identity. |
+| `confidenceColor` | `string` | `"var(--chart-2)"` | No | Color for uncertainty band fill. |
+| `confidenceOpacity` | `number` | `0.15` | No | Opacity for the uncertainty range band (`0` to `1`). |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for the inspection crosshair and locked datum status indicator. |
+| `showGrid` | `boolean` | `true` | No | Whether to render horizontal Cartesian grid reference lines. |
+| `showLegend` | `boolean` | `true` | No | Whether to render the series identity legend with actual stroke samples. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click, tap, or Enter/Space. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | Visual treatment of missing values: honest visual break or forward carry. |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Entry reveal animation. Automatically bypassed when reduced motion is preferred. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Default formatter for tooltip metric values and vertical scale ticks. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for horizontal domain tick labels. |
+| `title` | `string` | `"Forecast Line Chart"` | No | Accessible title for assistive technologies and screen readers. |
+| `description` | `string` | `undefined` | No | Accessible description detailing forecast horizon and keyboard shortcuts. |
+
+---
+
+## Keyboard Navigation Reference
+
+Forecast Line provides full single-entry-point keyboard inspection across the unified timeline:
+
+| Key | Control Target | Action |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Plot Inspection | Inspect next chronological observation (observed or forecast) |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Plot Inspection | Inspect previous chronological observation |
+| <kbd>Home</kbd> | Plot Inspection | Jump inspection to the first observed observation |
+| <kbd>End</kbd> | Plot Inspection | Jump inspection to the latest forecast observation |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Plot Inspection | Lock or unlock persistent inspection at the active coordinate |
+| <kbd>Escape</kbd> | Plot Inspection | Dismiss locked inspection and release pinned tooltip |
+
+---
+
+## Data Safety Checklist
+
+- **✓ No Automatic Prediction**: Plotcn visualizes forecast data supplied by the consumer; it never runs automatic regressions or forecasts.
+- **✓ Missing Values Never Become Zero**: Missing actual, forecast, or bound fields remain `null` and create honest gaps (`null ≠ 0`).
+- **✓ Missing Confidence Bounds Gap**: Missing bounds produce a gap in the confidence band rather than synthetic bounds.
+- **✓ No Silent Bound Swapping**: Observations with `lower > upper` invalidate the band locally rather than swapping values.
+- **✓ No Bridge Fabrication**: If observed history ends before forecast starts, the gap is truthfully rendered.
+- **✓ Safe Domain Calculation**: Vertical domain includes all valid values across actual, forecast, lower, and upper series to prevent clipping.
+- **✓ Immutability**: Consumer data arrays are never mutated or sorted in place.
+- **✓ Non-Color Encoding**: Actual renders as a solid line and forecast as a dashed line, preserving epistemic meaning in monochrome.

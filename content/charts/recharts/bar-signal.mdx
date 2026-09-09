@@ -1,0 +1,295 @@
+---
+title: "Signal Bars"
+description: "Canonical zero-anchored bars for discrete categorical comparison with stable caller ordering, truthful zero-baseline geometry, grouped peer series, responsive category band hit testing, and source-first Recharts implementation."
+component: "SignalBars"
+engine: "recharts"
+registryName: "bar-signal"
+number: "019"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Signal Bars** is Plotcn's canonical vertical bar chart for comparing discrete categories. It establishes the foundational analytical contract of the **Bar family**: bar length encodes quantitative magnitude from a truthful zero baseline, caller category order is preserved without automatic ranking, zero is a valid observation, missing data is not zero, and interaction resolves discrete category bands with forgiving touch targets.
+
+The primary analytical question answered by Signal Bars is:
+
+> **“How do these discrete categories compare on the same quantitative measure?”**
+
+Examples include:
+
+- requests by region;
+- revenue by product tier;
+- tickets by priority;
+- latency by microservice;
+- incidents by category;
+- tasks completed by engineering squad.
+
+```tsx
+import { SignalBars } from "@/components/charts/recharts/bar-signal"
+
+const regionalTrafficData = [
+  { region: "North", web: 128400, mobile: 94200 },
+  { region: "South", web: 103800, mobile: 121300 },
+  { region: "East", web: 87400, mobile: 69800 },
+  { region: "West", web: 145100, mobile: 110600 },
+  { region: "Central", web: 76200, mobile: 81900 },
+]
+
+export function RegionalComparison() {
+  return (
+    <SignalBars
+      data={regionalTrafficData}
+      categoryKey="region"
+      series={[
+        { key: "web", label: "Web", color: "var(--chart-1)" },
+        { key: "mobile", label: "Mobile", color: "var(--chart-2)" },
+      ]}
+      maxBarSize={48}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Bar-Family Positioning
+
+The Bar family specializes in discrete categorical comparison. Unlike continuous Line or Area charts which track movement across an ordered or temporal domain, Signal Bars treats each category as an independent discrete record:
+
+| Consideration | Signal Line (001) | Prism Area (011) | Interactive Area (018) | Signal Bars (019) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Domain Type** | Continuous time-series | Continuous time-series | Continuous time-series | **Discrete categorical records** |
+| **Primary Question** | *"How is this metric trending over time?"* | *"What is the accumulated volume over time?"* | *"What exact observation occurred at X?"* | **"How do these discrete categories compare?"** |
+| **Geometric Encoding** | 1 continuous polyline stroke | 1 filled area polygon | 1 filled area + crosshair + marker | **Discrete rectangles rising from zero baseline** |
+| **Baseline Requirement** | Zero optional (trend-focused) | Zero recommended (magnitude) | Zero recommended | **Zero mandatory (length encodes magnitude)** |
+| **Ordering Semantics** | Strictly chronological ($X_{i} < X_{i+1}$) | Strictly chronological | Strictly chronological | **Caller-preserved category order (no sorting)** |
+| **Interaction Target** | Nearest-X time coordinate | Pointer hover position | Nearest-X snapping + observation lock | **Category band hit region (44px+)** |
+
+### Grouped Bars vs. Stacked Bars
+
+Signal Bars V1 intentionally excludes `stackMode`. Grouped bars and stacked bars answer two fundamentally distinct analytical questions:
+
+- **Grouped Bars (Signal Bars)**: Answer *"How do peer measures compare within and across categories?"* All bars originate from the exact same common zero baseline, enabling direct visual length comparison.
+- **Stacked Bars (Dedicated Stacked Bar Component)**: Answer *"How is a category total composed from additive parts?"* Bars are stacked on top of one another, sacrificing baseline alignment for secondary segments in order to communicate whole-part composition.
+
+---
+
+## Bar Magnitude Model
+
+> **Governing Principle**: Bar length communicates quantitative magnitude from a common baseline. Zero is therefore part of the analytical contract, not merely an axis styling choice.
+
+In a bar chart, the visual ratio between any two bars $A$ and $B$ is geometrically determined by their lengths relative to the baseline $B_0$:
+
+$$
+\text{Visual Ratio} = \frac{\text{Length}(B)}{\text{Length}(A)} = \frac{V_B - B_0}{V_A - B_0}
+$$
+
+When $B_0 = 0$:
+
+$$
+\frac{\text{Length}(B)}{\text{Length}(A)} = \frac{V_B}{V_A}
+$$
+
+The visual ratio of the physical rectangles matches the true mathematical ratio of the data. Truncating the quantitative baseline ($B_0 > 0$) causes severe geometric distortion, exaggerating minor differences into misleading visual leaps:
+
+<SignalBarsMagnitudeDiagram />
+
+Because of this geometric requirement:
+- Signal Bars enforces `includeZero = true` canonically.
+- The quantitative axis domain automatically encloses $0$ and all finite visible data points: $[ \min(0, \text{minVal}), \max(0, \text{maxVal}) ]$.
+- Truncating the baseline is intentionally disallowed in V1.
+
+---
+
+## Category Model & Order Invariance
+
+In Plotcn, **category order is data**:
+
+$$
+[\text{North}, \text{South}, \text{East}, \text{West}] \implies \text{Rendered: } \text{North} \to \text{South} \to \text{East} \to \text{West}
+$$
+
+The component strictly preserves the caller's input order:
+
+1. **No Automatic Ranking**: Signal Bars never rearranges categories from largest to smallest. Ranking semantics belong to a dedicated ranked-bar component where sorting is explicitly requested.
+2. **No Alphabetical Sorting**: Categorical records are rendered in the order provided by the consumer application (e.g. geographical sequence, workflow priority, funnel order).
+3. **Deterministic Duplicate Handling**: If duplicate category labels exist in caller data, Signal Bars preserves every record deterministically using internal index keys without silently aggregating, summing, or averaging values. A development-time console warning alerts developers to ambiguous category keys.
+
+---
+
+## Category Band & Touch Hit Regions
+
+A common usability failure in bar charts is making the interaction target match only the narrow visible rectangle. When a chart displays 16 categories on a mobile viewport, a bar might measure only 10px or 14px in width—far smaller than the 44px minimum required for reliable touch activation:
+
+<SignalBarsCategoryBandDiagram />
+
+Signal Bars solves this through **Category Band Hit Testing**:
+
+- The interaction target is the entire categorical band enclosing the bar group.
+- Pointer movement or touch anywhere within a category's horizontal slice immediately resolves that category.
+- Mobile vertical scrolling remains completely unobstructed (`touch-action: pan-y`), preventing touch-trapping common with naive canvas charts.
+- Hover never alters bar geometry (no hover growth, no Y-translation, no bouncing). Hover and focus emphasize data; they never distort it.
+
+---
+
+## Grouped Peer Series Contract
+
+Signal Bars supports one or more peer numeric series sharing the same categorical domain:
+
+```tsx
+<SignalBars
+  data={data}
+  categoryKey="region"
+  series={[
+    { key: "web", label: "Web", color: "var(--chart-1)" },
+    { key: "mobile", label: "Mobile", color: "var(--chart-2)" },
+    { key: "desktop", label: "Desktop", color: "var(--chart-3)" },
+  ]}
+/>
+```
+
+<SignalBarsGroupedIdentityDiagram />
+
+### Key Invariants for Grouped Series:
+1. **Shared Scale & Unit**: Peer series must represent the same quantitative unit (e.g. requests, users, dollars, latency) and share the exact same quantitative scale. No dual Y-axes exist in canonical Signal Bars.
+2. **Stable Series Ordering**: Within every category band, peer bars follow the exact order declared in the `series` configuration array (`Web \to Mobile \to Desktop`). Bars are never sorted by value inside individual category groups.
+3. **Stable Theme Colors**: Default series colors map deterministically from Plotcn theme tokens (`--chart-1`, `--chart-2`, `--chart-3`, ...). Toggling a series in the legend never reassigns the colors of remaining series.
+
+---
+
+## Signed Zero-Baseline Model
+
+Signal Bars provides native support for signed datasets containing positive and negative values:
+
+$$
+V_i \ge 0 \implies \text{Bar extends upward toward } +Y
+$$
+$$
+V_i < 0 \implies \text{Bar extends downward toward } -Y
+$$
+
+<SignalBarsSignedZeroDiagram />
+
+### Signed Geometry Rules:
+- **Common Baseline**: Positive and negative bars extend in opposite directions from the exact same central zero reference line.
+- **No Absolute Value Conversion**: Negative values are never clamped to zero or converted to absolute values.
+- **Asymmetric Corner Radii**: Outer positive ends receive subtle rounding (`[4, 4, 0, 0]`), and outer negative ends receive subtle rounding (`[0, 0, 4, 4]`). Zero-facing baseline edges remain completely flat and grounded, preventing visual detachment from the baseline.
+
+---
+
+## Missing Values vs. Measured Zero
+
+Signal Bars enforces a strict distinction between measured zero and unavailable data:
+
+$$
+V = 0 \quad (\text{Measured Zero}) \quad \neq \quad V = \text{null} \quad (\text{Unavailable / Missing})
+$$
+
+- **Measured Zero ($0$)**: Represents a known observation that measured zero units. It renders at the zero baseline, and tooltips, screen readers, and data tables announce it explicitly as `0`.
+- **Missing ($null$ / $undefined$)**: Indicates unavailable data. It renders **no quantitative rectangle** whatsoever. Tooltips display `Unavailable` or `—`, and accessible tables report `Unavailable`.
+- **Data Sanitization**: Any non-finite values ($NaN$, $\pm\infty$) are safely neutralized to $null$ before reaching SVG generation, preventing `height="NaN"` or `y="Infinity"` console errors.
+
+---
+
+## Keyboard Navigation & Traversal
+
+Signal Bars provides an orientation-aware keyboard exploration model with a single chart tab stop:
+
+| Key | Vertical Bars (`orientation="vertical"`) | Horizontal Bars (`orientation="horizontal"`) |
+| :--- | :--- | :--- |
+| `ArrowLeft` | Move to previous category | — |
+| `ArrowRight` | Move to next category | — |
+| `ArrowUp` | — | Move to previous category |
+| `ArrowDown` | — | Move to next category |
+| `Home` | Jump to first category | Jump to first category |
+| `End` | Jump to last category | Jump to last category |
+| `Escape` | Clear active category inspection | Clear active category inspection |
+
+Focus states use the canonical `--chart-focus` ring on the chart container. Active category changes trigger polite live-region announcements (`"North. Category 1 of 5. Web: 128k, Mobile: 94k"`) without spamming users during pointer hovering.
+
+---
+
+## Rendering Pipeline & Architecture
+
+Signal Bars maintains an idiomatic Recharts SVG architecture rather than introducing heavy chart abstraction layers:
+
+<SignalBarsArchitectureDiagram />
+
+The rendering flow:
+1. **Raw Categorical Records**: Received as `readonly TData[]` without caller mutation.
+2. **Deterministic Normalization**: Identifies missing values, guards against non-finite values, and ensures stable internal index keys.
+3. **Scale Resolution**: Sets up discrete band scale for categories and quantitative domain anchored at zero $[ \min(0, \text{minVal}), \max(0, \text{maxVal}) ]$.
+4. **Recharts Composition**: Renders native SVG `<BarChart>`, `<XAxis>`, `<YAxis>`, `<ReferenceLine y={0}>`, and individual `<Bar>` elements.
+5. **Synchronized Output**: Category band hit testing feeds active category state to synchronized multi-series tooltips, band tint highlights, accessible live regions, and off-screen structured tables.
+
+---
+
+## Value Labels Policy
+
+Signal Bars supports an optional `valueLabel` configuration (`"none" | "auto" | "always"`):
+
+- `"none"` (default): Cleanest categorical presentation without inline clutter.
+- `"auto"`: Renders formatted values near the outer end of each bar when category density and bar width provide sufficient clearance.
+- `"always"`: Always displays value labels.
+- **Zero & Missing Safeguards**: Missing values never display a value label; zero values render `0` without manufacturing a fake bar.
+
+---
+
+## Data Safety Guarantees
+
+Signal Bars enforces sixteen strict data safety invariants:
+
+- ✓ **Caller category order is strictly preserved**
+- ✓ **Values are never automatically ranked or sorted**
+- ✓ **Duplicate categories are never silently aggregated**
+- ✓ **Zero is a real quantitative value**
+- ✓ **Missing data is not coerced to zero**
+- ✓ **Negative values preserve their true mathematical sign**
+- ✓ **Non-finite numbers ($NaN$, $\pm\infty$) never reach SVG geometry**
+- ✓ **Ordinary bar magnitude remains zero-anchored**
+- ✓ **Grouped series share one compatible quantitative scale**
+- ✓ **Series ordering is stable across all categories**
+- ✓ **Series colors are stable across visibility toggles**
+- ✓ **Hiding a series never reassigns another series' color**
+- ✓ **Responsive tick reduction never removes underlying categories**
+- ✓ **Keyboard navigation reaches unticked categories**
+- ✓ **Touch targets exceed visible rectangle widths**
+- ✓ **Hover never changes bar length, width, or position**
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | **Yes** | Readonly array of categorical records. |
+| `categoryKey` | `keyof TData & string` | — | **Yes** | Property key identifying discrete categories. |
+| `series` | `readonly SignalBarSeries<TData>[]` | — | **Yes** | One or more peer numeric series sharing scale. |
+| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | No | Bar direction: vertical (categories on X) or horizontal (categories on Y). |
+| `height` | `number \| string` | `320` | No | Container height in pixels or CSS dimension. |
+| `maxBarSize` | `number` | `48` | No | Maximum bar thickness in pixels to prevent grotesque wide bars. |
+| `barGap` | `number` | `4` | No | Pixel space between peer bars in a category group. |
+| `groupGap` | `number` | `16` | No | Spacing between distinct category groups. |
+| `valueLabel` | `"none" \| "auto" \| "always"` | `"none"` | No | Inline numeric value label rendering policy. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle reference grid lines. |
+| `showXAxis` | `boolean` | `true` | No | Whether to render the horizontal axis line and ticks. |
+| `showYAxis` | `boolean` | `true` | No | Whether to render the vertical axis line and ticks. |
+| `showLegend` | `boolean` | `series.length > 1` | No | Whether to render series legend. |
+| `interactiveLegend` | `boolean` | `true` | No | Whether legend allows toggling series visibility. |
+| `cursorMode` | `"category" \| "bar"` | `"category"` | No | Hit testing target: category band or individual bar. |
+| `tooltipMode` | `"category" \| "bar"` | `"category"` | No | Tooltip composition: peer series together or single measure. |
+| `motion` | `boolean \| { duration?: number }` | `true` | No | Animation toggle or configuration. Respects reduced motion. |
+| `categoryFormatter`| `(category: string \| number) => string` | — | No | Custom category label formatter function. |
+| `valueFormatter` | `(value: number) => string` | — | No | Global numeric formatter fallback. |
+| `onActiveChange` | `(active: ActiveCategoryDatum<TData> \| null) => void` | — | No | Callback invoked on active category inspection change. |
+
+---
+
+## Related Charts
+
+- **Interactive Area (018)**: Inspection-specialized continuous time-series area chart with nearest-X scrubbing and persistent locking.
+- **Prism Area (011)**: Continuous volume area chart with translucent magnitude fill.
+- **Signal Line (001)**: Single-series continuous trend line chart with restrained active-point emphasis.

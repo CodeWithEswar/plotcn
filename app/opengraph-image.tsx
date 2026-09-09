@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og"
 import { siteConfig } from "@/config/site"
 
-export const runtime = "edge"
+export const runtime = "nodejs"
 export const alt = "Plotcn — Modern Visualization Components for React"
 export const size = {
   width: 1200,

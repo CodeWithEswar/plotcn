@@ -20,6 +20,7 @@ import { getRegistryItemInfo } from "@/lib/registry/manifest"
 import { PackageManagerSelector } from "./package-manager-selector"
 import { RegistrySignalRail } from "./registry-signal-rail"
 import { RegistryMetadata } from "./registry-metadata"
+import { checkRegistryAvailability, type RegistryAvailability } from "@/lib/registry/availability"
 import { cn } from "@/lib/utils"
 
 export interface InstallCommandProps {
@@ -42,13 +43,16 @@ export function InstallCommand({
   showRail = true,
 }: InstallCommandProps) {
   const [pm, setPm] = React.useState<PackageManager>("pnpm")
+  const [availability, setAvailability] = React.useState<RegistryAvailability | "checking">("checking")
+  const [copyError, setCopyError] = React.useState("")
+  React.useEffect(() => { let active = true; checkRegistryAvailability(registryName).then(result => { if(active) setAvailability(result) }); return () => {active = false} }, [registryName])
   const [copied, setCopied] = React.useState(false)
   const [showDetails, setShowDetails] = React.useState(false)
   const copyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Initialize and persist preferred package manager in localStorage (Section 48)
   React.useEffect(() => {
-    setPm(getStoredPackageManager())
+    React.startTransition(() => setPm(getStoredPackageManager()))
   }, [])
 
   const handlePmChange = (newPm: PackageManager) => {
@@ -70,6 +74,7 @@ export function InstallCommand({
   const tokens = React.useMemo(() => tokenizeInstallCommand(command), [command])
 
   const handleCopy = async () => {
+    setCopyError("")
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(command)
@@ -82,8 +87,9 @@ export function InstallCommand({
         textarea.style.opacity = "0"
         document.body.appendChild(textarea)
         textarea.select()
-        document.execCommand("copy")
+        const success = document.execCommand("copy")
         document.body.removeChild(textarea)
+        if (!success) throw new Error("Clipboard unavailable")
         setCopied(true)
       }
 
@@ -96,6 +102,7 @@ export function InstallCommand({
     } catch {
       // Graceful error handling (Section 38): Never claim copied if it failed
       setCopied(false)
+      setCopyError("Could not copy. Select the command and copy it manually.")
     }
   }
 
@@ -120,7 +127,7 @@ export function InstallCommand({
   return (
     <div
       className={cn(
-        "rounded-lg border border-border/80 bg-card text-card-foreground shadow-sm transition-all",
+        "rounded-lg border border-border/80 bg-background text-foreground",
         isCompact ? "p-3 space-y-2.5 text-xs" : "space-y-0 text-sm",
         className
       )}
@@ -129,7 +136,7 @@ export function InstallCommand({
       {!isCompact && showRail && (
         <RegistrySignalRail
           registryName={registryName}
-          isVerified={info?.isVerified ?? false}
+          isVerified={availability === "ready" && !!info}
           copied={copied}
         />
       )}
@@ -137,7 +144,7 @@ export function InstallCommand({
       <div className={cn(isCompact ? "space-y-2" : "p-3.5 space-y-3")}>
         {/* 2. Package Manager Selector Tabs */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <PackageManagerSelector value={pm} onChange={handlePmChange} />
+          <PackageManagerSelector value={pm} onChange={handlePmChange} variant="colored" />
 
           {!isCompact && allDeps.length > 0 && (
             <button
@@ -156,7 +163,7 @@ export function InstallCommand({
         </div>
 
         {/* 3. Command Viewport & Copy Action */}
-        <div className="group relative flex items-center justify-between gap-2 rounded-md border border-border/90 bg-muted/30 dark:bg-zinc-950/70 p-2 sm:p-2.5 transition-colors focus-within:border-foreground/30">
+        <div className="group relative flex items-center justify-between gap-2 rounded-md border border-border/90 bg-muted/30  p-2 sm:p-2.5 transition-colors focus-within:border-foreground/30">
           <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
             <HugeiconsIcon
               icon={ComputerTerminal01Icon}
@@ -180,9 +187,10 @@ export function InstallCommand({
           <button
             type="button"
             onClick={handleCopy}
+            disabled={availability !== "ready"}
             aria-label={`Copy ${pm} install command to clipboard`}
             className={cn(
-              "inline-flex items-center justify-center size-7 rounded-md border text-xs font-mono font-medium transition-all shrink-0 select-none cursor-pointer",
+              "inline-flex items-center justify-center size-7 rounded-md border text-xs font-mono font-medium transition-all shrink-0 select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
               copied
                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                 : "border-border/80 bg-background text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -196,10 +204,11 @@ export function InstallCommand({
           </button>
         </div>
 
+        <p role="status" className="text-xs text-muted-foreground leading-relaxed">{copied ? "Copied" : copyError || (availability === "checking" ? "Checking public registry…" : availability === "unpublished" ? "Publication pending. Inspect the source or local registry JSON; this public command is not available yet." : availability === "unavailable" ? "Public registry could not be reached. Source remains available." : "Public registry item is reachable.")}</p><a className="text-xs underline underline-offset-4" href={"/r/"+cleanName+".json"}>View local registry JSON</a>
         {/* 4. Dependency Trace (Section 54: DOM/CSS semantic trace) */}
         {!isCompact && showDetails && allDeps.length > 0 && (
           <div
-            className="rounded-md border border-border/60 bg-muted/20 p-2.5 font-mono text-[11px] text-muted-foreground animate-in fade-in slide-in-from-top-1 duration-150"
+            className="rounded-md border border-border/60 bg-muted/20 p-2.5 font-mono text-[11px] text-muted-foreground motion-safe:animate-in motion-safe:fade-in duration-150"
             aria-label="Dependency breakdown"
           >
             <div className="text-foreground/90 font-medium mb-1.5 flex items-center gap-1.5">
@@ -212,7 +221,7 @@ export function InstallCommand({
                 return (
                   <div key={dep.name} className="flex items-center gap-1.5">
                     <span className="text-muted-foreground/40">{isLast ? "└──" : "├──"}</span>
-                    <span className={dep.type === "npm" ? "text-foreground/80" : "text-sky-400/90"}>
+                    <span className={dep.type === "npm" ? "text-foreground/80" : "text-foreground/80"}>
                       {dep.name}
                     </span>
                     <span className="text-[9px] text-muted-foreground/60 uppercase">

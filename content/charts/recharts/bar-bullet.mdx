@@ -1,0 +1,203 @@
+---
+title: "Bullet Bars"
+description: "Compact actual-versus-target comparison for operational scorecards, with per-category target markers, truthful delta semantics, and responsive row inspection."
+component: "BulletBars"
+engine: "recharts"
+registryName: "bar-bullet"
+number: "025"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Bullet Bars** is Plotcn's specialized operational scorecard component designed specifically for comparing an actual quantitative measure against an explicit per-category target. It answers the fundamental analytical question:
+
+> **“Where does the current measure sit relative to its explicit target?”**
+
+Secondary analytical questions answered by this component include:
+
+- *“How far is the measure from the target?”*
+- *“Has the measure reached, exceeded, or fallen short of the configured target?”*
+- *“Where does the current value sit within optional caller-defined operating ranges?”*
+
+```tsx
+import { BulletBars } from "@/components/charts/recharts/bar-bullet"
+
+const serviceSla = [
+  { service: "Auth API", actual: 99.95, target: 99.90 },
+  { service: "Search API", actual: 99.82, target: 99.90 },
+  { service: "Checkout API", actual: 99.91, target: 99.95 },
+  { service: "Profiles API", actual: 99.97, target: 99.90 },
+  { service: "Notifications API", actual: 99.88, target: 99.90 },
+]
+
+export function ServiceSlaChart() {
+  return (
+    <BulletBars
+      data={serviceSla}
+      categoryKey="service"
+      series={{
+        valueKey: "actual",
+        targetKey: "target",
+        label: "Availability",
+        valueFormatter: (v) => `${v.toFixed(2)}%`,
+      }}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Governing Principle
+
+> **Bullet Bars compares an actual quantitative measure against an explicit target without inventing performance judgment. The measure is data, the target is data, optional qualitative ranges are caller-supplied context, and Plotcn must never silently infer what counts as good, bad, safe, risky, complete, or successful.**
+
+This principle governs:
+- **Structural distinction**: The actual measure uses bar length; the target uses a thin vertical rule marker.
+- **Shared scale**: Actual and target share exactly one quantitative scale so direct visual comparison is mathematically truthful.
+- **Neutral delta**: `delta = actual - target`. Language is strictly positional ("Actual above target", "Actual below target", "Actual on target"), never judgmental ("Passed", "Failed", "Good", "Bad").
+- **Zero-target validity**: Target of 0 is mathematically valid without division-by-zero errors.
+- **Missing-data resilience**: A missing actual renders the target marker; a missing target renders the actual bar; no fake zeros or guesses are manufactured.
+
+---
+
+## Bar-Family Specialization
+
+Bullet Bars is a dedicated operational scorecard primitive. It is fundamentally distinct from other Plotcn bar components:
+
+| Component | Analytical Question | Visual Encoding | Reference Geometry |
+| :--- | :--- | :--- | :--- |
+| **Signal Bars** | *“How large is each category?”* | Single or grouped bars from 0 baseline | Shared 0 baseline |
+| **Rank Bars** | *“Which categories lead or lag?”* | Ranked horizontal bars | Order-based ranking |
+| **Group Compare Bars** | *“How do peer measures compare side-by-side?”* | Peer bars side-by-side | Shared 0 baseline |
+| **Stack Ledger Bars** | *“What is the additive categorical total?”* | Additive stacked segments | Cumulative composition |
+| **Percent Stack Bars** | *“How is the whole shared across contributors?”* | 100% normalized segments | 0% to 100% envelope |
+| **Diverging Bars** | *“How does each category deviate from reference?”* | Signed deviation bars extending left/right | Single common baseline |
+| **Bullet Bars** | *“Where does the measure sit relative to its target?”* | Filled actual bar + per-category target marker | Independent target rule per category |
+
+---
+
+## Bullet Anatomy
+
+A canonical Bullet Bar row combines five coordinated structural elements into an ultra-compact operational scorecard layout:
+1. **Category identifier**: Left-aligned discrete category label.
+2. **Actual measure bar**: Solid quantitative bar extending from 0 to the observed value.
+3. **Target marker**: Crisp vertical rule marker positioned at the target value on the exact same scale.
+4. **Shared quantitative scale**: Uniform numeric scale governing all rows.
+5. **Optional qualitative ranges**: Subdued background bands providing operational context without visual dominance.
+
+<BulletAnatomyDiagram />
+
+---
+
+## Actual vs Target: Three Positional States
+
+In Bullet Bars, the actual value can sit in three spatial relationships relative to the target:
+- **Actual below target**: Bar end falls short of the target line (`delta < 0`).
+- **Actual on target**: Bar end coincides exactly with the target line (`delta = 0`). The target marker remains visible layered above the bar end.
+- **Actual above target**: Bar end extends past the target line (`delta > 0`). The bar continues through the target without artificial clipping.
+
+<BelowEqualAboveTargetDiagram />
+
+---
+
+## Per-Category Target Marker Architecture
+
+Unlike a global reference line that crosses the entire chart at a single static value, target markers in Bullet Bars are per-category. Each row positions its target marker at its own explicit target coordinate:
+
+<PerCategoryTargetMarkerDiagram />
+
+---
+
+## Shared Quantitative Scale
+
+All rows in a BulletBars chart share a single quantitative numeric scale. This guarantees that equal actual values produce identical bar lengths across different rows, even when their target markers sit at different coordinates:
+
+<BulletSharedScaleDiagram />
+
+---
+
+## Target Delta Derivation
+
+Plotcn computes target delta as raw arithmetic:
+
+$$\text{Delta} = \text{Actual} - \text{Target}$$
+
+Delta is computed only when both actual and target values are valid finite numbers. Delta is never interpreted as performance quality:
+
+<ActualTargetDeltaDiagram />
+
+---
+
+## Missing Actual vs Missing Target Resilience
+
+Real-world operational scorecards often encounter missing or delayed metrics:
+- **Actual missing (`null` or `undefined`)**: The actual bar is suppressed (no fake zero bar). The target marker remains visible at its configured coordinate.
+- **Target missing (`null` or `undefined`)**: The actual bar renders normally. No target marker is fabricated.
+- **Both missing**: The category row is preserved with empty track. Tooltip displays "Incomplete".
+
+<MissingActualVsTargetDiagram />
+
+---
+
+## Zero Target Safety
+
+A target value of zero (`target = 0`) is valid in error-budget, defect-rate, and incident-tracking metrics. Plotcn handles zero targets seamlessly because it avoids percentage-to-target division math:
+
+<ZeroTargetDiagram />
+
+---
+
+## Full Row Hit Testing
+
+To ensure seamless scrubbing on both fine desktop pointers and coarse mobile touchscreens, Bullet Bars turns the entire row band into an interactive hit region:
+
+<RowHitRegionDiagram />
+
+---
+
+## Responsive Row Recomposition
+
+Bullet Bars adapts smoothly across device viewports. On spacious desktop displays, category labels and outward value callouts sit inline. On compact mobile screens (320px–440px), the component preserves full actual and target markers while tightening row padding:
+
+<ResponsiveRowRecompositionDiagram />
+
+---
+
+## Rendering Architecture Pipeline
+
+From caller data to accessible SVG mark, Bullet Bars enforces strict finite math validation, monotonic range boundaries, shared scale derivation, and offscreen accessibility alternatives:
+
+<BulletRenderingArchitectureDiagram />
+
+---
+
+## Installation
+
+```bash
+npx shadcn@latest add "https://plotcn.vercel.app/r/bar-bullet.json"
+```
+
+---
+
+## Properties Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Array of categorical data records. Order is caller-preserved. |
+| `categoryKey` | `keyof TData & string` | — | Record key representing the discrete category label. |
+| `series` | `BulletBarSeries<TData>` | — | Definition containing `valueKey`, `targetKey`, `label`, and optional formatters. |
+| `ranges` | `readonly BulletRange[]` | `undefined` | Optional caller-defined qualitative background context ranges. |
+| `height` | `number \| string` | `auto` | Container height in pixels. If omitted, derives from row count. |
+| `rowHeight` | `number` | `48` | Target height per scorecard row in pixels. |
+| `domain` | `[number, number] \| "auto"` | `"auto"` | Quantitative domain in data space. |
+| `valueColor` | `string` | `"var(--chart-1)"` | Fill color for the actual measure bar. |
+| `targetColor` | `string` | `"var(--chart-foreground)"` | Stroke color for the per-category target marker rule. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | Accent stroke color for the active/focused row. |
+| `showGrid` | `boolean` | `true` | Whether to render subtle Cartesian gridlines. |
+| `showLegend` | `boolean` | `false` | Whether to display the structural legend. |
+| `valueLabel` | `"none" \| "value" \| "auto"` | `"none"` | Outward inline numeric label rendering policy. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Animation toggle honoring reduced-motion preferences. |

@@ -300,14 +300,20 @@ export function CustomColorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl md:max-w-3xl bg-zinc-950 border border-white/[0.12] text-white p-6 rounded-2xl shadow-2xl gap-5">
-        {/* Dialog Header */}
-        <DialogHeader className="space-y-1 pb-3 border-b border-white/[0.08]">
+      <DialogContent
+        className="w-[calc(100%-1.5rem)] sm:w-[780px] md:w-[860px] lg:w-[900px] max-w-[900px] max-h-[90dvh] sm:max-h-[85dvh] flex flex-col p-0 gap-0 overflow-hidden bg-zinc-950 border border-white/[0.12] text-white rounded-2xl shadow-2xl [&_[data-slot=dialog-close]]:text-zinc-400 hover:[&_[data-slot=dialog-close]]:text-white hover:[&_[data-slot=dialog-close]]:bg-white/10 [&_[data-slot=dialog-close]]:top-4 sm:[&_[data-slot=dialog-close]]:top-5 [&_[data-slot=dialog-close]]:right-4 sm:[&_[data-slot=dialog-close]]:right-5"
+        style={{
+          width: "min(900px, calc(100vw - 2rem))",
+          maxWidth: "min(900px, calc(100vw - 2rem))",
+        }}
+      >
+        {/* Pinned Dialog Header */}
+        <DialogHeader className="shrink-0 px-5 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-4 border-b border-white/[0.08] bg-zinc-950/90 backdrop-blur-sm pr-12 space-y-1 text-left">
           <div className="flex items-center gap-2.5">
             <span className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
               <HugeiconsIcon icon={ColorsIcon} size={18} />
             </span>
-            <DialogTitle className="text-lg font-semibold font-sans text-zinc-100 tracking-tight">
+            <DialogTitle className="text-base sm:text-lg font-semibold font-sans text-zinc-100 tracking-tight">
               Customize Component Color
             </DialogTitle>
           </div>
@@ -316,18 +322,20 @@ export function CustomColorDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Widescreen 2-Column Workspace */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-          {/* LEFT COLUMN: Customized In-Theme Visual Color Picker (5 cols) */}
-          <div className="md:col-span-5 space-y-3.5">
-            <div className="rounded-xl border border-white/[0.1] bg-black/50 p-3.5 space-y-3">
-              {/* 1. 2D Saturation / Value Gradient Canvas */}
-              <div
-                ref={satValRef}
-                onMouseDown={handleSatValMouseDown}
-                onTouchStart={handleSatValTouch}
-                onTouchMove={handleSatValTouch}
-                className="w-full h-36 rounded-lg border border-white/20 relative overflow-hidden cursor-crosshair select-none shadow-inner"
+        {/* Scrollable Body Content */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 sm:p-6 space-y-5 scrollbar-thin">
+          {/* Widescreen 2-Column Workspace */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+            {/* LEFT COLUMN: Customized In-Theme Visual Color Picker (5 cols) */}
+            <div className="md:col-span-5 space-y-3.5">
+              <div className="rounded-xl border border-white/[0.1] bg-black/50 p-3.5 space-y-3">
+                {/* 1. 2D Saturation / Value Gradient Canvas */}
+                <div
+                  ref={satValRef}
+                  onMouseDown={handleSatValMouseDown}
+                  onTouchStart={handleSatValTouch}
+                  onTouchMove={handleSatValTouch}
+                  className="w-full h-32 sm:h-36 rounded-lg border border-white/20 relative overflow-hidden cursor-crosshair select-none shadow-inner touch-none"
                 style={{
                   backgroundColor: `hsl(${hsv.h}, 100%, 50%)`,
                 }}
@@ -374,7 +382,7 @@ export function CustomColorDialog({
                   onMouseDown={handleHueMouseDown}
                   onTouchStart={handleHueTouch}
                   onTouchMove={handleHueTouch}
-                  className="flex-1 h-3.5 rounded-full relative cursor-pointer select-none shadow-inner"
+                  className="flex-1 h-3.5 rounded-full relative cursor-pointer select-none shadow-inner touch-none"
                   style={{
                     background:
                       "linear-gradient(to right, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)",
@@ -533,7 +541,7 @@ export function CustomColorDialog({
                     type="button"
                     onClick={() => handleSelectHex(color.hex)}
                     className={cn(
-                      "flex items-center gap-2.5 p-2.5 rounded-xl border transition-all cursor-pointer group text-left",
+                      "flex items-center gap-2.5 p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer group text-left min-h-[44px]",
                       active
                         ? "border-white/40 bg-white/[0.08] shadow-md ring-1 ring-white/20"
                         : "border-white/[0.06] bg-zinc-900/40 hover:bg-white/[0.04] hover:border-white/[0.15]"
@@ -561,37 +569,40 @@ export function CustomColorDialog({
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Dialog Footer Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
-          <div className="text-xs font-mono text-zinc-400 flex items-center gap-2">
-            <span className="size-2.5 rounded-full" style={{ backgroundColor: selectedHex }} />
-            <span className="hidden sm:inline">Active Coordinate:</span>
-            <span className="text-zinc-200 font-semibold uppercase">{selectedHex}</span>
-            {activePreset && (
-              <span className="px-1.5 py-0.5 rounded bg-white/[0.06] text-zinc-300 text-[10px]">
-                {activePreset.name}
-              </span>
-            )}
-          </div>
-
+      {/* Pinned Dialog Footer Actions */}
+      <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-5 py-3.5 sm:px-6 border-t border-white/[0.08] bg-zinc-950/95 backdrop-blur-sm">
+        <div className="text-xs font-mono text-zinc-400 flex items-center justify-between sm:justify-start gap-2">
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="px-3.5 py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] text-xs font-mono text-zinc-300 transition-colors cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleApply}
-              className="px-4 py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/20 hover:bg-emerald-500/30 text-xs font-mono font-medium text-emerald-300 transition-colors shadow-xs cursor-pointer"
-            >
-              Apply Color
-            </button>
+            <span className="size-3 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: selectedHex }} />
+            <span className="text-[11px] text-zinc-500 uppercase font-mono">Coordinate:</span>
+            <span className="text-zinc-100 font-semibold uppercase">{selectedHex}</span>
           </div>
+          {activePreset && (
+            <span className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-zinc-300 text-[10px]">
+              {activePreset.name}
+            </span>
+          )}
         </div>
+
+        <div className="flex items-center gap-2 justify-end">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="flex-1 sm:flex-initial px-3.5 py-2 sm:py-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] text-xs font-mono text-zinc-300 transition-colors cursor-pointer text-center"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleApply}
+            className="flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/20 hover:bg-emerald-500/30 text-xs font-mono font-medium text-emerald-300 transition-colors shadow-xs cursor-pointer text-center"
+          >
+            Apply Color
+          </button>
+        </div>
+      </div>
       </DialogContent>
     </Dialog>
   )

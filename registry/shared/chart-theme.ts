@@ -42,44 +42,44 @@ export interface ChartThemeTokens {
 }
 
 export const defaultChartTokens: ChartThemeTokens = {
-  chart1: "hsl(142 71% 45%)", // emerald
-  chart2: "hsl(199 89% 48%)", // sky
-  chart3: "hsl(262 83% 58%)", // purple
-  chart4: "hsl(31 97% 55%)",  // amber
-  chart5: "hsl(346 87% 43%)", // rose
-  chart6: "hsl(245 90% 60%)", // indigo
-  chart7: "hsl(175 65% 42%)", // teal
-  chart8: "hsl(15 85% 58%)",  // orange
+  chart1: "#10b981",
+  chart2: "#0ea5e9",
+  chart3: "#8b5cf6",
+  chart4: "#f59e0b",
+  chart5: "#e11d48",
+  chart6: "#4f46e5",
+  chart7: "#14b8a6",
+  chart8: "#f97316",
 
-  background: "hsl(240 10% 3.9%)",
-  foreground: "hsl(0 0% 98%)",
-  muted: "hsl(240 3.7% 15.9%)",
-  border: "hsl(240 3.7% 15.9%)",
+  background: "#09090b",
+  foreground: "#fafafa",
+  muted: "#27272a",
+  border: "#27272a",
 
-  grid: "hsl(240 3.7% 15.9%)",
-  axis: "hsl(240 5% 56%)",
-  zeroLine: "hsl(240 5% 34%)",
-  crosshair: "hsl(240 5% 72%)",
+  grid: "#27272a",
+  axis: "#a1a1aa",
+  zeroLine: "#52525b",
+  crosshair: "#d4d4d8",
 
-  positive: "hsl(142 71% 45%)",
-  negative: "hsl(0 72% 55%)",
-  warning: "hsl(38 92% 50%)",
-  neutral: "hsl(240 5% 46%)",
+  positive: "#10b981",
+  negative: "#ef4444",
+  warning: "#f59e0b",
+  neutral: "#71717a",
 
-  tooltipBackground: "hsl(240 10% 3.9%)",
-  tooltipForeground: "hsl(0 0% 98%)",
-  tooltipBorder: "hsl(240 3.7% 15.9%)",
+  tooltipBackground: "#09090b",
+  tooltipForeground: "#fafafa",
+  tooltipBorder: "#27272a",
 }
 
 /**
  * Resolves active CSS variables in the browser, falling back to static tokens during SSR.
  */
-export function getComputedChartTokens(): ChartThemeTokens {
+export function getComputedChartTokens(element?: Element | null): ChartThemeTokens {
   if (typeof window === "undefined") {
     return defaultChartTokens
   }
 
-  const style = getComputedStyle(document.documentElement)
+  const style = getComputedStyle(element ?? document.documentElement)
 
   const read = (prop: string, fallback: string | undefined): string | undefined => {
     const val = style.getPropertyValue(prop).trim()

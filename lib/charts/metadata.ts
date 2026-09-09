@@ -11,7 +11,7 @@ export type ChartCategory =
   | "specialized"
 
 export type ChartRenderer = "svg" | "canvas" | "google-runtime"
-export type ChartStatus = "stable" | "beta" | "experimental"
+export type ChartStatus = "stable" | "preview" | "beta" | "experimental"
 export type ChartFeature =
   | "responsive"
   | "animated"

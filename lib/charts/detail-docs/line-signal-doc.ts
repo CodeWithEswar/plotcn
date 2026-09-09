@@ -5,7 +5,7 @@ export const lineSignalDoc: ChartDetailDoc = {
   engine: "recharts",
   category: "line",
   renderer: "svg",
-  status: "stable",
+  status: "preview",
   blueprint: "Focused single-series time-series line visualization with restrained active-point emphasis.",
 
   quickFacts: {

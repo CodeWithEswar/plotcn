@@ -3,6 +3,31 @@ import type { ChartDetailDoc, PropDoc } from "./types"
 import { googleLineDoc } from "./google-line-doc"
 import { lineSignalDoc } from "./line-signal-doc"
 import { linePulseDoc } from "./line-pulse-doc"
+import { lineTwinCompareDoc } from "./line-twin-compare-doc"
+import { lineRangeDoc } from "./line-range-doc"
+import { lineStepSignalDoc } from "./line-step-signal-doc"
+import { lineMilestonesDoc } from "./line-milestones-doc"
+import { lineThresholdDoc } from "./line-threshold-doc"
+import { lineFocusDoc } from "./line-focus-doc"
+import { lineMultiSignalDoc } from "./line-multi-signal-doc"
+import { lineForecastDoc } from "./line-forecast-doc"
+import { areaPrismDoc } from "./area-prism-doc"
+import { areaStackFlowDoc } from "./area-stack-flow-doc"
+import { areaPercentStreamDoc } from "./area-percent-stream-doc"
+import { areaRangeDoc } from "./area-range-doc"
+import { areaComparisonDoc } from "./area-comparison-doc"
+import { areaGradientDepthDoc } from "./area-gradient-depth-doc"
+import { areaBaselineDoc } from "./area-baseline-doc"
+import { areaInteractiveDoc } from "./area-interactive-doc"
+import { barSignalDoc } from "./bar-signal-doc"
+import { barGroupCompareDoc } from "./bar-group-compare-doc"
+import { barStackLedgerDoc } from "./bar-stack-ledger-doc"
+import { barPercentStackDoc } from "./bar-percent-stack-doc"
+import { barDivergingDoc } from "./bar-diverging-doc"
+import { barBulletDoc } from "./bar-bullet-doc"
+import { barVarianceDoc } from "./bar-variance-doc"
+import { barIntervalDoc } from "./bar-interval-doc"
+import { barInteractiveDoc } from "./bar-interactive-doc"
 
 const specializedDocs: Record<string, ChartDetailDoc> = {
   "google-line": googleLineDoc,
@@ -10,6 +35,56 @@ const specializedDocs: Record<string, ChartDetailDoc> = {
   "line-signal": lineSignalDoc,
   "recharts-line-pulse": linePulseDoc,
   "line-pulse": linePulseDoc,
+  "recharts-line-twin-compare": lineTwinCompareDoc,
+  "line-twin-compare": lineTwinCompareDoc,
+  "recharts-line-range": lineRangeDoc,
+  "line-range": lineRangeDoc,
+  "recharts-line-step-signal": lineStepSignalDoc,
+  "line-step-signal": lineStepSignalDoc,
+  "recharts-line-milestones": lineMilestonesDoc,
+  "line-milestones": lineMilestonesDoc,
+  "recharts-line-threshold": lineThresholdDoc,
+  "line-threshold": lineThresholdDoc,
+  "recharts-line-focus": lineFocusDoc,
+  "line-focus": lineFocusDoc,
+  "recharts-line-multi-signal": lineMultiSignalDoc,
+  "line-multi-signal": lineMultiSignalDoc,
+  "recharts-line-forecast": lineForecastDoc,
+  "line-forecast": lineForecastDoc,
+  "area-prism": areaPrismDoc,
+  "recharts-area-prism": areaPrismDoc,
+  "area-stack-flow": areaStackFlowDoc,
+  "recharts-area-stack-flow": areaStackFlowDoc,
+  "area-percent-stream": areaPercentStreamDoc,
+  "recharts-area-percent-stream": areaPercentStreamDoc,
+  "area-range": areaRangeDoc,
+  "recharts-area-range": areaRangeDoc,
+  "area-comparison": areaComparisonDoc,
+  "recharts-area-comparison": areaComparisonDoc,
+  "area-gradient-depth": areaGradientDepthDoc,
+  "recharts-area-gradient-depth": areaGradientDepthDoc,
+  "area-baseline": areaBaselineDoc,
+  "recharts-area-baseline": areaBaselineDoc,
+  "area-interactive": areaInteractiveDoc,
+  "recharts-area-interactive": areaInteractiveDoc,
+  "bar-signal": barSignalDoc,
+  "recharts-bar-signal": barSignalDoc,
+  "bar-group-compare": barGroupCompareDoc,
+  "recharts-bar-group-compare": barGroupCompareDoc,
+  "bar-stack-ledger": barStackLedgerDoc,
+  "recharts-bar-stack-ledger": barStackLedgerDoc,
+  "bar-percent-stack": barPercentStackDoc,
+  "recharts-bar-percent-stack": barPercentStackDoc,
+  "bar-diverging": barDivergingDoc,
+  "recharts-bar-diverging": barDivergingDoc,
+  "bar-bullet": barBulletDoc,
+  "recharts-bar-bullet": barBulletDoc,
+  "bar-variance": barVarianceDoc,
+  "recharts-bar-variance": barVarianceDoc,
+  "bar-interval": barIntervalDoc,
+  "recharts-bar-interval": barIntervalDoc,
+  "bar-interactive": barInteractiveDoc,
+  "recharts-bar-interactive": barInteractiveDoc,
 }
 
 export function getChartDetailDoc(chart: ChartMetadata): ChartDetailDoc {

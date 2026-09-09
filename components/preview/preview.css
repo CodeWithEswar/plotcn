@@ -1,1 +1,244 @@
-.preview-workspace{min-width:0}.preview-canvas-area{background:var(--muted);padding:24px;display:flex;justify-content:center;min-width:0;overflow:hidden}.preview-canvas{border:1px solid var(--border);border-radius:8px;overflow:hidden;min-width:0}.preview-ruler{display:flex;justify-content:space-between;gap:16px;padding:9px 14px;border-bottom:1px solid var(--border);font:10px var(--font-geist-mono),monospace;color:var(--muted-foreground)}.preview-render{min-width:0}.preview-runtime{padding:10px 14px;border-top:1px solid var(--border);font:9px var(--font-geist-mono),monospace;letter-spacing:.04em;color:var(--muted-foreground);line-height:1.8}.preview-render>div:not([data-chart]){background:transparent}.preview-workspace [data-slot=select-trigger]{font-size:12px;border-radius:7px}@media(max-width:767px){.preview-canvas-area{padding:10px}.preview-runtime{font-size:8px}.preview-workspace .lens-preview-controls{gap:8px}.preview-workspace .lens-devices button{min-height:40px}.preview-workspace .lens-preview-utilities{margin-left:auto}}
+/* ==========================================================================
+   Preview Workspace Card & Canvas System
+   ========================================================================== */
+.preview-workspace {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--lens-panel, #0e0e11);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* Prevent double borders when nested inside existing bordered shells */
+.workbench-stage > .preview-workspace,
+.block-workspace .preview-workspace,
+.lens-detail-workspace .preview-workspace {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.preview-workspace .lens-preview-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--background, #09090b);
+}
+
+.preview-canvas-area {
+  background: var(--muted);
+  padding: 28px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+.preview-canvas {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 0;
+  background: var(--background, #09090b);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-ruler {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font: 10px var(--font-geist-mono), monospace;
+  color: var(--muted-foreground);
+  background: var(--background, #09090b);
+}
+
+.preview-render {
+  min-width: 0;
+}
+
+.preview-runtime {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  font: 9px var(--font-geist-mono), monospace;
+  letter-spacing: .04em;
+  color: var(--muted-foreground);
+  line-height: 1.8;
+  background: var(--background, #09090b);
+}
+
+.preview-render > div:not([data-chart]) {
+  background: transparent;
+}
+
+.preview-workspace [data-slot="select-trigger"] {
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.preview-workspace .lens-devices button {
+  border-radius: 8px;
+}
+
+/* ==========================================================================
+   True Full-Screen Immersive Preview Overlay
+   ========================================================================== */
+.preview-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--background, #09090b);
+  color: var(--foreground, #fafafa);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: preview-fullscreen-fade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes preview-fullscreen-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.preview-fullscreen-header {
+  height: 56px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--background, #09090b);
+  z-index: 10;
+}
+
+.preview-fullscreen-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.preview-fullscreen-badge {
+  font: 9px var(--font-geist-mono), monospace;
+  letter-spacing: 0.12em;
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.preview-fullscreen-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.preview-fullscreen-center {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preview-fullscreen-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-exit-fullscreen-btn {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.preview-esc-kbd {
+  font: 9px var(--font-geist-mono), monospace;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  margin-left: 4px;
+}
+
+.preview-fullscreen-stage {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 56px);
+  height: calc(100dvh - 56px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-fullscreen-stage .preview-canvas-area {
+  flex: 1;
+  min-height: 100%;
+  padding: 40px 24px;
+  border-radius: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.03), transparent 70%), var(--muted);
+}
+
+.preview-fullscreen-stage .preview-canvas {
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--border);
+}
+
+@media (max-width: 767px) {
+  .preview-canvas-area {
+    padding: 12px;
+  }
+  .preview-runtime {
+    font-size: 8px;
+    padding: 8px 12px;
+  }
+  .preview-workspace .lens-preview-controls {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .preview-workspace .lens-devices button {
+    min-height: 36px;
+    padding: 0 8px;
+  }
+  .preview-workspace .lens-preview-utilities {
+    margin-left: auto;
+  }
+  .preview-fullscreen-header {
+    padding: 0 12px;
+    height: 52px;
+    min-height: 52px;
+  }
+  .preview-fullscreen-title {
+    display: none;
+  }
+  .preview-fullscreen-stage .preview-canvas-area {
+    padding: 16px 8px;
+  }
+}

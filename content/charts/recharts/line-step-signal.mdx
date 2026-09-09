@@ -1,0 +1,192 @@
+---
+title: "Step Signal"
+description: "Stepped visualization for discrete changes that remain in effect until the next observation, communicating quotas, pricing plans, and configuration states."
+component: "StepSignal"
+engine: "recharts"
+registryName: "line-step-signal"
+number: "005"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Step Signal** is a dedicated visualization for **discrete changes that remain in effect until the next observation**. It visualizes horizontal level segments with crisp 90° transitions, ensuring that time elapsed between recorded points communicates **state persistence** rather than gradual numerical movement.
+
+A continuous trend line implies that values smoothly slope between two measurements (e.g. `100 → 101 → ... → 140`). In contrast, Step Signal communicates:
+
+<StepSignalFlowDiagram />
+
+The level remains active and constant until the boundary event occurs. That semantic distinction is the core reason Step Signal exists.
+
+```tsx
+import { StepSignal } from "@/components/charts/recharts/line-step-signal"
+
+export function ApiRateLimitCard() {
+  return (
+    <StepSignal
+      data={quotaData}
+      xKey="period"
+      seriesKey="limit"
+      label="API Request Limit"
+      stepMode="after"
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## The Step Model
+
+Standard Cartesian line charts interpolate continuous trajectories between coordinates $(x_0, y_0)$ and $(x_1, y_1)$. While appropriate for continuous measurements like temperature or sensor voltage, this interpolation is factually false for **configured policies, pricing schedules, and discrete states**.
+
+In Step Signal, the coordinate space represents two distinct mathematical concepts:
+
+1. **Horizontal Segments**: Indicate duration. A horizontal line spanning from January to April at height $10,000$ signifies that the active policy or quota remained exactly $10,000$ throughout that entire interval.
+2. **Vertical Segments**: Indicate transitions. A vertical segment at April 15 marks the moment a transition took effect. No intermediate states exist; the system does not spend time at $12,500$ halfway through the transition.
+
+<StepSignalTransitionModelFlow />
+
+---
+
+## Transition Semantics
+
+Step Signal provides a semantic `stepMode` property (`"after"`, `"before"`, or `"center"`) that defines exactly when an observation's value takes effect along the timeline:
+
+### After (`stepMode="after"`, Default)
+
+The value recorded at observation $X$ takes effect **at that coordinate and remains in effect onward** until the subsequent observation.
+- **Mental Model**: *"Starting on April 15th, our new limit is 15,000."*
+- **Visual Path**: Horizontal from $x_0$ to $x_1$ at level $y_0$, then a vertical step to $y_1$ at coordinate $x_1$.
+
+### Before (`stepMode="before"`)
+
+The value recorded at observation $X$ takes effect **immediately prior to that coordinate**.
+- **Mental Model**: *"The target level is achieved by the milestone date."*
+- **Visual Path**: Vertical step from $y_0$ to $y_1$ at coordinate $x_0$, followed by a horizontal segment to $x_1$ at level $y_1$.
+
+### Center (`stepMode="center"`)
+
+The transition between levels occurs **halfway between adjacent observation points**.
+- **Mental Model**: Transition occurs at the interval midpoint.
+- **Visual Path**: Horizontal to $(x_0 + x_1) / 2$, vertical step to $y_1$, and horizontal continuation to $x_1$.
+
+---
+
+## Best Suited For
+
+Step Signal is engineered specifically for discrete numeric states:
+
+- **API Rate Limits & Quotas**: Request thresholds and concurrency limits that stay constant across billing windows.
+- **Subscription Pricing Plans**: Tier prices that remain fixed over contract terms before jumping to updated rates.
+- **Infrastructure Capacity Allocation**: Provisioned server instances, container replicas, or worker pool counts.
+- **Feature Rollout Schedules**: Deployment percentage gates ($10\% \rightarrow 25\% \rightarrow 50\% \rightarrow 100\%$) across verification phases.
+- **Staffing & Budget Ceilings**: Approved headcount limits or department budget caps by fiscal quarter.
+
+### When to Avoid
+
+- **Continuously Measured Metrics**: Use `SignalLine` or `PulseLine` for temperatures, revenue velocity, or network latency.
+- **Multi-Series Comparisons**: Use `TwinlineCompare` when benchmarking two competing time-series with continuous curves.
+- **Interval & Confidence Envelopes**: Use `RangeLine` when displaying uncertainty bands or tolerance ranges.
+- **Non-Numeric Categorical States**: Avoid forcing text states (`"offline"`, `"degraded"`, `"healthy"`) onto a quantitative axis; use a state timeline component instead.
+
+---
+
+## Installation
+
+Install Step Signal directly into your project using the shadcn CLI. The component source and its minimal dependencies (`recharts` and shared Plotcn primitives) will be copied directly into your codebase under full ownership.
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-step-signal.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the shortened namespace command `npx shadcn@latest add @plotcn/line-step-signal` becomes available.
+
+---
+
+## Data Contract
+
+Step Signal accepts a readonly array of observations. Each record must contain a horizontal domain key and an active numeric level property.
+
+```typescript
+export interface StepSignalDatum {
+  date: string       // Horizontal domain coordinate (e.g. "Jan 01", "2026-Q1")
+  limit: number      // Active numeric state level in effect
+}
+```
+
+### State Persistence & Missing Value Policy
+
+Handling missing data in discrete state charts requires deliberate domain decisions:
+
+1. **Gap Policy (`missingValuePolicy="gap"`, Default)**:
+   If an observation's value is `null` or `undefined`, Step Signal treats the state as **unknown**. The stepped line breaks cleanly across the interval, honestly communicating that state was unrecorded.
+2. **Carry Policy (`missingValuePolicy="carry"`)**:
+   For configuration timelines where unrecorded periods inherit the prior valid level, setting `missingValuePolicy="carry"` propagates the last known finite level forward without creating artificial transitions.
+3. **No Coercion to Zero**: Unrecorded points are **never coerced to 0**. A missing limit does not imply a limit of zero.
+4. **Out-of-Order Input Protection**: Caller data is never mutated; observations are processed in caller-provided order.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for the horizontal X-axis domain coordinates. |
+| `seriesKey` | `keyof TData & string` | `"limit"` | No | Property name for the active numeric state level. |
+| `stepMode` | `"after" \| "before" \| "center"` | `"after"` | No | Transition mode: `"after"` steps at point, `"before"` steps prior, `"center"` steps halfway. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | How missing observations are handled: `"gap"` breaks the path, `"carry"` persists the previous valid state. |
+| `height` | `number \| string` | `340` | No | Container height in pixels or standard CSS dimension strings. |
+| `color` | `string` | `"var(--chart-1, #10b981)"` | No | Primary theme stroke color for the stepped line. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal background reference gridlines. |
+| `showLegend` | `boolean` | `false` | No | Whether to render a chart legend. |
+| `showXAxis` | `boolean` | `true` | No | Whether to render the horizontal category axis with tick thinning. |
+| `showYAxis` | `boolean` | `true` | No | Whether to render the vertical numeric scale. |
+| `showTransitionDelta` | `boolean` | `false` | No | Whether to compute and display previous state and quantitative change in the tooltip. |
+| `referenceLines` | `StepReferenceLine[]` | `[]` | No | Static horizontal reference lines representing quotas or SLA ceilings. |
+| `motion` | `boolean \| { duration?: number }` | `true` | No | Enables smooth entrance reveal while strictly maintaining 90° step geometry. |
+
+---
+
+## Responsive Behavior
+
+Step Signal enforces container-driven responsive design:
+
+- **Desktop ($\ge 1024\text{px}$)**: Full transition inspection, formatted transition delta context, all horizontal X ticks, and room for reference threshold labels.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Intelligent X-axis label thinning via the Plotcn automatic tick manager, compact margins, and preserved step corner geometry.
+- **Mobile ($< 640\text{px}$)**: Touch-first scrub inspection, preserved state change points, zero diagonal slope simplification.
+
+> **Core Rule**: Responsive thinning may reduce non-essential axis tick labels, but **never removes transition points or simplifies stepped geometry into a diagonal slope**.
+
+---
+
+## Accessibility & Screen Readers
+
+Step Signal provides comprehensive accessibility for assistive technologies:
+
+- **Semantic Role**: The chart container renders as `<figure role="region">` with proper `aria-labelledby` and `aria-describedby` attributes.
+- **Factual Summary**: Announces observation count, transition count, starting state, and ending state (e.g. *"Discrete step visualization depicting 6 observations. Values remain constant between transitions and change at discrete boundaries. Initial level is 10,000, ending at 20,000. Recorded 3 distinct state transitions."*).
+- **Keyboard Navigation**:
+  - `ArrowRight`: Move focus to the next observation or state transition.
+  - `ArrowLeft`: Move focus to the previous observation.
+  - `Home`: Jump directly to the initial observation.
+  - `End`: Jump directly to the latest observation.
+  - `Escape`: Dismiss active inspection tooltip.
+- **Color Independence**: Stepped horizontal levels and vertical transitions communicate state changes geometrically, requiring zero color reliance.
+- **Reduced Motion**: Full support for `prefers-reduced-motion: reduce`; renders final stepped paths immediately without animation delay.
+
+---
+
+## Data Safety Guarantees
+
+Step Signal upholds Plotcn's rigorous data safety standards:
+
+- **✓ No Missing-to-Zero Coercion**: Missing values remain explicit gaps or carried states; never coerced to `0`.
+- **✓ No Gradual Slope Interpolation**: Diagonal curve types (`monotone`, `linear`) are intentionally omitted from public props.
+- **✓ Constant States Remain Constant**: Datasets with identical values render a true horizontal level without domain collapse or flatlining.
+- **✓ Safe Domain Expansion**: Single observations and constant levels automatically expand with sensible padding.
+- **✓ Non-Finite Filtering**: `NaN`, `Infinity`, and `-Infinity` are safely treated as missing values, preventing malformed SVG paths.
+- **✓ Caller Data Immutability**: Input data arrays and observation records are never mutated.

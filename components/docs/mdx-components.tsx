@@ -1,12 +1,17 @@
 import React from "react"
 import Link from "next/link"
+import katex from "katex"
 import { HeadingAnchor } from "./heading-anchor"
 import { DocsCallout, type CalloutType } from "./docs-callout"
 import { PackageManagerTabs } from "./package-manager-tabs"
+import { InstallCommand } from "@/components/registry/install-command"
+import { ChartPreview } from "@/components/chart-detail/chart-preview"
 import { formatCommand } from "./package-manager-utils"
 import { CodeBlock } from "./code-block"
 import { highlightCode } from "@/lib/shiki"
 import { slugify } from "@/lib/slugify"
+import { apiTableStyles, inferColumnKind } from "./api-table"
+import { cn } from "@/lib/utils"
 import {
   DocsIntroHero,
   DocsMeta,
@@ -159,6 +164,174 @@ import {
   AccessibilityWorkflow,
 } from "./accessibility-components"
 import { DocsArticleActions } from "./docs-article-actions"
+import {
+  StepSignalFlowDiagram,
+  StepSignalTransitionModelFlow,
+} from "./charts/step-signal-diagrams"
+import {
+  MilestoneAnnotationFlow,
+  MilestoneLayerFlow,
+} from "./charts/milestone-diagrams"
+import {
+  ThresholdModelFlow,
+  ThresholdContextFlow,
+} from "./charts/threshold-diagrams"
+import {
+  FocusModelFlow,
+  FocusInspectionFlow,
+} from "./charts/focus-diagrams"
+import {
+  MultiSignalIdentityFlow,
+  MultiSignalInspectionFlow,
+} from "./charts/multi-signal-diagrams"
+import {
+  ForecastModelFlow,
+  ForecastTransitionFlow,
+} from "./charts/forecast-diagrams"
+import {
+  AreaMagnitudeFlow,
+  AreaBaselineFlow,
+  AreaCrossingFlow,
+  StackFlowCompositionFlow,
+  StackFlowMissingModelFlow,
+  PercentStreamCompositionFlow,
+  PercentStreamReNormalizationFlow,
+  RangeAreaEnvelopeFlow,
+  RangeAreaValidityFlow,
+  ComparisonAreaModelFlow,
+  ComparisonVsStackFlow,
+  GradientDepthModelFlow,
+  BaselineAreaModelDiagram,
+  BaselineAreaCrossingDiagram,
+  BaselineAreaArchitectureDiagram,
+} from "./charts/area-diagrams"
+import {
+  InteractiveAreaInspectionDiagram,
+  InteractiveAreaNearestXDiagram,
+  InteractiveAreaStateDiagram,
+  InteractiveAreaArchitectureDiagram,
+} from "./charts/interactive-area-diagrams"
+import {
+  SignalBarsMagnitudeDiagram,
+  SignalBarsCategoryBandDiagram,
+  SignalBarsGroupedIdentityDiagram,
+  SignalBarsSignedZeroDiagram,
+  SignalBarsArchitectureDiagram,
+} from "./charts/bar-diagrams"
+import {
+  StackCompositionModelDiagram,
+  GroupedVsStackedDiagram,
+  AdditiveDataContractDiagram,
+  StableStackOrderDiagram,
+  MissingVsZeroVsHiddenDiagram,
+  CompleteVsIncompleteCompositionDiagram,
+  LegendVisibilityDiagram,
+  CategorySegmentHitRegionsDiagram,
+  VerticalVsHorizontalOrientationDiagram,
+  RenderingArchitectureFlowDiagram,
+} from "./charts/stack-ledger-diagrams"
+import {
+  GroupedComparisonModelDiagram,
+  GroupedVsStackedComparisonDiagram,
+  StableSeriesIdentityDiagram,
+  MissingSeriesSlotDiagram,
+  SharedQuantitativeScaleDiagram,
+  CategoryBarHitRegionsDiagram,
+  ResponsiveOrientationDiagram,
+  GroupCompareArchitectureFlowDiagram,
+} from "./charts/group-compare-diagrams"
+import {
+  RankingPipelineDiagram,
+  TopNSemanticsDiagram,
+  TieStabilityDiagram,
+  HorizontalRowHitRegionDiagram,
+  RankBarsArchitectureFlowDiagram,
+} from "./charts/rank-bar-diagrams"
+import {
+  NormalizationPipelineDiagram,
+  AbsoluteStackVsPercentStackDiagram,
+  CompositionVsMagnitudeLossDiagram,
+  RawValueVsDerivedShareDiagram,
+  ZeroTotalSemanticsDiagram,
+  PercentStackMissingVsZeroVsHiddenDiagram,
+  LegendRenormalizationDiagram,
+  PercentStackStableStackOrderDiagram,
+  PercentStackHitRegionsDiagram,
+  PercentStackOrientationDiagram,
+  PercentStackRenderingArchitectureDiagram,
+} from "./charts/percent-stack-diagrams"
+import {
+  DivergingModelDiagram,
+  RawValueVsDeviationDiagram,
+  ZeroBaselineDiagram,
+  NonZeroReferenceDiagram,
+  NegativeReferenceDiagram,
+  SymmetricDomainDiagram,
+  AboveBelowOnReferenceDiagram,
+  MissingVsOnReferenceDiagram,
+  DirectionNotJudgmentDiagram,
+  DivergingOrientationDiagram,
+  CategoryHitRegionDiagram,
+  DataUpdateCrossingBaselineDiagram,
+  DivergingArchitectureFlowDiagram,
+} from "./charts/diverging-bars-diagrams"
+import {
+  BulletAnatomyDiagram,
+  BelowEqualAboveTargetDiagram,
+  PerCategoryTargetMarkerDiagram,
+  BulletSharedScaleDiagram,
+  ActualTargetDeltaDiagram,
+  MissingActualVsTargetDiagram,
+  ZeroTargetDiagram,
+  RowHitRegionDiagram,
+  ResponsiveRowRecompositionDiagram,
+  BulletRenderingArchitectureDiagram,
+} from "./charts/bullet-bars-diagrams"
+import {
+  VarianceDerivationModelDiagram,
+  ActualPlanDeltaDiagram,
+  ZeroVarianceBaselineDiagram,
+  PositiveZeroNegativeGeometryDiagram,
+  DirectionNotFavorabilityDiagram,
+  NegativeInputArithmeticDiagram,
+  MissingPairSemanticsDiagram,
+  MixedSignSymmetricDomainDiagram,
+  CategoryBandHitRegionDiagram,
+  VerticalVsHorizontalCompositionDiagram,
+  VarianceRenderingArchitectureDiagram,
+} from "./charts/variance-bars-diagrams"
+import {
+  IntervalModelDiagram,
+  FloatingVsBaselineBarDiagram,
+  StartEndSpanAnatomyDiagram,
+  BoundsValidationDiagram,
+  MissingBoundsDiagram,
+  NumericDomainResolutionDiagram,
+  TemporalIntervalModelDiagram,
+  NegativeCrossZeroDiagram,
+  CategoryBandHitRegionDiagram as IntervalCategoryBandHitRegionDiagram,
+  ZeroWidthInteractionDiagram,
+  IntervalOrientationDiagram,
+  IntervalRenderingArchitectureDiagram,
+  ConventionalVsIntervalAnimationDiagram,
+} from "./charts/interval-bars-diagrams"
+import {
+  InteractionStateMachineDiagram,
+  ActiveVsLockedDiagram,
+  CategoryBandVsRectangleDiagram,
+  ZeroTinyBarHitRegionDiagram,
+  TouchLockLifecycleDiagram,
+  KeyboardTraversalDiagram,
+  GroupedSeriesInspectionDiagram,
+  InputHandoffDiagram,
+  FocusVsActiveVsLockedDiagram,
+  InteractiveLegendStateDiagram,
+  OrientationInteractionDiagram,
+  RenderingInteractionArchitectureDiagram,
+  InteractionHierarchyDiagram,
+} from "./charts/interactive-bars-diagrams"
+
+
 
 interface MDXRendererProps {
   content: string
@@ -236,6 +409,14 @@ async function parseMarkdownToReact(
       }
       i++ // skip closing :::
       const fullCmd = cmdLines.join("\n").trim()
+      const registryMatch = fullCmd.match(/\/r\/([a-z0-9-]+)\.json/)
+
+      if (registryMatch) {
+        elements.push(
+          <InstallCommand key={`registry-${i}`} registryName={registryMatch[1]} />
+        )
+        continue
+      }
 
       const pnpmCmd = formatCommand(fullCmd, "pnpm")
       const npmCmd = formatCommand(fullCmd, "npm")
@@ -827,6 +1008,1212 @@ async function parseMarkdownToReact(
       }
       i++
       elements.push(<DocsDivider key={`sep-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StepSignalFlowDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StepSignalFlowDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<StepSignalFlowDiagram key={`step-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StepSignalTransitionModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StepSignalTransitionModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<StepSignalTransitionModelFlow key={`step-trans-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MilestoneAnnotationFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MilestoneAnnotationFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<MilestoneAnnotationFlow key={`milestone-ann-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MilestoneLayerFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MilestoneLayerFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<MilestoneLayerFlow key={`milestone-layer-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ThresholdModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ThresholdModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ThresholdModelFlow key={`threshold-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ThresholdContextFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ThresholdContextFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ThresholdContextFlow key={`threshold-ctx-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FocusModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FocusModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<FocusModelFlow key={`focus-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FocusInspectionFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FocusInspectionFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<FocusInspectionFlow key={`focus-inspect-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MultiSignalIdentityFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MultiSignalIdentityFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<MultiSignalIdentityFlow key={`multi-signal-identity-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MultiSignalInspectionFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MultiSignalInspectionFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<MultiSignalInspectionFlow key={`multi-signal-inspect-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ForecastModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ForecastModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ForecastModelFlow key={`forecast-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ForecastTransitionFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ForecastTransitionFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ForecastTransitionFlow key={`forecast-trans-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AreaMagnitudeFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AreaMagnitudeFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<AreaMagnitudeFlow key={`area-magnitude-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AreaBaselineFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AreaBaselineFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<AreaBaselineFlow key={`area-baseline-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AreaCrossingFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AreaCrossingFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<AreaCrossingFlow key={`area-crossing-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StackFlowCompositionFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StackFlowCompositionFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<StackFlowCompositionFlow key={`stack-comp-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StackFlowMissingModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StackFlowMissingModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<StackFlowMissingModelFlow key={`stack-missing-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStreamCompositionFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStreamCompositionFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStreamCompositionFlow key={`percent-comp-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStreamReNormalizationFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStreamReNormalizationFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStreamReNormalizationFlow key={`percent-renorm-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RangeAreaEnvelopeFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RangeAreaEnvelopeFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<RangeAreaEnvelopeFlow key={`range-envelope-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RangeAreaValidityFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RangeAreaValidityFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<RangeAreaValidityFlow key={`range-validity-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ComparisonAreaModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ComparisonAreaModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ComparisonAreaModelFlow key={`comp-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ComparisonVsStackFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ComparisonVsStackFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<ComparisonVsStackFlow key={`comp-stack-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GradientDepthModelFlow")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GradientDepthModelFlow>")) {
+        i++
+      }
+      i++
+      elements.push(<GradientDepthModelFlow key={`grad-depth-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BaselineAreaModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BaselineAreaModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BaselineAreaModelDiagram key={`baseline-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BaselineAreaCrossingDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BaselineAreaCrossingDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BaselineAreaCrossingDiagram key={`baseline-crossing-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BaselineAreaArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BaselineAreaArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BaselineAreaArchitectureDiagram key={`baseline-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractiveAreaInspectionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractiveAreaInspectionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractiveAreaInspectionDiagram key={`interactive-inspect-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractiveAreaNearestXDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractiveAreaNearestXDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractiveAreaNearestXDiagram key={`interactive-nearestx-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractiveAreaStateDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractiveAreaStateDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractiveAreaStateDiagram key={`interactive-state-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractiveAreaArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractiveAreaArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractiveAreaArchitectureDiagram key={`interactive-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SignalBarsMagnitudeDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SignalBarsMagnitudeDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SignalBarsMagnitudeDiagram key={`signalbars-mag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SignalBarsCategoryBandDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SignalBarsCategoryBandDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SignalBarsCategoryBandDiagram key={`signalbars-band-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SignalBarsGroupedIdentityDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SignalBarsGroupedIdentityDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SignalBarsGroupedIdentityDiagram key={`signalbars-grouped-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SignalBarsSignedZeroDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SignalBarsSignedZeroDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SignalBarsSignedZeroDiagram key={`signalbars-signed-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SignalBarsArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SignalBarsArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SignalBarsArchitectureDiagram key={`signalbars-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StackCompositionModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StackCompositionModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<StackCompositionModelDiagram key={`stack-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GroupedVsStackedDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GroupedVsStackedDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GroupedVsStackedDiagram key={`grouped-stacked-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AdditiveDataContractDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AdditiveDataContractDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<AdditiveDataContractDiagram key={`additive-contract-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StableStackOrderDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StableStackOrderDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<StableStackOrderDiagram key={`stable-order-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingVsZeroVsHiddenDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingVsZeroVsHiddenDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingVsZeroVsHiddenDiagram key={`mzh-diagram-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CompleteVsIncompleteCompositionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CompleteVsIncompleteCompositionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CompleteVsIncompleteCompositionDiagram key={`comp-incomp-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<LegendVisibilityDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</LegendVisibilityDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<LegendVisibilityDiagram key={`legend-vis-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CategorySegmentHitRegionsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CategorySegmentHitRegionsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CategorySegmentHitRegionsDiagram key={`hit-regions-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<VerticalVsHorizontalOrientationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</VerticalVsHorizontalOrientationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<VerticalVsHorizontalOrientationDiagram key={`orientation-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RenderingArchitectureFlowDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RenderingArchitectureFlowDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RenderingArchitectureFlowDiagram key={`arch-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GroupedComparisonModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GroupedComparisonModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GroupedComparisonModelDiagram key={`group-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GroupedVsStackedComparisonDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GroupedVsStackedComparisonDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GroupedVsStackedComparisonDiagram key={`group-vs-stacked-comp-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StableSeriesIdentityDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StableSeriesIdentityDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<StableSeriesIdentityDiagram key={`stable-identity-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingSeriesSlotDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingSeriesSlotDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingSeriesSlotDiagram key={`missing-slot-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SharedQuantitativeScaleDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SharedQuantitativeScaleDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SharedQuantitativeScaleDiagram key={`shared-scale-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CategoryBarHitRegionsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CategoryBarHitRegionsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CategoryBarHitRegionsDiagram key={`category-hit-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ResponsiveOrientationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ResponsiveOrientationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ResponsiveOrientationDiagram key={`resp-orientation-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GroupCompareArchitectureFlowDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GroupCompareArchitectureFlowDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GroupCompareArchitectureFlowDiagram key={`gc-arch-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RankingPipelineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RankingPipelineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RankingPipelineDiagram key={`rank-pipe-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<TopNSemanticsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</TopNSemanticsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<TopNSemanticsDiagram key={`top-n-sem-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<TieStabilityDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</TieStabilityDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<TieStabilityDiagram key={`tie-stab-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<HorizontalRowHitRegionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</HorizontalRowHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<HorizontalRowHitRegionDiagram key={`row-hit-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RankBarsArchitectureFlowDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RankBarsArchitectureFlowDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RankBarsArchitectureFlowDiagram key={`rank-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ComponentPreview")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ComponentPreview>")) {
+        i++
+      }
+      i++
+      continue
+    }
+
+    if (trimmed.startsWith("<NormalizationPipelineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NormalizationPipelineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NormalizationPipelineDiagram key={`norm-pipe-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AbsoluteStackVsPercentStackDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AbsoluteStackVsPercentStackDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<AbsoluteStackVsPercentStackDiagram key={`abs-vs-pct-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CompositionVsMagnitudeLossDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CompositionVsMagnitudeLossDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CompositionVsMagnitudeLossDiagram key={`mag-loss-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RawValueVsDerivedShareDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RawValueVsDerivedShareDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RawValueVsDerivedShareDiagram key={`raw-share-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroTotalSemanticsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroTotalSemanticsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroTotalSemanticsDiagram key={`zero-total-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStackMissingVsZeroVsHiddenDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStackMissingVsZeroVsHiddenDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStackMissingVsZeroVsHiddenDiagram key={`ps-missing-zero-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<LegendRenormalizationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</LegendRenormalizationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<LegendRenormalizationDiagram key={`legend-renorm-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStackStableStackOrderDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStackStableStackOrderDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStackStableStackOrderDiagram key={`ps-stable-order-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStackHitRegionsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStackHitRegionsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStackHitRegionsDiagram key={`ps-cat-hit-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStackOrientationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStackOrientationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStackOrientationDiagram key={`ps-orient-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PercentStackRenderingArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PercentStackRenderingArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PercentStackRenderingArchitectureDiagram key={`ps-arch-flow-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DivergingModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DivergingModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DivergingModelDiagram key={`div-model-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RawValueVsDeviationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RawValueVsDeviationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RawValueVsDeviationDiagram key={`raw-vs-dev-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroBaselineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroBaselineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroBaselineDiagram key={`zero-base-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<NonZeroReferenceDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NonZeroReferenceDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NonZeroReferenceDiagram key={`nonzero-ref-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<NegativeReferenceDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NegativeReferenceDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NegativeReferenceDiagram key={`neg-ref-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<SymmetricDomainDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</SymmetricDomainDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<SymmetricDomainDiagram key={`symm-dom-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<AboveBelowOnReferenceDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</AboveBelowOnReferenceDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<AboveBelowOnReferenceDiagram key={`above-below-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingVsOnReferenceDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingVsOnReferenceDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingVsOnReferenceDiagram key={`missing-on-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DirectionNotJudgmentDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DirectionNotJudgmentDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DirectionNotJudgmentDiagram key={`dir-not-judg-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DivergingOrientationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DivergingOrientationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DivergingOrientationDiagram key={`div-orient-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CategoryHitRegionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CategoryHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CategoryHitRegionDiagram key={`cat-hit-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DataUpdateCrossingBaselineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DataUpdateCrossingBaselineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DataUpdateCrossingBaselineDiagram key={`data-cross-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DivergingArchitectureFlowDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DivergingArchitectureFlowDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DivergingArchitectureFlowDiagram key={`div-arch-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BulletAnatomyDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BulletAnatomyDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BulletAnatomyDiagram key={`bullet-anat-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BelowEqualAboveTargetDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BelowEqualAboveTargetDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BelowEqualAboveTargetDiagram key={`below-eq-above-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PerCategoryTargetMarkerDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PerCategoryTargetMarkerDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PerCategoryTargetMarkerDiagram key={`per-cat-target-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BulletSharedScaleDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BulletSharedScaleDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BulletSharedScaleDiagram key={`bullet-shared-scale-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ActualTargetDeltaDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ActualTargetDeltaDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ActualTargetDeltaDiagram key={`act-target-delta-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingActualVsTargetDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingActualVsTargetDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingActualVsTargetDiagram key={`missing-act-target-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroTargetDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroTargetDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroTargetDiagram key={`zero-target-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RowHitRegionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RowHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RowHitRegionDiagram key={`row-hit-reg-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ResponsiveRowRecompositionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ResponsiveRowRecompositionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ResponsiveRowRecompositionDiagram key={`resp-row-recomp-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BulletRenderingArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BulletRenderingArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BulletRenderingArchitectureDiagram key={`bullet-arch-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<VarianceDerivationModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</VarianceDerivationModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<VarianceDerivationModelDiagram key={`var-deriv-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ActualPlanDeltaDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ActualPlanDeltaDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ActualPlanDeltaDiagram key={`act-plan-delta-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroVarianceBaselineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroVarianceBaselineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroVarianceBaselineDiagram key={`zero-var-base-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<PositiveZeroNegativeGeometryDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</PositiveZeroNegativeGeometryDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<PositiveZeroNegativeGeometryDiagram key={`pos-zero-neg-geom-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<DirectionNotFavorabilityDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</DirectionNotFavorabilityDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<DirectionNotFavorabilityDiagram key={`dir-not-fav-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<NegativeInputArithmeticDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NegativeInputArithmeticDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NegativeInputArithmeticDiagram key={`neg-in-arith-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingPairSemanticsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingPairSemanticsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingPairSemanticsDiagram key={`miss-pair-sem-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MixedSignSymmetricDomainDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MixedSignSymmetricDomainDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MixedSignSymmetricDomainDiagram key={`mix-sign-symm-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CategoryBandHitRegionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CategoryBandHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CategoryBandHitRegionDiagram key={`cat-band-hit-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<VerticalVsHorizontalCompositionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</VerticalVsHorizontalCompositionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<VerticalVsHorizontalCompositionDiagram key={`vert-vs-horiz-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<VarianceRenderingArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</VarianceRenderingArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<VarianceRenderingArchitectureDiagram key={`var-arch-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<IntervalModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</IntervalModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<IntervalModelDiagram key={`int-model-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FloatingVsBaselineBarDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FloatingVsBaselineBarDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<FloatingVsBaselineBarDiagram key={`flt-vs-base-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<StartEndSpanAnatomyDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</StartEndSpanAnatomyDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<StartEndSpanAnatomyDiagram key={`start-end-anat-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<BoundsValidationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</BoundsValidationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<BoundsValidationDiagram key={`bnd-val-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<MissingBoundsDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</MissingBoundsDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<MissingBoundsDiagram key={`miss-bnd-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<NumericDomainResolutionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NumericDomainResolutionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NumericDomainResolutionDiagram key={`num-dom-res-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<TemporalIntervalModelDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</TemporalIntervalModelDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<TemporalIntervalModelDiagram key={`temp-int-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<NegativeCrossZeroDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</NegativeCrossZeroDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<NegativeCrossZeroDiagram key={`neg-cross-zero-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<IntervalCategoryBandHitRegionDiagram") || trimmed.startsWith("<CategoryBandHitRegionDiagram") && trimmed.includes("interval")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</IntervalCategoryBandHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<IntervalCategoryBandHitRegionDiagram key={`int-cat-band-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroWidthInteractionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroWidthInteractionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroWidthInteractionDiagram key={`zero-w-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<IntervalOrientationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</IntervalOrientationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<IntervalOrientationDiagram key={`int-orient-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<IntervalRenderingArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</IntervalRenderingArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<IntervalRenderingArchitectureDiagram key={`int-arch-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ConventionalVsIntervalAnimationDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ConventionalVsIntervalAnimationDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ConventionalVsIntervalAnimationDiagram key={`conv-vs-int-anim-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractionStateMachineDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractionStateMachineDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractionStateMachineDiagram key={`state-mach-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ActiveVsLockedDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ActiveVsLockedDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ActiveVsLockedDiagram key={`act-vs-lock-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<CategoryBandVsRectangleDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</CategoryBandVsRectangleDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<CategoryBandVsRectangleDiagram key={`band-vs-rect-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<ZeroTinyBarHitRegionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ZeroTinyBarHitRegionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<ZeroTinyBarHitRegionDiagram key={`zero-tiny-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<TouchLockLifecycleDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</TouchLockLifecycleDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<TouchLockLifecycleDiagram key={`touch-lock-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<KeyboardTraversalDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</KeyboardTraversalDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<KeyboardTraversalDiagram key={`key-trav-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<GroupedSeriesInspectionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</GroupedSeriesInspectionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<GroupedSeriesInspectionDiagram key={`grp-series-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InputHandoffDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InputHandoffDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InputHandoffDiagram key={`inp-handoff-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<FocusVsActiveVsLockedDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</FocusVsActiveVsLockedDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<FocusVsActiveVsLockedDiagram key={`foc-act-lock-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractiveLegendStateDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractiveLegendStateDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractiveLegendStateDiagram key={`int-leg-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<OrientationInteractionDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</OrientationInteractionDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<OrientationInteractionDiagram key={`orient-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<RenderingInteractionArchitectureDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</RenderingInteractionArchitectureDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<RenderingInteractionArchitectureDiagram key={`render-arch-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InteractionHierarchyDiagram")) {
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InteractionHierarchyDiagram>")) {
+        i++
+      }
+      i++
+      elements.push(<InteractionHierarchyDiagram key={`interact-hier-diag-${i}`} />)
+      continue
+    }
+
+    if (trimmed.startsWith("<InstallCommand")) {
+      const tagContent = trimmed
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</InstallCommand>")) {
+        i++
+      }
+      i++
+      const match = tagContent.match(/registryName=["']([^"']+)["']/) || tagContent.match(/name=["']([^"']+)["']/)
+      const regName = match ? match[1] : (context?.slug || "")
+      if (regName) {
+        elements.push(<InstallCommand key={`install-cmd-${i}`} registryName={regName} />)
+      }
+      continue
+    }
+
+    if (trimmed.startsWith("<ChartPreview")) {
+      const tagContent = trimmed
+      while (i < lines.length && !lines[i].includes("/>") && !lines[i].includes("</ChartPreview>")) {
+        i++
+      }
+      i++
+      const match = tagContent.match(/registryName=["']([^"']+)["']/) || tagContent.match(/name=["']([^"']+)["']/)
+      const regName = match ? match[1] : (context?.slug || "")
+      if (regName) {
+        elements.push(<ChartPreview key={`chart-prev-${i}`} registryName={regName} />)
+      }
       continue
     }
 
@@ -1657,36 +3044,109 @@ async function parseMarkdownToReact(
 
     // 7. Unordered List: - item or * item
     if (/^[-*]\s+/.test(trimmed)) {
-      const listItems: string[] = []
+      interface ListItemNode {
+        text: string
+        subItems: { text: string; subType: "ul" | "ol" }[]
+      }
+      const listItems: ListItemNode[] = []
+
       while (i < lines.length) {
         const itemLine = lines[i]
         const itemTrimmed = itemLine.trim()
-        if (/^[-*]\s+/.test(itemTrimmed)) {
-          listItems.push(itemTrimmed.replace(/^[-*]\s+/, ""))
+
+        if (!itemTrimmed) {
+          let lookAhead = i + 1
+          while (lookAhead < lines.length && !lines[lookAhead].trim()) {
+            lookAhead++
+          }
+          if (lookAhead < lines.length) {
+            const nextLine = lines[lookAhead]
+            const nextTrimmed = nextLine.trim()
+            if (
+              /^[-*]\s+/.test(nextTrimmed) ||
+              ((nextLine.startsWith("  ") || nextLine.startsWith("\t")) && /^[-*]\s+/.test(nextTrimmed))
+            ) {
+              i = lookAhead
+              continue
+            }
+          }
+          break
+        }
+
+        // Top-level bullet: - ... or * ...
+        if (/^[-*]\s+/.test(itemTrimmed) && !itemLine.startsWith("  ") && !itemLine.startsWith("\t")) {
+          listItems.push({
+            text: itemTrimmed.replace(/^[-*]\s+/, ""),
+            subItems: [],
+          })
           i++
-        } else if (
+        }
+        // Indented sub-bullet: "   - ..." or "  * ..."
+        else if (
           listItems.length > 0 &&
-          itemTrimmed &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
+          /^[-*]\s+/.test(itemTrimmed)
+        ) {
+          listItems[listItems.length - 1].subItems.push({
+            text: itemTrimmed.replace(/^[-*]\s+/, ""),
+            subType: "ul",
+          })
+          i++
+        }
+        // Indented sub-number: "   1. ..."
+        else if (
+          listItems.length > 0 &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
+          /^\d+\.\s+/.test(itemTrimmed)
+        ) {
+          listItems[listItems.length - 1].subItems.push({
+            text: itemTrimmed.replace(/^\d+\.\s+/, ""),
+            subType: "ol",
+          })
+          i++
+        }
+        // Indented continuation line
+        else if (
+          listItems.length > 0 &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
           !itemTrimmed.startsWith("#") &&
           !itemTrimmed.startsWith("```") &&
           !itemTrimmed.startsWith(":::") &&
           !itemTrimmed.startsWith(">") &&
           !itemTrimmed.startsWith("|") &&
           !itemTrimmed.startsWith("<") &&
-          !/^(?:\s*[-*_]\s*){3,}$/.test(itemTrimmed) &&
-          !/^\d+\.\s+/.test(itemTrimmed) &&
-          (itemLine.startsWith("  ") || itemLine.startsWith("\t"))
+          !/^(?:\s*[-*_]\s*){3,}$/.test(itemTrimmed)
         ) {
-          listItems[listItems.length - 1] += " " + itemTrimmed
+          const currentItem = listItems[listItems.length - 1]
+          if (currentItem.subItems.length > 0) {
+            currentItem.subItems[currentItem.subItems.length - 1].text += " " + itemTrimmed
+          } else {
+            currentItem.text += " " + itemTrimmed
+          }
           i++
         } else {
           break
         }
       }
+
       elements.push(
-        <ul key={`ul-${i}`} className="my-4 ml-5 list-disc space-y-2 text-sm sm:text-[15px] leading-relaxed text-zinc-300">
+        <ul
+          key={`ul-${i}`}
+          className="my-4 ml-5 list-disc space-y-2 text-sm sm:text-[15px] leading-relaxed text-zinc-300 marker:text-zinc-500"
+        >
           {listItems.map((item, idx) => (
-            <li key={idx}>{renderInlineFormatting(item, `ul-${i}-${idx}`)}</li>
+            <li key={idx} className="pl-1">
+              <div>{renderInlineFormatting(item.text, `ul-${i}-${idx}`)}</div>
+              {item.subItems.length > 0 && (
+                <ul className="my-2 ml-4 list-[circle] space-y-1.5 text-sm text-zinc-400 marker:text-zinc-600">
+                  {item.subItems.map((sub, sIdx) => (
+                    <li key={sIdx} className="pl-1">
+                      {renderInlineFormatting(sub.text, `ul-sub-${i}-${idx}-${sIdx}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
           ))}
         </ul>
       )
@@ -1695,40 +3155,178 @@ async function parseMarkdownToReact(
 
     // 8. Ordered List: 1. item
     if (/^\d+\.\s+/.test(trimmed)) {
-      const listItems: string[] = []
+      const startMatch = trimmed.match(/^(\d+)\.\s+/)
+      const startNumber = startMatch ? parseInt(startMatch[1], 10) : 1
+      interface ListItemNode {
+        text: string
+        subItems: { text: string; subType: "ul" | "ol" }[]
+      }
+      const listItems: ListItemNode[] = []
+
       while (i < lines.length) {
         const itemLine = lines[i]
         const itemTrimmed = itemLine.trim()
-        if (/^\d+\.\s+/.test(itemTrimmed)) {
-          listItems.push(itemTrimmed.replace(/^\d+\.\s+/, ""))
+
+        if (!itemTrimmed) {
+          let lookAhead = i + 1
+          while (lookAhead < lines.length && !lines[lookAhead].trim()) {
+            lookAhead++
+          }
+          if (lookAhead < lines.length) {
+            const nextLine = lines[lookAhead]
+            const nextTrimmed = nextLine.trim()
+            if (
+              /^\d+\.\s+/.test(nextTrimmed) ||
+              ((nextLine.startsWith("  ") || nextLine.startsWith("\t")) && /^[-*]\s+/.test(nextTrimmed))
+            ) {
+              i = lookAhead
+              continue
+            }
+          }
+          break
+        }
+
+        // Top-level ordered item: 1. ... or 2. ...
+        if (/^\d+\.\s+/.test(itemTrimmed) && !itemLine.startsWith("  ") && !itemLine.startsWith("\t")) {
+          listItems.push({
+            text: itemTrimmed.replace(/^\d+\.\s+/, ""),
+            subItems: [],
+          })
           i++
-        } else if (
+        }
+        // Indented sub-bullet: "   - ..." or "  * ..."
+        else if (
           listItems.length > 0 &&
-          itemTrimmed &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
+          /^[-*]\s+/.test(itemTrimmed)
+        ) {
+          listItems[listItems.length - 1].subItems.push({
+            text: itemTrimmed.replace(/^[-*]\s+/, ""),
+            subType: "ul",
+          })
+          i++
+        }
+        // Indented sub-number: "   1. ..."
+        else if (
+          listItems.length > 0 &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
+          /^\d+\.\s+/.test(itemTrimmed)
+        ) {
+          listItems[listItems.length - 1].subItems.push({
+            text: itemTrimmed.replace(/^\d+\.\s+/, ""),
+            subType: "ol",
+          })
+          i++
+        }
+        // Indented continuation line
+        else if (
+          listItems.length > 0 &&
+          (itemLine.startsWith("  ") || itemLine.startsWith("\t")) &&
           !itemTrimmed.startsWith("#") &&
           !itemTrimmed.startsWith("```") &&
           !itemTrimmed.startsWith(":::") &&
           !itemTrimmed.startsWith(">") &&
           !itemTrimmed.startsWith("|") &&
           !itemTrimmed.startsWith("<") &&
-          !/^(?:\s*[-*_]\s*){3,}$/.test(itemTrimmed) &&
-          !/^[-*]\s+/.test(itemTrimmed) &&
-          (itemLine.startsWith("  ") || itemLine.startsWith("\t"))
+          !/^(?:\s*[-*_]\s*){3,}$/.test(itemTrimmed)
         ) {
-          listItems[listItems.length - 1] += " " + itemTrimmed
+          const currentItem = listItems[listItems.length - 1]
+          if (currentItem.subItems.length > 0) {
+            currentItem.subItems[currentItem.subItems.length - 1].text += " " + itemTrimmed
+          } else {
+            currentItem.text += " " + itemTrimmed
+          }
           i++
         } else {
           break
         }
       }
+
       elements.push(
-        <ol key={`ol-${i}`} className="my-4 ml-5 list-decimal space-y-2 text-sm sm:text-[15px] leading-relaxed text-zinc-300">
+        <ol
+          key={`ol-${i}`}
+          start={startNumber !== 1 ? startNumber : undefined}
+          className="my-4 ml-5 list-decimal space-y-2.5 text-sm sm:text-[15px] leading-relaxed text-zinc-300 marker:text-zinc-400 marker:font-mono"
+        >
           {listItems.map((item, idx) => (
-            <li key={idx}>{renderInlineFormatting(item, `ol-${i}-${idx}`)}</li>
+            <li key={idx} className="pl-1">
+              <div>{renderInlineFormatting(item.text, `ol-${i}-${idx}`)}</div>
+              {item.subItems.length > 0 && (
+                <ul className="my-2 ml-4 list-disc space-y-1.5 text-sm text-zinc-400 marker:text-zinc-500">
+                  {item.subItems.map((sub, sIdx) => (
+                    <li key={sIdx} className="pl-1">
+                      {renderInlineFormatting(sub.text, `ol-sub-${i}-${idx}-${sIdx}`)}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
           ))}
         </ol>
       )
       continue
+    }
+
+    // 8.5. Math Block: $$ ... $$
+    if (trimmed.startsWith("$$")) {
+      let mathContent = ""
+      if (trimmed === "$$") {
+        i++
+        const mathLines: string[] = []
+        while (i < lines.length && lines[i].trim() !== "$$") {
+          mathLines.push(lines[i])
+          i++
+        }
+        if (i < lines.length && lines[i].trim() === "$$") {
+          i++ // skip closing $$
+        }
+        mathContent = mathLines.join("\n").trim()
+      } else if (trimmed.slice(2).includes("$$")) {
+        const afterOpen = trimmed.slice(2)
+        const closeIdx = afterOpen.indexOf("$$")
+        mathContent = afterOpen.slice(0, closeIdx).trim()
+        i++
+      } else {
+        const mathLines: string[] = [trimmed.slice(2)]
+        i++
+        while (i < lines.length && !lines[i].trim().includes("$$")) {
+          mathLines.push(lines[i])
+          i++
+        }
+        if (i < lines.length) {
+          const lastLine = lines[i].trim()
+          const closeIdx = lastLine.indexOf("$$")
+          mathLines.push(lastLine.slice(0, closeIdx))
+          i++
+        }
+        mathContent = mathLines.join("\n").trim()
+      }
+
+      if (mathContent) {
+        try {
+          const html = katex.renderToString(mathContent, {
+            displayMode: true,
+            throwOnError: false,
+          })
+          elements.push(
+            <div
+              key={`math-block-${i}`}
+              className="my-6 overflow-x-auto py-3 px-4 rounded-xl border border-white/[0.08] bg-zinc-950/70 flex justify-center text-zinc-100 shadow-sm not-prose"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          )
+        } catch {
+          elements.push(
+            <div
+              key={`math-err-${i}`}
+              className="my-6 overflow-x-auto py-2 font-mono text-xs text-zinc-300 flex justify-center"
+            >
+              $${mathContent}$$
+            </div>
+          )
+        }
+        continue
+      }
     }
 
     // 9. Standard Paragraph
@@ -1739,6 +3337,7 @@ async function parseMarkdownToReact(
       !lines[i].trim().startsWith("#") &&
       !lines[i].trim().startsWith("```") &&
       !lines[i].trim().startsWith(":::") &&
+      !lines[i].trim().startsWith("$$") &&
       !lines[i].trim().startsWith(">") &&
       !lines[i].trim().startsWith("|") &&
       !lines[i].trim().startsWith("<") &&
@@ -1757,6 +3356,9 @@ async function parseMarkdownToReact(
           {renderInlineFormatting(paragraphText)}
         </p>
       )
+    } else {
+      // Advance i to guarantee loop termination if line wasn't handled
+      i++
     }
   }
 
@@ -1764,42 +3366,187 @@ async function parseMarkdownToReact(
 }
 
 /**
- * Render Markdown table to responsive HTML table
+ * Safely parse a markdown table row into cells, respecting:
+ * - Escaped pipes (\|)
+ * - Inline code fences (`...` or ``...``) containing pipes
+ */
+export function parseMarkdownTableRow(line: string): string[] {
+  let trimmed = line.trim()
+  if (trimmed.startsWith("|")) {
+    trimmed = trimmed.slice(1)
+  }
+  if (trimmed.endsWith("|")) {
+    trimmed = trimmed.slice(0, -1)
+  }
+
+  const cells: string[] = []
+  let current = ""
+  let inCode = false
+  let codeFenceLength = 0
+  let escaped = false
+
+  for (let i = 0; i < trimmed.length; i++) {
+    const char = trimmed[i]
+
+    if (escaped) {
+      if (char === "|") {
+        current += "|"
+      } else {
+        current += "\\" + char
+      }
+      escaped = false
+      continue
+    }
+
+    if (char === "\\") {
+      escaped = true
+      continue
+    }
+
+    if (char === "`") {
+      current += char
+      let count = 1
+      while (i + 1 < trimmed.length && trimmed[i + 1] === "`") {
+        current += "`"
+        count++
+        i++
+      }
+      if (!inCode) {
+        inCode = true
+        codeFenceLength = count
+      } else if (codeFenceLength === count) {
+        inCode = false
+        codeFenceLength = 0
+      }
+      continue
+    }
+
+    if (char === "|" && !inCode) {
+      cells.push(current.trim())
+      current = ""
+      continue
+    }
+
+    current += char
+  }
+
+  if (escaped) {
+    current += "\\"
+  }
+  cells.push(current.trim())
+
+  return cells
+}
+
+function getColumnWidths(headers: string[]): string[] {
+  const count = headers.length
+  if (count === 5) {
+    // Prop | Type | Default | Required | Description
+    return ["18%", "24%", "12%", "10%", "36%"]
+  }
+  if (count === 4) {
+    const h0 = headers[0].toLowerCase()
+    if (h0.includes("prop") || h0.includes("param")) {
+      return ["20%", "26%", "14%", "40%"]
+    }
+    if (h0.includes("field")) {
+      return ["18%", "25%", "12%", "45%"]
+    }
+    return ["22%", "26%", "16%", "36%"]
+  }
+  if (count === 3) {
+    return ["24%", "30%", "46%"]
+  }
+  if (count === 2) {
+    return ["35%", "65%"]
+  }
+  const equal = `${Math.floor(100 / count)}%`
+  return Array(count).fill(equal)
+}
+
+function cleanPropAnchor(rawText: string): string | undefined {
+  const cleaned = rawText.replace(/[`*]/g, "").trim()
+  if (!cleaned || cleaned.includes(" ") || cleaned.length > 40) return undefined
+  return `prop-${cleaned.replace(/([a-z0-9])([A-Z])/g, "$1-$2").replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}`
+}
+
+/**
+ * Render Markdown table to responsive HTML table powered by container queries
  */
 function renderTable(tableLines: string[], key: string): React.ReactNode {
   const headerRow = tableLines[0]
   const rows = tableLines.slice(2) // Skip header and separator
 
-  const parseCells = (line: string) =>
-    line
-      .slice(1, -1)
-      .split("|")
-      .map((c) => c.trim())
-
-  const headers = parseCells(headerRow)
+  const headers = parseMarkdownTableRow(headerRow)
+  const widths = getColumnWidths(headers)
+  const columnKinds = headers.map((h) => inferColumnKind(h))
 
   return (
-    <div key={key} className="my-6 w-full overflow-x-auto rounded-xl border border-white/[0.08] bg-zinc-950/60 shadow-sm">
-      <table className="w-full text-left text-xs sm:text-sm border-collapse">
+    <div key={key} className={apiTableStyles.shell}>
+      <table className={apiTableStyles.table}>
+        <caption className="sr-only">{headers.join(" ")}</caption>
+        <colgroup>
+          {widths.map((w, idx) => (
+            <col key={idx} style={{ width: w }} />
+          ))}
+        </colgroup>
         <thead>
-          <tr className="border-b border-white/[0.08] bg-zinc-900/40 text-zinc-200 font-mono text-[11px] uppercase tracking-wider">
+          <tr>
             {headers.map((h, idx) => (
-              <th key={idx} className="px-4 py-3 font-semibold">
+              <th key={idx} scope="col">
                 {renderInlineFormatting(h)}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.05]">
+        <tbody>
           {rows.map((rowLine, rIdx) => {
-            const cells = parseCells(rowLine)
+            const cells = parseMarkdownTableRow(rowLine)
+            const firstCellText = cells[0] || ""
+            const anchorId = columnKinds[0] === "name" ? cleanPropAnchor(firstCellText) : undefined
+
             return (
-              <tr key={rIdx} className="hover:bg-zinc-900/30 transition-colors">
-                {cells.map((cell, cIdx) => (
-                  <td key={cIdx} className="px-4 py-3 text-zinc-300">
-                    {renderInlineFormatting(cell)}
-                  </td>
-                ))}
+              <tr key={rIdx} id={anchorId}>
+                {cells.map((cell, cIdx) => {
+                  const kind = columnKinds[cIdx] || "description"
+                  const headerLabel = headers[cIdx] || ""
+                  const isPropName = cIdx === 0 && kind === "name" && anchorId
+
+                  // Status column formatting (Required / Optional)
+                  let cellContent: React.ReactNode = renderInlineFormatting(cell)
+                  if (kind === "status") {
+                    const lower = cell.toLowerCase().trim()
+                    if (lower === "yes" || lower === "true" || lower.includes("req")) {
+                      cellContent = (
+                        <span className={cn(apiTableStyles.statusBadge, apiTableStyles.statusRequired)}>
+                          Required
+                        </span>
+                      )
+                    } else if (lower === "no" || lower === "false" || lower.includes("opt")) {
+                      cellContent = (
+                        <span className={cn(apiTableStyles.statusBadge, apiTableStyles.statusOptional)}>
+                          Optional
+                        </span>
+                      )
+                    }
+                  }
+
+                  return (
+                    <td
+                      key={cIdx}
+                      data-label={headerLabel}
+                      className={kind ? apiTableStyles[kind] : undefined}
+                    >
+                      {isPropName ? (
+                        <a className={apiTableStyles.propertyLink} href={`#${anchorId}`}>
+                          {cellContent}
+                        </a>
+                      ) : (
+                        cellContent
+                      )}
+                    </td>
+                  )
+                })}
               </tr>
             )
           })}
@@ -1816,13 +3563,14 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
   if (!text) return null
 
   // Regex matches:
+  // 0. Keyboard key: <kbd>...</kbd>
   // 1. Code: `...`
   // 2. Link: [...](...)
   // 3. Bold-Italic: ***...***
   // 4. Bold: **...**
   // 5. Italic: *...* (where * is not followed/preceded by whitespace)
   // 6. Strikethrough: ~~...~~
-  const inlineRegex = /(`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*([^*\s](?:[^*]*?[^*\s])?)\*|~~[^~]+~~)/g
+  const inlineRegex = /(<kbd>[\s\S]*?<\/kbd>|\$\$[^\$\n]+?\$\$|\$(?!\s)[^\$\n]+?(?<!\s)\$|`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*([^*\s](?:[^*]*?[^*\s])?)\*|~~[^~]+~~)/gi
 
   let match: RegExpExecArray | null
   let lastIndex = 0
@@ -1837,11 +3585,66 @@ function renderInlineFormatting(text: string, keyPrefix = "inline"): React.React
     const token = match[0]
     const key = `${keyPrefix}-${tokenIdx++}`
 
+    // 0. Keyboard key badge: <kbd>key</kbd>
+    if (token.toLowerCase().startsWith("<kbd>") && token.toLowerCase().endsWith("</kbd>")) {
+      const kbdInner = token.slice(5, -6).trim()
+      nodes.push(
+        <kbd
+          key={key}
+          className="inline-flex items-center justify-center rounded border border-white/[0.15] bg-zinc-800/90 px-1.5 py-0.5 font-mono text-[11px] font-medium text-zinc-200 shadow-xs select-none mx-0.5 align-baseline"
+        >
+          {renderInlineFormatting(kbdInner, `${key}-k`)}
+        </kbd>
+      )
+    }
+    // 0.5 Inline display math: $$...$$
+    else if (token.startsWith("$$") && token.endsWith("$$") && token.length >= 4) {
+      const mathText = token.slice(2, -2).trim()
+      try {
+        const html = katex.renderToString(mathText, {
+          displayMode: true,
+          throwOnError: false,
+        })
+        nodes.push(
+          <span
+            key={key}
+            className="my-3 block overflow-x-auto py-2 text-center text-zinc-100 not-prose"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        )
+      } catch {
+        nodes.push(token)
+      }
+    }
+    // 0.6 Inline math: $...$
+    else if (token.startsWith("$") && token.endsWith("$") && token.length >= 2) {
+      const mathText = token.slice(1, -1).trim()
+      if (/^\d+([.,]\d+)?$/.test(mathText)) {
+        nodes.push(token)
+      } else {
+        try {
+          const html = katex.renderToString(mathText, {
+            displayMode: false,
+            throwOnError: false,
+          })
+          nodes.push(
+            <span
+              key={key}
+              className="inline-math px-0.5 text-zinc-100"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          )
+        } catch {
+          nodes.push(token)
+        }
+      }
+    }
     // 1. Inline code: `code`
-    if (token.startsWith("`") && token.endsWith("`") && token.length >= 2) {
+    else if (token.startsWith("`") && token.endsWith("`") && token.length >= 2) {
       nodes.push(
         <code
           key={key}
+          dir="ltr"
           className="rounded-md border border-zinc-800 bg-zinc-900/80 px-1.5 py-0.5 font-mono text-[12px] text-zinc-200"
         >
           {token.slice(1, -1)}

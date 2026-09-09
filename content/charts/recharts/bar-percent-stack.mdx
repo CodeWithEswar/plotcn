@@ -1,0 +1,327 @@
+---
+title: "Percent Stack Bars"
+description: "100% normalized stacked bars for comparing categorical composition while preserving raw contributor values, truthful zero/missing semantics, and stable stack identity."
+component: "PercentStackBars"
+engine: "recharts"
+registryName: "bar-percent-stack"
+number: "023"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Percent Stack Bars** is Plotcn's canonical 100% normalized stacked bar component designed specifically for comparing categorical composition across discrete groups. It answers the fundamental analytical question:
+
+> **“How does the composition of the whole differ across categories?”**
+
+Secondary analytical questions answered by this component include:
+
+- *“What share of the visible total does each contributor represent?”*
+- *“How do those proportional shares change from one category to another?”*
+- *“What raw underlying measurements produced those normalized percentages?”*
+
+While `PercentStreamArea` (013) visualizes continuous composition across an ordered timeline domain, `PercentStackBars` specializes in discrete, categorical groups (such as customer segments, company divisions, subscription plans, or product cohorts).
+
+```tsx
+import { PercentStackBars } from "@/components/charts/recharts/bar-percent-stack"
+
+const subscriptionMix = [
+  { segment: "Startup", monthly: 620, annual: 310, multiYear: 70 },
+  { segment: "Growth", monthly: 840, annual: 920, multiYear: 240 },
+  { segment: "Enterprise", monthly: 90, annual: 215, multiYear: 195 },
+]
+
+export function SubscriptionCompositionChart() {
+  return (
+    <PercentStackBars
+      data={subscriptionMix}
+      categoryKey="segment"
+      series={[
+        { key: "monthly", label: "Monthly", color: "var(--chart-1)" },
+        { key: "annual", label: "Annual", color: "var(--chart-2)" },
+        { key: "multiYear", label: "Multi-year", color: "var(--chart-3)" },
+      ]}
+      showLegend
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Governing Principle
+
+> **Percent Stack Bars intentionally removes total-magnitude differences so that composition can be compared across categories. Every complete visible category normalizes to 100%, contributor identity remains stable, and percentages must always derive from real raw values rather than invented shares.**
+
+This principle governs data preprocessing, fixed domain bounds, tooltips, legend toggling, zero totals, missing values, and accessibility alternatives.
+
+---
+
+## Bar-Family Positioning
+
+The Plotcn Bar family provides five distinct analytical specializations:
+
+| Component | Registry ID | Primary Analytical Question | Quantitative Scale |
+| :--- | :--- | :--- | :--- |
+| **Signal Bars (019)** | `bar-signal` | *"How do discrete categories compare on single or grouped measures?"* | Grounded Zero ($0 \to \text{Max}$) |
+| **Rank Bars (020)** | `bar-rank` | *"Which categories perform highest or lowest in top-N rank?"* | Grounded Zero ($0 \to \text{Max}$) |
+| **Group Compare (021)** | `bar-group-compare` | *"How do peer measures compare directly against each other?"* | Shared Grounded Zero ($0 \to \text{Max}$) |
+| **Stack Ledger (022)** | `bar-stack-ledger` | *"How do additive contributors compose the total magnitude?"* | Additive Total ($0 \to \text{Max Total}$) |
+| **Percent Stack (023)** | `bar-percent-stack` | **"How does the internal percentage composition differ across categories?"** | **Fixed Normalized ($0\% \to 100\%$)** |
+
+### Absolute Stack vs. Percent Stack
+
+<AbsoluteStackVsPercentStackDiagram />
+
+- **Stack Ledger Bars (022)**: Preserves volume differences. If Category A has a total of 100 and Category B has a total of 200, Category B's bar is twice as tall.
+- **Percent Stack Bars (023)**: Discards volume differences. Both Category A and Category B render to exactly 100% of the quantitative axis. The viewer's attention is focused solely on internal distribution differences.
+
+---
+
+## Dedicated Component — Not `stackMode="percent"`
+
+Plotcn deliberately avoids adding `stackMode="percent"` to `StackLedgerBars`. Comparing absolute additive volume and comparing normalized proportional share are two distinct cognitive tasks:
+
+- **Stack Ledger**: Answers *"How large is the whole, and how much did each contributor add?"*
+- **Percent Stack**: Answers *"What proportion of the whole belongs to each contributor?"*
+
+Exposing a toggle between these modes in a single component causes subtle bugs: tooltips oscillate between currency and percentages, domain configurations conflict, zero-total categories trigger divide-by-zero crashes, and legend toggles produce ambiguous denominator semantics. `PercentStackBars` is therefore an independent, specialized component.
+
+---
+
+## Magnitude-Loss Rule
+
+> **A 100% stacked chart does not communicate how large the category total is.**
+
+<CompositionVsMagnitudeLossDiagram />
+
+Consider two customer tiers:
+
+- **Startup Tier**: 50 Monthly, 30 Annual, 20 Enterprise. Raw Total = 100 users.
+- **Global Enterprise Tier**: 5,000 Monthly, 3,000 Annual, 2,000 Enterprise. Raw Total = 10,000 users.
+
+In `PercentStackBars`, both tiers produce identical normalized bars: **50% / 30% / 20%**. The 100× difference in total volume is intentionally eliminated from the bar geometry. If absolute magnitude is required alongside composition, use `StackLedgerBars` or present the total in surrounding dashboard UI.
+
+---
+
+## Normalization Pipeline
+
+Raw measurements are transformed into 100% normalized geometry through a deterministic 7-step pipeline:
+
+<NormalizationPipelineDiagram />
+
+1. **Consumer Raw Data**: Caller supplies raw additive non-negative numbers. Caller arrays remain strictly immutable.
+2. **Contract & Color Resolution**: Contributor colors map directly from configured series indices (`--chart-1`, `--chart-2`, etc.) and remain fixed.
+3. **Non-Negative Validation**: Any negative value ($V < 0$) halts normalization and triggers a truthful error state.
+4. **Visibility Filtering**: Active legend toggles determine which contributors participate in the denominator.
+5. **Denominator Calculation**: Visible contributor raw values are summed to calculate the visible raw total.
+6. **Proportional Allocation**: For positive totals ($S > 0$), each contributor receives $(V_i / S) \times 100$.
+7. **Fixed 0–100 Stacking**: Recharts renders normalized values on a fixed quantitative axis with ticks at `0%`, `25%`, `50%`, `75%`, and `100%`.
+
+---
+
+## Raw Values & Derived Shares
+
+Percentages are always **derived** from canonical raw numbers, never ingested as source data:
+
+<RawValueVsDerivedShareDiagram />
+
+- **Display Tooltip**: Concurrently exposes both the derived share (e.g. `60.0%`) and the raw count (e.g. `620 users`), concluding with the visible category total (`1,000 users`).
+- **Precision Guard**: Geometry derives from full-precision floating-point ratios so adjacent segments join seamlessly without rounding gaps. Rounding is applied only during label formatting.
+
+---
+
+## Zero-Total Semantics: Zero Is Not Equal Shares
+
+What happens when every contributor in a category is zero ($0 + 0 + 0 = 0$)?
+
+<ZeroTotalSemanticsDiagram />
+
+> **Plotcn never invents equal shares for a zero-total category.**
+
+Three zeros do **not** mean that each contributor owns 33.3%. Dividing zero by zero ($0 / 0$) is mathematically undefined. 
+
+Under `PercentStackBars`:
+- Category band is preserved along the categorical axis.
+- No normalized bar geometry is rendered.
+- Tooltip factually states: *"Total measurement is zero. Proportional share is undefined."*
+- Screen reader announces: *"Raw total 0. Percentage composition unavailable because the visible total is zero."*
+- Offscreen table registers `Zero Total`.
+
+---
+
+## Missing vs. Zero vs. Hidden
+
+<PercentStackMissingVsZeroVsHiddenDiagram />
+
+Plotcn enforces strict distinctions between three easily confused states:
+
+### 1. Zero Value ($V = 0$)
+- Known, recorded measurement.
+- Contributes 0 to raw total.
+- Normalized share is 0.0%.
+- Segment has zero visual thickness but remains listed in tooltips and legends.
+
+### 2. Missing Value (`null` / `undefined` / `NaN`)
+- Unrecorded or unavailable measurement.
+- **Default Policy (`"incomplete"`):** Without all contributors, the true denominator cannot be known. Stack geometry is suppressed and the category is marked incomplete.
+- **Opt-in Policy (`"zero"`):** When `missingValuePolicy="zero"` is explicitly set, missing values are coerced to 0 before normalization.
+
+### 3. Hidden Contributor (User Legend Toggle)
+- Known measurement intentionally excluded by the user.
+- **Excludes contributor from the denominator.**
+- Remaining visible contributors renormalize to 100%.
+
+---
+
+## Legend Renormalization: Visibility Changes the Denominator
+
+When an interactive legend hides a series, `PercentStackBars` **renormalizes all remaining visible series to 100%**:
+
+<LegendRenormalizationDiagram />
+
+Suppose a category contains:
+- Series A: 50 (50%)
+- Series B: 30 (30%)
+- Series C: 20 (20%)
+
+When Series C is toggled off:
+- Visible Raw Total changes from $100 \to 80$.
+- Series A becomes $50 / 80 = \mathbf{62.5\%}$.
+- Series B becomes $30 / 80 = \mathbf{37.5\%}$.
+- The visible stack continues to occupy exactly 100% of the bar extent.
+- **Series colors never shift.** Series A remains `--chart-1` and Series B remains `--chart-2`.
+
+If all series are hidden, the chart enters a polite, recoverable empty state with a *"Show all contributors"* action.
+
+---
+
+## Stable Stack Order
+
+<PercentStackStableStackOrderDiagram />
+
+The series configuration array establishes a permanent vertical hierarchy:
+
+```text
+series[0] (Bottom)  →  series[1] (Middle)  →  series[2] (Top)
+```
+
+**Plotcn never dynamically reorders segments by share percentage.** Dynamic reordering forces viewers to re-scan legends on every category, destroying horizontal eye-tracking and creating visual chaos.
+
+---
+
+## Dual-Tier Interaction Architecture & Hit Testing
+
+<PercentStackHitRegionsDiagram />
+
+Inspecting tiny percentage segments (e.g. a 1.5% enterprise share) can be challenging on touchscreens or with imprecise mouse pointers. Plotcn provides two-tier hit testing:
+
+1. **Broad Category Band**: Hovering anywhere within the category column triggers the unified category tooltip, listing all contributors, shares, and totals.
+2. **Individual Segment Hover**: Moving directly over a specific segment highlights that series row within the tooltip and emphasizes the corresponding legend item.
+3. **No Artificial Inflation**: Plotcn never artificially inflates small segments to a minimum pixel height, preserving mathematical truthfulness.
+
+---
+
+## Vertical vs. Horizontal Orientation
+
+<PercentStackOrientationDiagram />
+
+- **Vertical (`layout="vertical"`, default)**: Categories along X, stacks rise vertically to 100%. Ideal for concise category labels, quarters, and dates.
+- **Horizontal (`layout="horizontal"`)**: Categories along Y, stacks extend horizontally to 100%. Ideal for long descriptive strings, department names, or localized labels without diagonal truncation.
+
+---
+
+## Color Customization & Theme Tokens
+
+Series colors default to Plotcn's adaptive theme tokens (`var(--chart-1)` through `var(--chart-8)`). Individual series can specify custom colors or theme tokens:
+
+```tsx
+<PercentStackBars
+  data={data}
+  categoryKey="segment"
+  series={[
+    { key: "monthly", label: "Monthly", color: "var(--chart-1)" },
+    { key: "annual", label: "Annual", color: "var(--chart-2)" },
+    { key: "multiYear", label: "Multi-year", color: "#8b5cf6" },
+  ]}
+/>
+```
+
+Custom color overrides do not trigger normalization recomputations. Adjacent segments remain distinguishable through 1px structural boundaries (`stroke="var(--background)"`).
+
+---
+
+## Data Safety Checklist
+
+- [x] Input uses raw additive measurements; percentages are derived internally.
+- [x] Caller data is never mutated; input is treated as strictly readonly.
+- [x] Category order matches caller order; no artificial sorting.
+- [x] Contributor order matches `series` config order across all categories.
+- [x] Non-negative contract enforced; negative values halt rendering with truthful feedback.
+- [x] Zero-total categories never invent equal shares ($0/0 \neq 33.3\%$).
+- [x] Missing values render as incomplete by default; treat-as-zero is explicit opt-in.
+- [x] Hiding a series renormalizes remaining visible series to 100%.
+- [x] Hiding a series never shifts color tokens of remaining series.
+- [x] Quantitative domain is fixed at 0–100% with no domain truncation.
+- [x] Tiny shares are never artificially inflated in SVG geometry.
+
+---
+
+## Rendering Architecture
+
+<PercentStackRenderingArchitectureDiagram />
+
+The rendering architecture coordinates pure mathematical normalization with Recharts SVG rendering primitives:
+
+```text
+PercentStackBars
+├── Pure Normalization Pipeline (normalizePercentStackData)
+│   ├── Non-negative validation
+│   ├── Missing value policy evaluation
+│   ├── Visible series denominator summation
+│   └── 0–100% proportional derivation
+├── Recharts Responsive Container
+│   ├── Fixed CartesianGrid (0%, 25%, 50%, 75%, 100%)
+│   ├── Categorical XAxis / YAxis
+│   ├── Fixed [0, 100] Percentage Axis
+│   └── Stacked Bar Components (stackId="percent")
+│       └── Custom Outer Corner Bar Shape (StackedBarShape)
+├── Interactive Legend (Renormalizing toggles)
+├── Synchronized Tooltip (Raw values + derived percentages + visible totals)
+└── Screen Reader ARIA Live Region & Offscreen HTML Table
+```
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | — | Yes | Readonly array of categorical records. |
+| `categoryKey` | `keyof TData & string` | — | Yes | Field name representing the categorical domain. |
+| `series` | `readonly PercentStackBarSeries<TData>[]` | — | Yes | Additive contributor series definitions (key, label, optional color). |
+| `layout` | `"vertical" \| "horizontal"` | `"vertical"` | No | Stacking orientation. |
+| `height` | `number \| string` | `340` | No | Container height in pixels or CSS dimension string. |
+| `groupGap` | `number` | `20` | No | Spacing between category bars in pixels. |
+| `maxBarSize` | `number` | `48` | No | Maximum thickness of stacked bars in pixels. |
+| `showGrid` | `boolean` | `true` | No | Whether to display percentage grid reference lines. |
+| `showLegend` | `boolean` | `true` | No | Whether to render the series legend. |
+| `interactiveLegend` | `boolean` | `true` | No | Whether clicking legend items toggles visibility and renormalizes. |
+| `valueLabel` | `"none" \| "auto"` | `"none"` | No | Whether to display inline percentage labels inside segments. |
+| `missingValuePolicy` | `"incomplete" \| "zero"` | `"incomplete"` | No | Handling of missing or non-finite contributor values. |
+| `percentageFormatter` | `(value: number) => string` | — | No | Custom percentage formatter for tooltips and labels. |
+| `categoryFormatter` | `(cat: string \| number) => string` | — | No | Custom formatter for category axis ticks and tooltips. |
+| `motion` | `boolean \| { duration?: number }` | `true` | No | Animation toggle. Bypassed when prefers-reduced-motion is active. |
+| `onActiveChange` | `(active: ActivePercentStackDatum \| null) => void` | — | No | Callback fired on active category change. |
+
+---
+
+## Source Anatomy
+
+The component installs directly into your repository with full source ownership:
+
+- **Component Path**: `components/charts/recharts/bar-percent-stack.tsx`
+- **Registry Dependencies**: `@plotcn/chart-container`, `@plotcn/chart-state`, `@plotcn/chart-tooltip`, `@plotcn/chart-motion`
+- **NPM Dependencies**: `recharts`

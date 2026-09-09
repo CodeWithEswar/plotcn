@@ -82,7 +82,7 @@ describe("Registry Install Command System", () => {
     const lineBasicInfo = getRegistryItemInfo("line-basic")
     assert.ok(lineBasicInfo)
     assert.equal(lineBasicInfo.name, "line-basic")
-    assert.equal(lineBasicInfo.isVerified, true)
+    assert.equal(lineBasicInfo.isVerified, false)
     assert.equal(lineBasicInfo.fileCount, 1)
     assert.deepEqual(lineBasicInfo.dependencies, ["recharts"])
     assert.ok(lineBasicInfo.registryDependencies.some((d) => d.includes("chart-tooltip")))

@@ -1,0 +1,227 @@
+---
+title: "Prism Area"
+description: "A clean single-series area chart for communicating how a quantitative magnitude changes across an ordered domain, using a restrained Plotcn semantic fill, explicit baseline semantics, truthful missing values, and synchronized stroke/fill/tooltip/selection identity."
+component: "PrismArea"
+engine: "recharts"
+registryName: "area-prism"
+number: "011"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Prism Area** is the foundational single-series component of the Plotcn **Area family**. It is engineered to communicate quantitative magnitude and volume trends across an ordered domain by combining an authoritative trend stroke with a restrained, semantic area fill anchored to an explicit baseline.
+
+The primary analytical question answered by Prism Area is:
+
+> **"How does this quantitative magnitude change across the ordered domain relative to its baseline?"**
+
+While line charts communicate directional movement, area charts communicate **magnitude through occupied visual space**. The filled polygon beneath the curve carries analytical weight: it represents the total accumulated quantity between the observation curve and the reference baseline.
+
+<AreaMagnitudeFlow />
+
+```tsx
+import { PrismArea } from "@/components/charts/recharts/area-prism"
+
+const requestData = [
+  { date: "May 01", requests: 12400 },
+  { date: "May 05", requests: 14800 },
+  { date: "May 10", requests: 13900 },
+  { date: "May 15", requests: 18200 },
+  { date: "May 20", requests: 21500 },
+  { date: "May 25", requests: 19800 },
+  { date: "May 30", requests: 24600 },
+]
+
+export function RequestVolumeTrend() {
+  return (
+    <PrismArea
+      data={requestData}
+      xKey="date"
+      series={{
+        key: "requests",
+        label: "API Requests",
+        valueFormatter: (v) => `${v.toLocaleString()} req/s`,
+      }}
+      baseline="zero"
+      showGrid
+      lockableTooltip
+    />
+  )
+}
+```
+
+---
+
+## Line vs. Area: Why Prism Area Exists Separately
+
+In data visualization architecture, an area chart is not merely a line chart with background coloring.
+
+| Consideration | Signal Line (Component 001) | Prism Area (Component 011) |
+| :--- | :--- | :--- |
+| **Primary Question** | *"What direction is the trend moving?"* | *"How much magnitude exists relative to a baseline?"* |
+| **Visual Encoding** | 1D stroke path (slope and position) | 2D filled polygon (accumulated height and area) |
+| **Baseline Dependency** | Baseline is optional; domain can crop tightly | **Baseline is fundamental to the area's quantitative meaning** |
+| **Ideal Metrics** | Stock prices, temperature, exchange rates, index points | Volume, storage usage, throughput, session counts, bandwidth |
+| **Perceived Weight** | Minimal visual mass; easy to overlay multiple lines | Substantial visual mass; establishes authoritative hierarchy |
+
+> **Visualization Principle**: Avoid area charts when the baseline has no physical or financial meaning, or when values represent purely relative percentages or index changes where filling to zero distorts perception.
+
+---
+
+## Baseline Semantics & Domain Safeguards
+
+The area polygon fills toward an explicit reference level. Plotcn provides three deliberate baseline modes:
+
+<AreaBaselineFlow />
+
+### 1. Zero Baseline (`baseline="zero"`, Default)
+
+Conventional magnitude metrics (counts, volume, throughput, bytes) naturally anchor at zero. When `baseline="zero"` is configured:
+- The filled polygon extends from the observation value down to $y = 0$.
+- **Critical Domain Rule**: The automatic Y-scale calculation **always includes zero**, even if all data points are substantially above zero (e.g. data spanning $92$ to $104$ will scale from $0$ to $110$).
+- **Anti-Distortion Invariant**: Plotcn prevents the common visualization flaw where an area chart truncates its Y-axis at $90$, visually exaggerating variation as though the bottom of the card were zero.
+
+### 2. Domain-Min Baseline (`baseline="domain-min"`)
+
+When exploring high-baseline trends where variation rather than absolute zero-based magnitude is the primary subject:
+- The filled polygon terminates at the lowest visible observation (`baseValue="dataMin"`).
+- The automatic Y-scale frames data tightly around its minimum and maximum values without forcing zero into the scale.
+- **Analytical Trade-off**: Emphasizes local fluctuations at the expense of absolute magnitude comparison.
+
+### 3. Custom Numeric Baseline (`baseline={100}`)
+
+Useful for evaluating performance relative to a defined quota, capacity ceiling, or SLA target:
+- The polygon fills toward the specified numeric value (e.g., $100\text{ req/s}$).
+- The automatic domain safely encloses both data extrema and the target baseline to prevent polygon clipping.
+
+> [!WARNING]
+> If you supply an explicit `domain={[90, 120]}` alongside `baseline="zero"`, the requested baseline lies outside the visible plotting rectangle. Plotcn respects your explicit scale and clips the fill truthfully without silently pretending $90$ is zero.
+
+---
+
+## Positive, Negative & Baseline Crossing
+
+Prism Area preserves positive and negative values without artificial clamping:
+
+<AreaCrossingFlow />
+
+| Orientation | Direction | Fill Anchor |
+| :--- | :--- | :--- |
+| **Positive Magnitude ($v > 0$)** | Fills downward | Anchors to baseline $y = 0$ |
+| **Negative Magnitude ($v < 0$)** | Fills upward | Anchors to baseline $y = 0$ |
+
+- **Truthful Crossings**: Values above zero fill downward to the baseline; values below zero fill upward to the baseline.
+- **Neutral Color Coding**: Prism Area does not automatically switch colors to red below zero. The chart remains semantically neutral, leaving evaluative color encoding to specialized threshold or diverging components.
+
+---
+
+## Color & Fill System
+
+Prism Area implements synchronized stroke, fill, and inspection identities with deterministic override precedence:
+
+| Identity Surface | Resolved Value | Precedence |
+| :--- | :--- | :--- |
+| **Stroke Path & Points** | `color` prop | Explicit `color` $\rightarrow$ Theme `var(--chart-1)` |
+| **Area Polygon Fill** | `fillColor` or `color` | Explicit `fillColor` $\rightarrow$ Inherited stroke `color` $\times$ `fillOpacity` |
+| **Locked Indicator & Pin** | `selectionColor` | Explicit `selectionColor` $\rightarrow$ `var(--chart-selection)` |
+
+### 1. Stroke (`color`)
+Defaults to `var(--chart-1)`. Governs the primary continuous trend stroke, observation markers, and inspection readouts.
+
+### 2. Area Fill (`fillColor` & `fillOpacity`)
+By default, the fill automatically inherits the resolved stroke color at `fillOpacity={0.2}`. If a designer specifies an explicit `fillColor` (e.g. `color="#2563eb" fillColor="#93c5fd"`), the explicit fill takes precedence while stroke retains its independent identity.
+
+### 3. Gradient Mode (`gradientMode="fade"`)
+When enabled, Prism Area applies a vertical linear gradient fading from stroke color at the peak down to $15\%$ opacity at the baseline. All gradient `<defs>` utilize collision-safe, SSR-compliant IDs generated via `React.useId()`, ensuring multiple area charts can render on the same page without style leakage.
+
+---
+
+## Data & Series Contracts
+
+Prism Area accepts an ordered array of data records:
+
+```ts
+type PrismAreaDatum = {
+  date: string | Date
+  requests: number | null
+}
+```
+
+### Series Configuration Object
+
+```ts
+interface PrismAreaSeries<TData> {
+  key: NumericKeyOf<TData>
+  label: string
+  valueFormatter?: (value: number) => string
+}
+```
+
+---
+
+## Installation
+
+Install Prism Area directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/area-prism.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/area-prism` will become available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g. date, month). |
+| `series` | `PrismAreaSeries<TData>` | — | Yes | Single semantic series descriptor declaring metric key, label, and formatter. |
+| `baseline` | `"zero" \| "domain-min" \| number` | `"zero"` | No | Baseline reference toward which the area fills. |
+| `height` | `number \| string` | `320` | No | Container height in pixels or standard CSS dimension strings. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm for stroke and area polygon paths. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `["auto", "auto"]` | No | Vertical Y scale domain. Automatically encloses the active baseline. |
+| `color` | `string` | `"var(--chart-1)"` | No | Stroke color, active marker color, and default auto-fill color. |
+| `fillColor` | `string` | `undefined` | No | Explicit fill color override. Takes precedence over auto-fill. |
+| `fillOpacity` | `number` | `0.2` | No | Fill opacity between 0 and 1. |
+| `gradientMode` | `"none" \| "fade"` | `"none"` | No | Gradient styling. "fade" renders a collision-safe top-to-bottom opacity gradient. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for the locked crosshair and locked inspection indicator. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showLegend` | `boolean` | `false` | No | Whether to render the series identity legend with area swatch sample. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click, tap, or Enter/Space. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | Policy for missing values: honest visual break (gap) or forward fill (carry). |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Entry reveal animation. Bypassed automatically under prefers-reduced-motion. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Formatter for Y-axis scale ticks and default tooltip metric readouts. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Formatter for horizontal domain tick labels. |
+| `title` | `string` | `"Prism Area Chart"` | No | Accessible title for assistive technologies and screen readers. |
+| `description` | `string` | `undefined` | No | Accessible description detailing metric volume and baseline reference. |
+
+---
+
+## Keyboard Navigation Reference
+
+Prism Area provides a single focused entry point for Cartesian exploration:
+
+| Key | Control Target | Action |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Plot Inspection | Inspect next chronological observation across the domain |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Plot Inspection | Inspect previous chronological observation |
+| <kbd>Home</kbd> | Plot Inspection | Jump inspection to the first observation |
+| <kbd>End</kbd> | Plot Inspection | Jump inspection to the latest observation |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Plot Inspection | Lock or unlock persistent inspection at the active coordinate |
+| <kbd>Escape</kbd> | Plot Inspection | Dismiss locked inspection and release pinned tooltip |
+
+---
+
+## Data Safety Checklist
+
+- **✓ Missing Observations Never Collapse to Baseline**: `null`, `undefined`, and `NaN` values produce an honest visual break (`null ≠ 0`).
+- **✓ Zero Remains a Valid Observation**: True zero is rendered at the baseline without being treated as missing or falsy.
+- **✓ Automatic Domain Encloses Baseline**: When `baseline="zero"` is used, $0$ is guaranteed to be within the scale domain to prevent magnitude exaggeration.
+- **✓ Negative Values Render Truthfully**: Negative values fill upward toward the baseline without clamping or taking absolute values.
+- **✓ Gradient Never Encodes Data**: The fade gradient is purely decorative depth; it never represents probability, uncertainty, or a secondary metric.
+- **✓ Collision-Safe SVG Defs**: Gradient IDs are generated dynamically via `React.useId()` to prevent cross-chart style corruption.
+- **✓ Immutability**: Caller data arrays and series configuration objects are never mutated.

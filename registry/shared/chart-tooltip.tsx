@@ -21,6 +21,10 @@ export interface ChartTooltipProps {
   className?: string
   indicator?: "dot" | "line" | "dashed"
   hideLabel?: boolean
+  /**
+   * Whether to render in ultra-compact mode for smaller charts and preview tiles.
+   */
+  compact?: boolean
 }
 
 /**
@@ -37,6 +41,7 @@ export function ChartTooltip({
   className,
   indicator = "dot",
   hideLabel = false,
+  compact = false,
 }: ChartTooltipProps) {
   if (!active || !payload?.length) {
     return null
@@ -47,19 +52,25 @@ export function ChartTooltip({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[var(--chart-tooltip-border,rgba(255,255,255,0.12))] bg-[var(--chart-tooltip-background,#09090b)]/95 p-2.5 text-[var(--chart-tooltip-foreground,#fafafa)] shadow-xl backdrop-blur-md text-xs min-w-[140px] pointer-events-none transition-all duration-75",
+        "plotcn-chart-tooltip",
+        compact && "plotcn-chart-tooltip-compact",
         className
       )}
       role="tooltip"
     >
-      {!hideLabel && formattedLabel && (
-        <div className="text-[11px] font-mono text-[var(--chart-tooltip-muted,#a1a1aa)] mb-1.5 pb-1 border-b border-[var(--chart-tooltip-border,rgba(255,255,255,0.08))]">
+      {!hideLabel && formattedLabel !== undefined && formattedLabel !== null && (
+        <div
+          className={cn(
+            "font-mono text-[var(--chart-tooltip-muted)] border-b border-[var(--chart-tooltip-border)] truncate",
+            compact ? "text-[10px] mb-1 pb-0.5" : "text-[11px] mb-1.5 pb-1"
+          )}
+        >
           {formattedLabel}
         </div>
       )}
-      <div className="flex flex-col gap-1">
+      <div className={cn("flex flex-col", compact ? "gap-0.5" : "gap-1")}>
         {payload.map((item, index) => {
-          const itemColor = item.color || "var(--chart-1, #10b981)"
+          const itemColor = item.color || "var(--chart-1)"
           const rawVal = item.value
           let displayVal: React.ReactNode = "—"
 
@@ -98,11 +109,11 @@ export function ChartTooltip({
                     aria-hidden="true"
                   />
                 )}
-                <span className="text-[11px] text-[var(--chart-tooltip-muted,#a1a1aa)] truncate">
+                <span className="text-[11px] text-[var(--chart-tooltip-muted)] truncate">
                   {item.name || "Value"}
                 </span>
               </div>
-              <span className="font-mono text-xs font-semibold tabular-nums text-[var(--chart-tooltip-foreground,#fafafa)] shrink-0">
+              <span className="font-mono text-xs font-semibold tabular-nums text-[var(--chart-tooltip-foreground)] shrink-0">
                 {displayVal}
                 {item.unit ? ` ${item.unit}` : ""}
               </span>

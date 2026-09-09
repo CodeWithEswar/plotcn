@@ -1,10 +1,18 @@
+"use client"
+
 import React from "react"
 import Link from "next/link"
 import type { ChartMetadata } from "@/lib/charts/metadata"
+import { charts } from "@/config/charts"
 import { chartHref, engineLabels } from "@/lib/charts/filters"
 import { getCategoryLabel } from "@/lib/charts/categories"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowLeft01Icon, ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowUpRight01Icon,
+} from "@hugeicons/core-free-icons"
+import { cn } from "@/lib/utils"
 
 interface RelatedChartsProps {
   relatedCharts: readonly ChartMetadata[]
@@ -12,12 +20,14 @@ interface RelatedChartsProps {
 }
 
 export function RelatedCharts({ relatedCharts, currentChart }: RelatedChartsProps) {
-  // Find prev/next in related set or engine set
-  const prevChart = relatedCharts[0]
-  const nextChart = relatedCharts[1] || relatedCharts[0]
+  // Correctly find previous and next components from the canonical catalog order
+  const currentIndex = charts.findIndex((c) => c.id === currentChart.id)
+  const prevChart = currentIndex > 0 ? charts[currentIndex - 1] : null
+  const nextChart =
+    currentIndex !== -1 && currentIndex < charts.length - 1 ? charts[currentIndex + 1] : null
 
   return (
-    <section id="section-related" className="space-y-6 pt-4 pb-12 scroll-mt-20 border-t border-white/[0.08]">
+    <section id="section-related" className="space-y-6 pt-4 scroll-mt-20 border-t border-border">
       <div className="space-y-1 pt-4">
         <div className="text-[11px] font-mono tracking-widest text-emerald-400 font-semibold uppercase">
           08 / Ecosystem Discovery
@@ -26,7 +36,8 @@ export function RelatedCharts({ relatedCharts, currentChart }: RelatedChartsProp
           Related Components & Family
         </h2>
         <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-          Explore alternative charting components in the {engineLabels[currentChart.engine]} family and {getCategoryLabel(currentChart.category)} category.
+          Explore alternative charting components in the {engineLabels[currentChart.engine]} family and{" "}
+          {getCategoryLabel(currentChart.category)} category.
         </p>
       </div>
 
@@ -64,32 +75,57 @@ export function RelatedCharts({ relatedCharts, currentChart }: RelatedChartsProp
       </div>
 
       {/* Previous / Next Navigation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/[0.06]">
-        {prevChart && (
-          <Link
-            href={chartHref(prevChart)}
-            className="flex items-center gap-3 p-3.5 rounded-xl border border-white/[0.06] bg-zinc-950/40 hover:bg-zinc-900/40 hover:border-white/[0.12] transition-colors group"
-          >
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} className="text-zinc-500 group-hover:text-white transition-colors" />
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">Previous Component</span>
-              <span className="text-xs font-medium text-zinc-200 group-hover:text-white truncate block">{prevChart.title}</span>
-            </div>
-          </Link>
-        )}
+      <div className="space-y-3 pt-6 border-t border-white/[0.08]">
+        <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
+          Catalog Navigation
+        </div>
 
-        {nextChart && nextChart.id !== prevChart?.id && (
-          <Link
-            href={chartHref(nextChart)}
-            className="flex items-center justify-end text-right gap-3 p-3.5 rounded-xl border border-white/[0.06] bg-zinc-950/40 hover:bg-zinc-900/40 hover:border-white/[0.12] transition-colors group sm:ml-auto w-full"
-          >
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">Next Component</span>
-              <span className="text-xs font-medium text-zinc-200 group-hover:text-white truncate block">{nextChart.title}</span>
-            </div>
-            <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-zinc-500 group-hover:text-white transition-colors" />
-          </Link>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {prevChart && (
+            <Link
+              href={chartHref(prevChart)}
+              className="flex items-center gap-3 p-3.5 rounded-xl border border-white/[0.08] bg-zinc-950/50 hover:bg-zinc-900/60 hover:border-white/[0.15] transition-all group shadow-xs"
+            >
+              <HugeiconsIcon
+                icon={ArrowLeft01Icon}
+                size={16}
+                className="text-zinc-500 group-hover:text-white group-hover:-translate-x-0.5 transition-transform shrink-0"
+              />
+              <div className="min-w-0">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">
+                  Previous Component
+                </span>
+                <span className="text-xs font-medium text-zinc-200 group-hover:text-white truncate block">
+                  {prevChart.title}
+                </span>
+              </div>
+            </Link>
+          )}
+
+          {nextChart && (
+            <Link
+              href={chartHref(nextChart)}
+              className={cn(
+                "flex items-center justify-end text-right gap-3 p-3.5 rounded-xl border border-white/[0.08] bg-zinc-950/50 hover:bg-zinc-900/60 hover:border-white/[0.15] transition-all group shadow-xs w-full",
+                !prevChart && "sm:col-start-2"
+              )}
+            >
+              <div className="min-w-0">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">
+                  Next Component
+                </span>
+                <span className="text-xs font-medium text-zinc-200 group-hover:text-white truncate block">
+                  {nextChart.title}
+                </span>
+              </div>
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                size={16}
+                className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-transform shrink-0"
+              />
+            </Link>
+          )}
+        </div>
       </div>
     </section>
   )

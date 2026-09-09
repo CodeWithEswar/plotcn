@@ -1,0 +1,298 @@
+---
+title: Group Compare Bars
+description: Side-by-side peer measures within stable categorical groups, with shared quantitative scaling, deterministic series identity, and category-centric inspection.
+component: GroupCompareBars
+engine: recharts
+renderer: svg
+family: bar
+status: preview
+blueprint: "021"
+---
+
+# 021 / RECHARTS / BAR
+
+# Group Compare Bars
+
+> **Group Compare Bars compares peer quantitative measures side-by-side inside a shared categorical band. Category order and series identity remain stable, every visible series shares one quantitative scale, and missing values must never be disguised as zero-height bars.**
+
+```text
+021 / RECHARTS / BAR · SVG · GROUPED · MULTI-SERIES · RESPONSIVE · SOURCE-FIRST
+```
+
+---
+
+## Quick Facts
+
+| Property | Value | Notes |
+| :--- | :--- | :--- |
+| **Engine** | Recharts | Cartesian coordinates via `<BarChart>`, `<Bar>`, `<XAxis>`, `<YAxis>` |
+| **Renderer** | SVG | Crisp, scalable vector graphics across all DPRs |
+| **Composition** | Grouped (Side-by-Side) | Discrete peer slots within each categorical band |
+| **Series Contract** | `2+` peer measures | Ordered peer series sharing identical quantitative unit and scale |
+| **Category Order** | Source order | Strictly preserved from caller data without auto-sorting |
+| **Series Order** | Configuration order | Strictly preserved; never reorders by value magnitude |
+| **Quantitative Scale** | Shared zero-anchored | Single Y-axis scale (or X-axis in horizontal); equal values yield equal lengths |
+| **Baseline** | Zero (0) | Grounded reference line; positive bars extend up, negative extend down |
+| **Missing Policy** | Slot reserved | Missing data renders no bar; slot remains reserved (no impersonation) |
+| **Zero Policy** | Truthful observation | Value 0 renders 0-height bar; tooltip displays "0" |
+| **Legend** | Visible by default | Canonical order; interactive visibility toggling supported |
+| **Inspection** | Category-centric | Broad category band activation + precise bar rectangle focus |
+| **Accessibility** | Dual-tier | 1 tab stop, ArrowLeft/Right (or Up/Down), live region, offscreen HTML `<table>` |
+
+---
+
+## Installation
+
+Install the component directly into your project using the shadcn CLI:
+
+```bash
+npx shadcn add "https://plotcn.vercel.app/r/bar-group-compare.json"
+```
+
+### Dependencies
+
+```json
+{
+  "dependencies": {
+    "recharts": "^2.15.0"
+  },
+  "registryDependencies": [
+    "@plotcn/chart-container",
+    "@plotcn/chart-state",
+    "@plotcn/chart-tooltip",
+    "@plotcn/chart-motion"
+  ]
+}
+```
+
+---
+
+## Usage
+
+```tsx
+import { GroupCompareBars } from "@/components/charts/recharts/bar-group-compare"
+
+const quarterlyRevenue = [
+  { quarter: "Q1", current: 184000, previous: 163000 },
+  { quarter: "Q2", current: 216000, previous: 191000 },
+  { quarter: "Q3", current: 228000, previous: 207000 },
+  { quarter: "Q4", current: 252000, previous: 236000 },
+]
+
+export function RevenueComparisonChart() {
+  return (
+    <GroupCompareBars
+      data={quarterlyRevenue}
+      categoryKey="quarter"
+      series={[
+        { key: "current", label: "Current Year", color: "var(--chart-1)" },
+        { key: "previous", label: "Previous Year", color: "var(--chart-2)" },
+      ]}
+      valueFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+    />
+  )
+}
+```
+
+---
+
+## Comparison Model
+
+In Group Compare Bars, each discrete category owns a shared comparison band. Inside that band, every configured peer series occupies a stable slot and extends independently from the common zero baseline.
+
+<GroupedComparisonModelDiagram />
+
+### Key Analytical Principles
+1. **Peer Relationship**: Series are treated as ordered peers rather than primary vs. reference or part-to-whole contributors.
+2. **Independent Magnitudes**: Each bar measures strictly from baseline zero. A grouped chart never sums values across series.
+3. **Band Cohesion**: Neighboring groups are separated by `groupGap`, while peer bars inside one group are separated by a subtle `barGap`.
+
+---
+
+## Grouped vs. Stacked Semantics
+
+The analytical difference between Group Compare Bars (021) and Stack Ledger Bars (022) is fundamental and must never be conflated behind a toggle:
+
+<GroupedVsStackedComparisonDiagram />
+
+- **Grouped Bars (021)** answer: *"Within each category, how do multiple comparable measures differ from one another?"* Bars sit side-by-side; each represents an independent quantity.
+- **Stacked Bars (022)** answer: *"What is the total magnitude for each category, and how do additive contributors compose that total?"* Segments visually join into one cumulative whole.
+
+Because `GroupCompareBars` has one dedicated analytical identity, generic `stackMode` props have been specialized away.
+
+---
+
+## Stable Series Identity
+
+A core invariant of Plotcn visualization is **spatial predictability**. Regardless of how values vary or cross between categories, series positions within the group never change.
+
+<StableSeriesIdentityDiagram />
+
+### Why Dynamic Sorting Is Forbidden
+If Series A is higher than Series B in Q1, but Series B is higher than Series A in Q2, dynamically sorting bars inside each group would cause spatial positions to swap:
+
+```text
+// FORBIDDEN: Unstable spatial swapping
+Q1: [ Slot 1: A (80) ]  [ Slot 2: B (60) ]
+Q2: [ Slot 1: B (95) ]  [ Slot 2: A (40) ]  // Swapped! Cognitive dissonance
+```
+
+In `GroupCompareBars`, Slot 1 is always Series A and Slot 2 is always Series B across all categories. The user's spatial memory is preserved.
+
+---
+
+## Missing-Series Slot Reservation
+
+Real-world datasets frequently contain unrecorded or missing data for one series in a given period.
+
+<MissingSeriesSlotDiagram />
+
+### The Slot Reservation Rule
+When a series value is `null`, `undefined`, or non-finite:
+1. **No Fake Bar**: No rectangle of 0 height is fabricated.
+2. **Slot Reserved**: The spatial slot for that series remains reserved.
+3. **No Impersonation**: Neighboring surviving series do **not** shift left into the empty slot. Series C will never render in Slot B's position.
+4. **Explicit Tooltip**: The tooltip explicitly labels the metric as `"Unavailable"` rather than hiding the row or falsely asserting zero.
+
+---
+
+## Shared Quantitative Scale
+
+Every configured peer series shares the exact same quantitative axis and scale.
+
+<SharedQuantitativeScaleDiagram />
+
+### Scale Integrity Guarantees
+- **Equal Lengths for Equal Values**: A bar of value `100` in Series A has the exact same quantitative length in pixels as a bar of value `100` in Series B.
+- **No Dual Axes**: Plotcn rejects dual-axis grouped bars because mismatched scales create optical illusions of parity between incompatible units (e.g. dollars vs. percentages).
+- **Mandatory Zero Anchor**: Conventional bars encode magnitude via bar length. The quantitative domain automatically anchors at zero (`domainMin <= 0` and `domainMax >= 0`) with 8% headroom padding to prevent clipping.
+
+---
+
+## Dual-Layer Hit Testing & Interaction
+
+Grouped bars often contain narrow bars. Requiring a pixel-perfect hit on a thin rectangle to inspect a category frustrates pointer and touch exploration.
+
+<CategoryBarHitRegionsDiagram />
+
+`GroupCompareBars` resolves this with a dual-layer hit architecture:
+1. **Category Band Activation**: Hovering anywhere within the broad category band highlights the group and presents the synchronized category tooltip.
+2. **Precise Bar Rectangle Focus**: Hovering directly over an individual bar highlights that specific series row in the tooltip and legend, maintaining category context without distorting bar geometry.
+
+---
+
+## Responsive Layout Orientation
+
+`GroupCompareBars` provides an intuitive `layout` prop with Plotcn semantics:
+- `"vertical"` (default): Categories along the X-axis; bars grow vertically.
+- `"horizontal"`: Categories along the Y-axis; bars grow horizontally.
+
+<ResponsiveOrientationDiagram />
+
+### Guidelines for Orientation
+- Use **Vertical Layout** for concise dates, quarters (Q1, Q2), months, or short codes.
+- Use **Horizontal Layout** whenever category labels are lengthy (e.g. enterprise squads, department names, regional subsidiaries) to avoid unreadable slanted or clipped text.
+
+---
+
+## Rendering Architecture
+
+The data pipeline enforces validation, scale synchronization, and accessibility before rendering Recharts SVG primitives:
+
+<GroupCompareArchitectureFlowDiagram />
+
+1. **Consumer Data Ingestion**: Caller dataset and ordered `series` array ingested immutably.
+2. **Data Normalization & Validation**: Non-finite values mapped to `null`, caller category order preserved, duplicate category detection.
+3. **Canonical Color Resolution**: Colors mapped deterministically from configured array index (`--chart-1`, `--chart-2`, etc.).
+4. **Zero-Inclusive Shared Domain**: Unified domain computed from min and max observed across all visible series.
+5. **Recharts Grouped Cartesian Bars**: `<BarChart>` rendered without `stackId`, allocating side-by-side slots.
+6. **Dual-Tier Output**: Synchronized category tooltip, interactive legend, keyboard focus, and screen reader HTML `<table>`.
+
+---
+
+## Component API & Props
+
+### Core Props
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` * | `readonly TData[]` | — | Readonly array of categorical records. Caller data is never mutated. |
+| `categoryKey` * | `keyof TData & string` | — | Property key on records representing the discrete category domain. |
+| `series` * | `readonly GroupCompareBarSeries<TData>[]` | — | Ordered array of peer numeric series sharing unit and scale. |
+| `layout` | `"vertical" \| "horizontal"` | `"vertical"` | Orientation. `"vertical"` = categories on X; `"horizontal"` = categories on Y. |
+| `height` | `number \| string` | `340` | Container height in pixels or valid CSS string. |
+| `domain` | `[number, number]` | `Auto [0, Max]` | Quantitative scale override. Always anchored at zero by default. |
+
+### Appearance & Sizing
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `groupGap` | `number` | `20` | Pixel gap between discrete category groups (`barCategoryGap`). |
+| `barGap` | `number` | `4` | Pixel gap between peer bars within one group (`barGap`). |
+| `maxBarSize` | `number` | `36` | Maximum thickness of individual bars in pixels. |
+| `showGrid` | `boolean` | `true` | Whether to display dashed reference grid lines. |
+| `showXAxis` | `boolean` | `true` | Whether to display the X-axis. |
+| `showYAxis` | `boolean` | `true` | Whether to display the Y-axis. |
+| `showLegend` | `boolean` | `true` | Whether to display the series legend. |
+| `interactiveLegend` | `boolean` | `true` | Whether clicking legend items toggles series visibility. |
+| `valueLabel` | `"none" \| "auto" \| "always"` | `"none"` | Value label display mode above bars. |
+
+### Formatting & Callbacks
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `motion` | `boolean \| { duration?: number }` | `true` | Entrance animation. Automatically disabled under reduced motion. |
+| `categoryFormatter` | `(category: string \| number) => string` | `String` | Formatter function for categorical axis tick labels. |
+| `valueFormatter` | `(value: number) => string` | `toLocaleString` | Global formatter function for quantitative values. |
+| `onActiveChange` | `(datum: ActiveGroupCompareDatum \| null) => void` | `—` | Callback fired when active category or series changes. |
+
+---
+
+## Interactive Legend & Visibility
+
+When `interactiveLegend={true}` is enabled:
+- Clicking a series item toggles its visibility globally across all categories.
+- **Color Stability**: Hiding Series 2 will **never** cause Series 3 to inherit Series 2's color. Colors remain bound to original configured series identity.
+- **All-Series-Hidden State**: If all series are toggled off, a recoverable state displays: *"All peer series are hidden"* with a `"Show All Series"` button.
+
+---
+
+## Keyboard Navigation
+
+`GroupCompareBars` implements accessible, single-tab-stop keyboard navigation:
+
+- **Focus**: Press <kbd>Tab</kbd> to focus the chart region.
+- **Vertical Layout**:
+  - <kbd>→</kbd>: Move to next category band.
+  - <kbd>←</kbd>: Move to previous category band.
+- **Horizontal Layout**:
+  - <kbd>↓</kbd>: Move to next category band.
+  - <kbd>↑</kbd>: Move to previous category band.
+- **Home / End**: Jump directly to first or last category.
+- **Escape**: Clear active category selection.
+
+Live announcements narrate category name, current index, and all visible peer series values cleanly to screen readers.
+
+---
+
+## Data Safety Checklist
+
+- [x] **Preserved Category Order**: Source array order is strictly respected; no automatic sorting.
+- [x] **Preserved Series Order**: Configured series order is invariant across all categories.
+- [x] **Shared Quantitative Scale**: All peer series share one Y-axis scale; no dual axes.
+- [x] **Zero Baseline**: Quantitative domain always includes zero; no truncated floating bars.
+- [x] **Zero Is Valid**: Observations of `0` render a zero-height bar, not an error or fake rectangle.
+- [x] **Negative Support**: Negative values extend downward from zero baseline truthfully.
+- [x] **Missing Slot Reservation**: Missing values render no bar but preserve slot spacing.
+- [x] **No Bar Impersonation**: Surviving bars never shift into an absent peer's position.
+- [x] **Stable Colors**: Series colors derive from canonical configuration order, not visible index.
+- [x] **Recoverable Hidden State**: Hiding all series displays an actionable recovery UI.
+- [x] **Responsive Integrity**: Responsive adaptation reduces ticks and labels before content; never silently drops a series.
+- [x] **Immutable Data**: Caller datasets and series arrays are never mutated.
+
+---
+
+## Related Components
+
+- [019 / Signal Bars](/charts/recharts/bar-signal) — Canonical discrete categorical comparison with single or grouped series.
+- [022 / Stack Ledger Bars](/charts/recharts/bar-stack-ledger) — Additive stacked bars for cumulative composition and truthful totals.

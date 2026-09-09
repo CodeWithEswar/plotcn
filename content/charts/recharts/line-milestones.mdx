@@ -1,0 +1,229 @@
+---
+title: "Milestone Line"
+description: "Time-series trend with sparse event annotations and milestone pins for releases, incidents, launches, and policy changes."
+component: "MilestoneLine"
+engine: "recharts"
+registryName: "line-milestones"
+number: "006"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Milestone Line** is a dedicated time-series visualization for **showing a quantitative trend together with a small number of meaningful events, releases, incidents, launches, policy changes, or campaigns**.
+
+Its core mental model is:
+
+> **Show what happened to the metric, and make the important moments around that trend easy to identify without overwhelming the chart.**
+
+Milestone annotations remain sparse, intentional, readable, responsive, accessible, and semantically separate from the numeric observation series itself.
+
+<MilestoneAnnotationFlow />
+
+```tsx
+import { MilestoneLine } from "@/components/charts/recharts/line-milestones"
+
+const growthData = [
+  { date: "Jan", users: 45000 },
+  { date: "Feb", users: 52000 },
+  { date: "Mar", users: 58000 },
+  { date: "Apr", users: 63000 },
+  { date: "May", users: 78000 },
+  { date: "Jun", users: 84000 },
+  { date: "Jul", users: 95000 },
+]
+
+const milestones = [
+  { id: "pricing-v2", x: "Feb", label: "Pricing v2", description: "Updated subscription tiers" },
+  { id: "mobile-launch", x: "May", label: "Mobile app", description: "Public release on iOS and Android" },
+  { id: "enterprise-tier", x: "Jul", label: "Enterprise", description: "SSO and audit log rollout" },
+]
+
+export function ProductGrowthCard() {
+  return (
+    <MilestoneLine
+      data={growthData}
+      xKey="date"
+      series={{ key: "users", label: "Active users" }}
+      milestones={milestones}
+      showMilestoneGuides
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## The Milestone Model
+
+In Milestone Line, the milestone layer is treated as an independent semantic structure. It is:
+
+- **Not another data series**: Milestones do not contribute Y-values to the quantitative scale or distort the domain.
+- **Not a legend item**: Milestones are contextual events, not repetitive series keys.
+- **Not a second Y-axis**: Milestones are positioned strictly along the horizontal domain axis ($X$).
+- **Not arbitrary HTML overlays**: Guides and pins are coordinated natively inside the Cartesian SVG coordinate space.
+
+<MilestoneLayerFlow />
+
+### Top Annotation Lane
+
+Rather than anchoring milestone pins directly onto line vertices—which would require interpolating fake metric numbers between observations—Milestone Line places milestone pins and labels in a **dedicated top annotation lane** above the plot area:
+
+1. **Uncluttered Trend**: The quantitative line remains clean and easy to follow.
+2. **True Event Placement**: Events can exist between observation points without requiring fake Y interpolation.
+3. **Deterministic Collision**: Label collision algorithms operate cleanly in horizontal space without competing with line vertices.
+4. **Subtle Vertical Guides**: Thin dashed reference lines connect the top event pin down through the plot area.
+
+---
+
+## Data Model Separation
+
+Milestone Line enforces strict separation between numeric observations and milestone events:
+
+```typescript
+// Numeric Observations (data: readonly TData[])
+export interface UserMetricDatum {
+  date: string       // Horizontal domain coordinate
+  users: number      // Quantitative metric level
+}
+
+// Milestone Events (milestones: readonly Milestone<XVal>[])
+export interface Milestone<XValue = string | number> {
+  id: string         // Stable, unique milestone identifier
+  x: XValue          // Exact domain position along the X axis
+  label: string      // Short, concise title (e.g. "V2 launch")
+  description?: string // Optional contextual detail for tooltips
+}
+```
+
+### Stable Milestone IDs
+
+Every milestone must have a stable, caller-provided `id` (such as `"pricing-v2"` or `"incident-104"`). Identity is **never derived from array index**. Stable IDs ensure deterministic React rendering keys, reliable keyboard focus, and unambiguous selection state.
+
+---
+
+## Duplicate-X & Same-Date Handling
+
+Multiple events can occur on the exact same date or interval (e.g. a version release and a simultaneous pricing change). Overlapping two independent pins creates unreadable text and pointer conflict.
+
+Milestone Line resolves this deterministically by **grouping same-date milestones**:
+
+```text
+Single Event:                 Same-Date Events (2+):
+      ●                               [● 2]
+      │                                 │
+      │                                 │
+```
+
+- When multiple milestones share an $X$ coordinate, Milestone Line renders a single grouped badge showing the event count (`● 2`).
+- Hovering, focusing, or clicking the grouped pin presents **all associated events** ordered by caller input sequence in a unified inspection tooltip.
+
+---
+
+## Missing Data & Domain Safety
+
+1. **Missing Series Observations**:
+   If an observation's metric value is `null` or unrecorded, the trend line breaks truthfully. However, **the milestone pin and vertical guide remain visible**. An unrecorded metric does not erase an operational milestone.
+2. **No Fake Interpolation**:
+   When a milestone falls between observations or occurs during a metric gap, Milestone Line **never invents or interpolates fake metric values**. The inspection tooltip simply indicates that metric values were not recorded.
+3. **Out-of-Domain Milestones**:
+   If a milestone's $X$ coordinate falls outside the chart domain, it is safely omitted. **It is never clamped to chart borders**, which would falsely misrepresent the date of the event.
+4. **Caller Data Immutability**:
+   Input arrays (`data` and `milestones`) are never mutated.
+
+---
+
+## Causality & Responsible Interpretation
+
+> [!IMPORTANT]
+> **Plotcn visualizes temporal association, never causality.**
+> Placing an event pin near a spike or drop in a metric tempts viewers to infer that the event caused the change. Milestone Line documentation and tools must strictly avoid declaring causal links.
+
+```text
+Responsible:   "The V2 release occurred on May 10th during this observation period."
+Irresponsible: "The V2 release drove a 24% increase in user signups."
+```
+
+Unless the host application explicitly provides verified analytical attribution, time-series visualizations must present events as contextual markers along the timeline.
+
+---
+
+## Installation
+
+Install Milestone Line directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-milestones.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the shortened command `npx shadcn@latest add @plotcn/line-milestones` becomes available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for the horizontal X-axis domain coordinates. |
+| `seriesKey` | `keyof TData & string` | `"users"` | No | Property name for the numeric trend series value. |
+| `series` | `MilestoneSeriesConfig` | `undefined` | No | Optional descriptor combining key, label, formatter, and color. |
+| `milestones` | `readonly Milestone[]` | `[]` | No | Sparse collection of contextual event markers with stable IDs. |
+| `curve` | `"monotone" \| "linear" \| "natural" \| "step"` | `"monotone"` | No | Interpolation curve applied to the quantitative trend line. |
+| `missingValuePolicy` | `"gap" \| "connect"` | `"gap"` | No | Whether missing metric observations create an honest gap or bridge across. |
+| `height` | `number \| string` | `360` | No | Container height in pixels or standard CSS dimension strings. |
+| `color` | `string` | `"var(--chart-1, #3b82f6)"` | No | Primary theme stroke color for the trend line. |
+| `showMilestoneGuides` | `boolean` | `true` | No | Whether to render thin vertical dashed guides from the annotation lane. |
+| `milestoneColor` | `string` | `"var(--chart-milestone-pin, #71717a)"` | No | Stroke and pin color for contextual milestone markers and guides. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal background reference gridlines. |
+| `showXAxis` | `boolean` | `true` | No | Whether to render the horizontal category scale. |
+| `showYAxis` | `boolean` | `true` | No | Whether to render the vertical numeric scale. |
+| `showLegend` | `boolean` | `false` | No | Whether to display the chart legend. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Custom formatter for Y-axis ticks and tooltip numbers. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for X-axis tick labels. |
+| `motion` | `boolean \| { duration?: number }` | `true` | No | Controls entry reveal animations, respecting reduced-motion preferences. |
+
+---
+
+## Responsive Collision Strategy
+
+Milestone Line uses container-driven deterministic collision handling:
+
+- **Desktop ($\ge 1024\text{px}$)**: Full persistent text labels in the top annotation lane with 2-lane staggering if helpful, vertical guides, and rich hover inspection.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Thinned X-axis labels, preserved milestone pins, selective label display to prevent overlap.
+- **Mobile ($< 640\text{px}$)**: Pin markers preserved across all events, dense labels collapsed into compact pins, touch selection opens a dedicated below-chart active event detail panel.
+
+> **Core Rule**: Responsive collapsing may hide persistent text labels when horizontal space is constrained, but **never removes milestone pins or erases event discoverability**.
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Milestone Line provides comprehensive accessibility for assistive technologies and keyboard users:
+
+- **Semantic Role**: The chart container renders as `<figure role="region">` with proper `aria-labelledby` and `aria-describedby` attributes.
+- **Factual Summary**: Announces observation count and milestone event details factually (e.g. *"Time-series visualization showing 8 observations for Active users with 3 annotated milestone events: 'Pricing v2' at Feb, 'Mobile app' at May, 'Enterprise' at Jul. Events indicate contextual moments and do not infer causality."*).
+- **Keyboard Navigation**:
+  - `ArrowRight` / `ArrowLeft`: Navigate through observation points along the timeline.
+  - `Tab`: Focus individual milestone pin markers in the annotation lane.
+  - `Enter` / `Space`: Activate and select the focused milestone pin.
+  - `Escape`: Dismiss active milestone inspection and reset focus.
+- **Color Independence**: Restrained zinc pins with geometric circle and badge shapes; zero reliance on color alone to convey milestone identity.
+- **Reduced Motion**: Full support for `prefers-reduced-motion: reduce`; renders final trend and milestones immediately without entrance delay.
+
+---
+
+## Data Safety Guarantees
+
+Milestone Line upholds Plotcn's rigorous data safety standards:
+
+- **✓ No Fabricated Metric Values**: Milestones between observations never invent interpolated Y values.
+- **✓ No Border Clamping**: Milestones outside the data domain are omitted rather than falsely clamped to edges.
+- **✓ Missing Values Remain Missing**: Unrecorded observations create honest line gaps while milestone pins remain discoverable.
+- **✓ Duplicate ID Detection**: Duplicate milestone IDs are warned in development to prevent selection ambiguity.
+- **✓ Same-Date Events Remain Distinct**: Same-X milestones group cleanly without overlapping pins.
+- **✓ Deterministic Collision Handling**: Labels collapse based on measured horizontal spacing without random hiding.
+- **✓ Caller Data Immutability**: Caller arrays and observation objects are never mutated.
+- **✓ Non-Causal Presentation**: Visual placement avoids implying that events caused metric movements.

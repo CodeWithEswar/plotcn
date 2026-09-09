@@ -215,7 +215,7 @@ function renderShellHighlight(command: string): React.ReactNode {
       )
     }
 
-    // Key=Value args (e.g. @plotcn=https://plotcn.com/r/{name}.json)
+    // Key=Value args (e.g. @plotcn=https://plotcn.vercel.app/r/{name}.json)
     if (token.includes("=")) {
       const eqIdx = token.indexOf("=")
       const left = token.slice(0, eqIdx)

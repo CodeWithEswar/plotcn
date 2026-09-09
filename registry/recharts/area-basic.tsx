@@ -1,5 +1,7 @@
 "use client"
 
+import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartEmptyState, ChartErrorState } from "../shared/chart-state"
 import * as React from "react"
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts"
 import { ChartContainer } from "../shared/chart-container"
@@ -25,12 +27,15 @@ export function AreaBasic({
   data,
   valueKey = "value",
   labelKey = "label",
-  color = "var(--chart-1, #10b981)",
+  color = "var(--chart-1)",
   height = 280,
   className,
   motion = false,
 }: AreaBasicProps) {
   const gradientId = React.useId().replace(/:/g, "")
+  const reduced = useChartReducedMotion()
+  if(!data.length) return <div style={{height}}><ChartEmptyState/></div>
+  if(data.some(row=>typeof row[valueKey]!=="number" || !Number.isFinite(row[valueKey]))) return <div style={{height}}><ChartErrorState description="Values must be finite numbers."/></div>
 
   return (
     <div className={className} style={{ width: "100%", height }}>
@@ -43,14 +48,14 @@ export function AreaBasic({
                 <stop offset="95%" stopColor={color} stopOpacity={0.0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid, rgba(255,255,255,0.1))" />
-            <XAxis dataKey={labelKey} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
-            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
+            <XAxis dataKey={labelKey} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis)" }} />
+            <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: "var(--chart-axis)" }} />
             <Tooltip
               content={<ChartTooltip indicator="line" />}
-              cursor={{ stroke: "var(--chart-crosshair, rgba(255,255,255,0.2))", strokeDasharray: "3 3" }}
+              cursor={{ stroke: "var(--chart-crosshair)", strokeDasharray: "3 3" }}
             />
-            <Area isAnimationActive={motion} type="monotone" dataKey={valueKey} stroke={color} strokeWidth={2} fillOpacity={1} fill={`url(#${gradientId})`} />
+            <Area isAnimationActive={motion && !reduced} animationDuration={300} animationEasing="ease-out" type="monotone" dataKey={valueKey} stroke={color} strokeWidth={2} fillOpacity={1} fill={`url(#${gradientId})`} />
           </AreaChart>
         </ResponsiveContainer>
       </ChartContainer>

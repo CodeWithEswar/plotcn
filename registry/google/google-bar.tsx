@@ -4,6 +4,7 @@ import * as React from "react"
 import {
   loadGoogleChartsPackages,
   resolveGoogleColor,
+  escapeGoogleTooltipText,
   type GoogleChartsLoaderState,
   type GoogleVisualizationChart,
 } from "./google-chart-loader"
@@ -28,7 +29,7 @@ export function GoogleBar({
   data,
   valueKey = "value",
   labelKey = "label",
-  color = "var(--chart-2, #0ea5e9)",
+  color = "var(--chart-2)",
   height = 320,
   className,
 }: GoogleBarProps) {
@@ -57,13 +58,14 @@ export function GoogleBar({
 
     data.forEach((item) => {
       const label = String(item[labelKey])
+      const safeLabel = escapeGoogleTooltipText(label)
       const val = Number(item[valueKey])
       const displayVal = Number.isFinite(val) ? val.toLocaleString() : String(item[valueKey])
       const tooltipHtml = `
         <div class="plotcn-tooltip-card">
           <div class="plotcn-tooltip-header">
-            <span class="plotcn-tooltip-indicator" style="background-color: ${resolvedColor}; box-shadow: 0 0 8px ${resolvedColor}80;"></span>
-            <span class="plotcn-tooltip-title">${label}</span>
+            <span class="plotcn-tooltip-indicator" style="background-color: ${resolvedColor};"></span>
+            <span class="plotcn-tooltip-title">${safeLabel}</span>
           </div>
           <div class="plotcn-tooltip-metric">
             <span class="plotcn-tooltip-label">${valueKey}</span>

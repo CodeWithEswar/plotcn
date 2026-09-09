@@ -13,8 +13,12 @@ import { ResponsiveSection } from "./responsive-section"
 import { AccessibilitySection } from "./accessibility-section"
 import { SourceAnatomy } from "./source-anatomy"
 import { RelatedCharts } from "./related-charts"
+import { BackToTop } from "./back-to-top"
 import { ChartDetailToc, type TocItem } from "./chart-detail-toc"
+import { ChartDetailMobileSidebar, ChartDetailSidebar } from "./chart-detail-sidebar"
+import { charts } from "@/config/charts"
 import { MDXRenderer } from "@/components/docs/mdx-components"
+import { ChartColorProvider } from "./chart-color-context"
 
 interface ChartDetailShellProps {
   chart: ChartMetadata
@@ -84,31 +88,54 @@ export default function ChartDemo() {
 
   if (mdxData?.rawContent) {
     const raw = mdxData.rawContent
-    const respIndex = raw.indexOf("## Responsive Behavior")
-    const a11yIndex = raw.indexOf("## Accessibility & Keyboard Navigation")
-    const safetyIndex = raw.indexOf("## Data Safety Guarantee")
+    const respMatch = raw.match(/\n##\s+Responsive(?:\s+Behavior)?/i)
+    const a11yMatch = raw.match(/\n##\s+Accessibility(?:\s+&|\s+and)?(?:\s+Keyboard\s+Navigation)?/i)
+    const safetyMatch = raw.match(/\n##\s+Data\s+Safety(?:\s+Guarantees?)?/i)
 
-    if (respIndex !== -1 && a11yIndex !== -1 && safetyIndex !== -1) {
+    const respIndex = respMatch && respMatch.index !== undefined ? respMatch.index : -1
+    const a11yIndex = a11yMatch && a11yMatch.index !== undefined ? a11yMatch.index : -1
+    const safetyIndex = safetyMatch && safetyMatch.index !== undefined ? safetyMatch.index : -1
+
+    if (safetyIndex !== -1) {
+      if (respIndex !== -1 && a11yIndex !== -1) {
+        primaryMdx = raw.slice(0, respIndex).trim()
+        responsiveMdx = raw.slice(respIndex, a11yIndex).trim()
+        a11yMdx = raw.slice(a11yIndex, safetyIndex).trim()
+        safetyMdx = raw.slice(safetyIndex).trim()
+      } else if (a11yIndex !== -1) {
+        primaryMdx = raw.slice(0, a11yIndex).trim()
+        a11yMdx = raw.slice(a11yIndex, safetyIndex).trim()
+        safetyMdx = raw.slice(safetyIndex).trim()
+      } else {
+        primaryMdx = raw.slice(0, safetyIndex).trim()
+        safetyMdx = raw.slice(safetyIndex).trim()
+      }
+    } else if (respIndex !== -1 && a11yIndex !== -1) {
       primaryMdx = raw.slice(0, respIndex).trim()
       responsiveMdx = raw.slice(respIndex, a11yIndex).trim()
-      a11yMdx = raw.slice(a11yIndex, safetyIndex).trim()
-      safetyMdx = raw.slice(safetyIndex).trim()
+      a11yMdx = raw.slice(a11yIndex).trim()
     } else {
       primaryMdx = raw
     }
   }
 
   return (
-    <div className="flex items-start gap-10 xl:gap-14 w-full">
-      {/* Main Documentation Column */}
-      <article className="min-w-0 flex-1 space-y-14">
-        {/* 1. Header (Breadcrumb, Blueprint, Engine Branding, Metadata Rail, Install Console) */}
-        <ComponentHeader chart={chart} doc={doc} />
+    <ChartColorProvider registryName={chart.registryName}>
+      <div className="chart-detail-layout">
+        <ChartDetailSidebar current={chart} charts={charts} />
+        {/* Main Documentation Column */}
+        <article className="chart-detail-main min-w-0 space-y-14">
+          <div className="chart-detail-mobile-controls">
+            <ChartDetailMobileSidebar current={chart} charts={charts} />
+            <ChartDetailToc items={mdxData ? mdxTocItems : undefined} chart={chart} compact />
+          </div>
+          {/* 1. Header (Breadcrumb, Blueprint, Engine Branding, Metadata Rail, Install Console) */}
+          <ComponentHeader chart={chart} doc={doc} />
 
-        {/* 2. Compact Interactive Hero Preview */}
-        <section id="section-preview" aria-label="Interactive Preview" className="space-y-4">
-          <HeroPreviewWorkspace chart={chart} />
-        </section>
+          {/* 2. Compact Interactive Hero Preview */}
+          <section id="section-preview" aria-label="Interactive Preview" className="space-y-4 scroll-mt-20">
+            <HeroPreviewWorkspace chart={chart} />
+          </section>
 
         {mdxData?.rawContent ? (
           <>
@@ -120,7 +147,8 @@ export default function ChartDemo() {
             )}
 
             {/* Interactive Prop Explorer Lab */}
-            <div id="section-props-explorer">
+            <div id="section-props-explorer" className="scroll-mt-20" data-toc-target="component-props">
+              <span id="component-props" className="sr-only" aria-hidden="true" />
               <PropsExplorer
                 propsList={doc.props}
                 chartId={chart.id}
@@ -130,7 +158,7 @@ export default function ChartDemo() {
             </div>
 
             {/* Examples & States Gallery */}
-            <div id="section-examples">
+            <div id="section-examples" className="scroll-mt-20">
               <ExamplesGallery
                 examples={doc.examples}
                 registryName={chart.registryName}
@@ -145,7 +173,8 @@ export default function ChartDemo() {
             )}
 
             {/* Responsive Simulator Lab */}
-            <div id="section-responsive">
+            <div id="section-responsive" className="scroll-mt-20" data-toc-target="responsive-behavior">
+              <span id="responsive-behavior" className="sr-only" aria-hidden="true" />
               <ResponsiveSection
                 overview={doc.responsive.overview}
                 breakpoints={doc.responsive.breakpoints}
@@ -161,19 +190,24 @@ export default function ChartDemo() {
             )}
 
             {/* Accessibility Section Keyboard & ARIA overview */}
-            <div id="section-accessibility">
+            <div id="section-accessibility" className="scroll-mt-20" data-toc-target="accessibility-keyboard-navigation">
+              <span id="accessibility-keyboard-navigation" className="sr-only" aria-hidden="true" />
               <AccessibilitySection accessibility={doc.accessibility} />
             </div>
 
             {/* Data Safety Guarantee MDX */}
-            {safetyMdx && (
-              <div className="prose-docs">
-                <MDXRenderer content={safetyMdx} slug={chart.slug} rawContent={mdxData.rawContent} />
-              </div>
-            )}
+            <div id="section-safety" className="scroll-mt-20" data-toc-target="data-safety-guarantee">
+              <span id="data-safety-guarantee" className="sr-only" aria-hidden="true" />
+              <span id="data-safety-guarantees" className="sr-only" aria-hidden="true" />
+              {safetyMdx ? (
+                <div className="prose-docs">
+                  <MDXRenderer content={safetyMdx} slug={chart.slug} rawContent={mdxData.rawContent} />
+                </div>
+              ) : null}
+            </div>
 
             {/* Source Anatomy & Code Viewer */}
-            <div id="section-source">
+            <div id="section-source" className="scroll-mt-20">
               <SourceAnatomy
                 anatomy={doc.sourceAnatomy}
                 sourceCode={sourceCode}
@@ -183,7 +217,7 @@ export default function ChartDemo() {
             </div>
 
             {/* Related Components */}
-            <div id="section-related">
+            <div id="section-related" className="scroll-mt-20">
               <RelatedCharts
                 relatedCharts={relatedCharts}
                 currentChart={chart}
@@ -239,9 +273,13 @@ export default function ChartDemo() {
       </article>
 
       {/* Right Sticky Table of Contents (>= 1280px) */}
-      <aside className="hidden xl:block w-[240px] shrink-0 sticky top-24 self-start max-h-[calc(100vh-120px)] overflow-y-auto no-scrollbar py-2">
-        <ChartDetailToc items={mdxData ? mdxTocItems : undefined} />
+      <aside className="chart-detail-rail">
+        <ChartDetailToc items={mdxData ? mdxTocItems : undefined} chart={chart} />
       </aside>
+
+      {/* Floating Back to Top for quick scrolling */}
+      <BackToTop />
     </div>
+    </ChartColorProvider>
   )
 }

@@ -80,7 +80,7 @@ export function AccessibleChart({
           <button
             type="button"
             onClick={() => setShowTable(!showTable)}
-            className="text-[10px] font-mono text-zinc-400 hover:text-zinc-200 underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-400 rounded px-1"
+            className="text-[10px] font-mono text-muted-foreground hover:text-foreground underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--chart-focus)] rounded px-1"
             aria-expanded={showTable}
             aria-controls={tableId}
           >
@@ -90,15 +90,15 @@ export function AccessibleChart({
           {showTable && (
             <div
               id={tableId}
-              className="mt-2 max-h-48 overflow-auto rounded-lg border border-white/[0.08] bg-zinc-950 p-2 text-left"
+              className="mt-2 max-h-48 overflow-auto rounded-lg border border-border bg-background p-2 text-left"
             >
-              <table className="w-full text-xs font-mono text-zinc-300">
+              <table className="w-full text-xs font-mono text-foreground">
                 <caption className="sr-only">
                   {title} data table
                   {isTruncated ? ` (Showing first ${maxRows} of ${data.length} rows)` : ""}
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/[0.08] text-zinc-500">
+                  <tr className="border-b border-border text-muted-foreground">
                     {columns
                       ? columns.map((col) => (
                           <th key={col.key} scope="col" className="p-1 text-left font-medium">
@@ -116,7 +116,7 @@ export function AccessibleChart({
                   {displayData?.map((row, idx) => {
                     const keys = columns ? columns.map((c) => c.key) : Object.keys(row)
                     return (
-                      <tr key={idx} className="border-b border-white/[0.04] last:border-0 hover:bg-zinc-900/50">
+                      <tr key={idx} className="border-b border-border/60 last:border-0 hover:bg-muted/50">
                         {keys.map((k, colIdx) => {
                           const colDef = columns?.find((c) => c.key === k)
                           const formatted = colDef?.format ? colDef.format(row[k]) : String(row[k] ?? "—")

@@ -1,0 +1,248 @@
+---
+title: "Multi-Signal Line"
+description: "A multi-series time-series line chart with deterministic series identity, stable color assignment, readable shared tooltips, responsive legend controls, and truthful missing-series behavior."
+component: "MultiSignalLine"
+engine: "recharts"
+registryName: "line-multi-signal"
+number: "009"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Multi-Signal Line** is a general analytical multi-series time-series component engineered around the principles of **deterministic series identity**, **readable shared inspection**, and **truthful visibility states**.
+
+The central analytical question answered by this chart is:
+
+> **"How do several comparable signals move together over the same X domain?"**
+
+Multi-Signal Line is not just a single-series line chart mapped over multiple data fields. Its reason to exist is its **multi-series identity and interaction model**. It allows users to inspect, distinguish, toggle visibility, and compare multiple peer signals without degrading into a confusing visual tangle.
+
+<MultiSignalIdentityFlow />
+
+```tsx
+import { MultiSignalLine } from "@/components/charts/recharts/line-multi-signal"
+
+const usageData = [
+  { month: "Jan", web: 120, ios: 90, android: 100 },
+  { month: "Feb", web: 136, ios: 105, android: 121 },
+  { month: "Mar", web: 154, ios: 130, android: 145 },
+  { month: "Apr", web: 148, ios: 138, android: 140 },
+  { month: "May", web: 172, ios: 152, android: 165 },
+  { month: "Jun", web: 189, ios: 168, android: 178 },
+  { month: "Jul", web: 210, ios: 185, android: 195 },
+]
+
+export function PlatformUsageOverview() {
+  return (
+    <MultiSignalLine
+      data={usageData}
+      xKey="month"
+      series={[
+        { key: "web", label: "Web" },
+        { key: "ios", label: "iOS" },
+        { key: "android", label: "Android" },
+      ]}
+      showLegend
+      interactiveLegend
+      lockableTooltip
+      valueFormatter={(v) => `${v.toLocaleString()} sessions`}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Line-Family Positioning
+
+Plotcn provides specialized line chart components for distinct analytical and operational roles. It is essential to choose the component that fits the underlying data semantics:
+
+| Component | Number | Primary Analytical Specialty |
+| :--- | :--- | :--- |
+| **Signal Line** | 001 | Single primary continuous quantitative trend |
+| **Pulse Line** | 002 | Live operational telemetry with rolling window and pulse marker |
+| **Twinline Compare** | 003 | Explicit two-role comparison (primary signal vs. reference baseline) |
+| **Range Line** | 004 | Central trend plus uncertainty envelope / confidence interval |
+| **Step Signal** | 005 | Discrete state transitions and quota tier changes |
+| **Milestone Line** | 006 | Trend line annotated with sparse releases and milestones |
+| **Threshold Line** | 007 | Quantitative trend evaluated against operational limits and bands |
+| **Focus Line** | 008 | High-precision single-series observation scrubbing and locked pins |
+| **Multi-Signal Line** | 009 | **Multiple peer series with deterministic identity and interactive legend** |
+
+> **Twinline Compare is semantically a two-role comparison (Primary vs. Reference). Multi-Signal Line is a general multi-series analytical chart where all visible signals are peers.**
+
+---
+
+## Deterministic Series Identity
+
+The defining architectural guarantee of Multi-Signal Line is **deterministic series identity**. 
+
+Every configured series receives a stable identity resolved from its canonical definition:
+
+```
+series config
+    │
+    ▼
+stable key
+    │
+    ├── label
+    ├── stroke color (theme token or explicit override)
+    ├── stroke style (solid, dashed, dotted)
+    ├── legend item identity
+    ├── tooltip row entry
+    └── active marker styling
+```
+
+### The Identity Rule
+
+> **Hiding a series NEVER reassigns the colors of the remaining series.**
+
+In conventional charting libraries, series colors are frequently assigned by the index of currently visible items (`palette[visibleIndex]`). When a user toggles visibility for Series 1, every subsequent series abruptly shifts colors. This breaks spatial memory and destroys the trust of analytical dashboards.
+
+Multi-Signal Line binds palette tokens (`--chart-1` through `--chart-8`) to each series' **original canonical index**. When iOS is hidden, Web remains `--chart-1` and Android remains `--chart-3`.
+
+---
+
+## Shared Y Scale & No Dual Axes
+
+Multi-Signal Line enforces a single, truthful vertical scale:
+
+- **Comparable Signals**: All series must share the same physical or financial unit (e.g., active sessions, API requests, revenue, latency in milliseconds).
+- **No Dual Y Axes**: Multi-Signal Line deliberately rejects dual Y axes. Dual axes create arbitrary scale relationships, mislead viewers about correlation, and distort relative magnitudes.
+- **Incompatible Units**: To compare metrics of differing units (e.g., Revenue in dollars and Conversion in percent), use indexed normalization, small multiples, or a dedicated combo chart.
+
+---
+
+## Synchronized Nearest-X Inspection
+
+Multi-Signal Line implements a single coordinated inspection model across all visible series simultaneously.
+
+<MultiSignalInspectionFlow />
+
+### Horizontal Nearest-X Scrubbing
+
+- **Single Plot Crosshair**: Moving the pointer across the plot calculates the nearest domain coordinate ($X$) across the entire Cartesian frame.
+- **Active Points**: Renders a dedicated observation marker for each visible series that possesses a valid, finite value at that observation.
+- **Synchronized Tooltip**: Displays a single, unified inspection card listing all visible series in strict **canonical configuration order**.
+- **Excluded Hidden Series**: Hidden series are completely omitted from the tooltip readout, active markers, and hit testing.
+
+---
+
+## Independent Missing Value Semantics
+
+When recording multi-source data, dropouts and missing intervals occur independently per series. Multi-Signal Line handles these variations truthfully:
+
+| State | Definition | Visual Representation | Tooltip Readout |
+| :--- | :--- | :--- | :--- |
+| **Valid** | Numeric finite value | Continuous line path + active marker | Formatted metric value (e.g., `154,000`) |
+| **Missing** | `null` or `undefined` at this $X$ | Clean visual break (gap) in line | Explicit unavailable indicator (`—`) |
+| **Hidden** | Toggled off by user in legend | Series completely removed from canvas | Row omitted from tooltip card |
+
+```
+March 2026
+
+Web        154,000
+iOS        —
+Android    145,000
+```
+
+> **Missing is not zero (`null ≠ 0`). Hidden is not missing.** A missing value creates an honest gap in that specific series without penalizing or shifting peer lines.
+
+---
+
+## Interactive Legend Controls
+
+The legend is a first-class interaction control in Multi-Signal Line:
+
+- **Semantic Toggle Buttons**: Each legend item is rendered as an accessible `<button>` element with `aria-pressed` states.
+- **Stroke Samples**: Legend items render actual SVG stroke samples (solid, dashed, or custom colors) rather than generic colored circles.
+- **Keyboard Usable**: Users can <kbd>Tab</kbd> into the legend and toggle series visibility using <kbd>Enter</kbd> or <kbd>Space</kbd>.
+- **All-Hidden Safe State**: If every series is toggled off, the chart presents an actionable recovery message: *"No visible series. Use the legend above to show a series."* The legend controls remain interactive so the user can immediately restore visibility.
+
+---
+
+## Installation
+
+Install Multi-Signal Line directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-multi-signal.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/line-multi-signal` becomes available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g., month, date). |
+| `series` | `readonly MultiSignalSeries<TData>[]` | — | Yes | Array of series configurations (`{ key, label, color?, strokeStyle? }`). |
+| `height` | `number \| string` | `320` | No | Container height in pixels or standard CSS dimension strings. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm shared across all peer series. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `["auto", "auto"]` | No | Vertical Y scale range with zero-span safeguarding over visible series. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showLegend` | `boolean` | `true` | No | Whether to render the series identity legend. |
+| `interactiveLegend` | `boolean` | `true` | No | Enables interactive button controls in the legend to toggle series visibility. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click, tap, or Enter/Space. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for the locked crosshair and locked inspection status indicator. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | Visual treatment of missing values: honest visual break or forward carry. |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Entry reveal animation. Bypassed automatically when reduced motion is preferred. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Default formatter for tooltip metric values and vertical scale ticks. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for horizontal domain tick labels. |
+| `title` | `string` | `"Multi-Signal Line Chart"` | No | Accessible title for assistive technologies and screen readers. |
+| `description` | `string` | `undefined` | No | Accessible description detailing series identities and keyboard shortcuts. |
+
+---
+
+## Keyboard Navigation Reference
+
+Multi-Signal Line provides separate, dedicated focus handling for chart observation inspection and legend controls:
+
+| Key | Control Target | Action |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Plot Inspection | Inspect next chronological observation across all visible series |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Plot Inspection | Inspect previous chronological observation across all visible series |
+| <kbd>Home</kbd> | Plot Inspection | Jump inspection to the first observation |
+| <kbd>End</kbd> | Plot Inspection | Jump inspection to the latest observation |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Plot Inspection | Lock or unlock persistent inspection at active coordinate |
+| <kbd>Escape</kbd> | Plot Inspection | Dismiss locked inspection and release pinned tooltip |
+| <kbd>Tab</kbd> | Legend Controls | Move keyboard focus between series toggle buttons |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Legend Item | Toggle visibility of focused series (aria-pressed updates) |
+
+---
+
+## Responsive Legend Strategy
+
+- **Desktop ($\ge 1024\text{px}$)**: Full horizontal inline legend with series stroke samples, labels, and toggle buttons.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Wrapped multi-row legend maintaining readable text size without unreadable micro-fonts.
+- **Mobile ($< 640\text{px}$)**: Compact wrapped series controls with touch-friendly 32px targets.
+- **State Preservation**: Resizing the browser or switching responsive preview modes preserves all series visibility toggles and locked inspection coordinates.
+
+---
+
+## Accessibility & Screen Reader Model
+
+1. **Semantic Shell**: Encapsulated within a `<figure role="region" tabIndex={0}>` element with `aria-labelledby` and `aria-describedby`.
+2. **Fact-Based Screen Reader Summary**: Announces the count of visible series, total observation count, and domain time range.
+3. **Decoupled Focus**: Chart plot navigation uses arrow keys on the figure; legend items are standard semantic `<button>` elements in the tab flow.
+4. **Accessible Button States**: Series toggle buttons expose `aria-pressed="true"` when visible and `aria-pressed="false"` when hidden.
+5. **Color Independence**: When Monochrome palette is active, series remain distinguishable via stroke patterns (solid, dashed, dotted), tooltip row labels, and legend swatches.
+6. **Reduced Motion**: Entrance draw animations automatically bypass when `prefers-reduced-motion: reduce` is detected.
+
+---
+
+## Data Safety Checklist
+
+- **✓ Deterministic Identity**: Original series configuration order governs palette token assignment; hiding series never recolors peer series.
+- **✓ Independent Missing Data**: `null` values produce honest breaks per series without distorting or zeroing other lines.
+- **✓ Truthful Observations**: Nearest-X inspection selects recorded observations; no synthetic numbers are fabricated.
+- **✓ Excluded Hidden Series**: Hidden series are cleanly omitted from the active Y domain calculation, tooltip cards, and active markers.
+- **✓ Immutability**: Caller data arrays and series configuration objects are never mutated.
+- **✓ Non-Finite Filtering**: `NaN`, `Infinity`, and unparseable values are excluded from geometry calculations.
+- **✓ All-Hidden Recovery**: An in-chart recovery state prevents broken rendering when all series are toggled off.

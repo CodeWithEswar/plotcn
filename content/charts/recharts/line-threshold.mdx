@@ -1,0 +1,238 @@
+---
+title: "Threshold Line"
+description: "Quantitative time-series trend evaluated against horizontal reference boundaries and bounded operating regions."
+component: "ThresholdLine"
+engine: "recharts"
+registryName: "line-threshold"
+number: "007"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Threshold Line** is a dedicated Recharts analytical visualization for evaluating a quantitative time-series trend against one or more horizontal threshold boundaries (`kind: "line"`) or bounded horizontal regions (`kind: "region"`).
+
+Its core mental model answers:
+
+> **"Where is the signal relative to the boundaries that matter?"**
+
+Use it for:
+
+- **SLA limits and performance ceilings** (e.g. latency must remain under 300ms)
+- **Target operating bands** (e.g. server temperature ideally between 45°C and 70°C)
+- **Minimum quotas or floors** (e.g. battery level, reserve balances)
+- **Multi-tier thresholds** (e.g. soft warning boundary alongside hard SLA limit)
+- **Safety envelopes** (e.g. voltage ranges, compliance envelopes)
+
+<ThresholdModelFlow />
+
+```tsx
+import { ThresholdLine } from "@/components/charts/recharts/line-threshold"
+
+const latencyData = [
+  { time: "00:00", latency: 142 },
+  { time: "04:00", latency: 158 },
+  { time: "08:00", latency: 245 },
+  { time: "12:00", latency: 285 },
+  { time: "16:00", latency: 198 },
+  { time: "20:00", latency: 172 },
+  { time: "23:59", latency: 155 },
+]
+
+const thresholds = [
+  { id: "warn", kind: "line" as const, value: 220, label: "Target limit (220ms)" },
+  { id: "sla", kind: "line" as const, value: 300, label: "SLA ceiling (300ms)" },
+  { id: "opt", kind: "region" as const, from: 130, to: 190, label: "Optimal band (130-190ms)" },
+]
+
+export function ServiceHealthMonitor() {
+  return (
+    <ThresholdLine
+      data={latencyData}
+      xKey="time"
+      seriesKey="latency"
+      label="P95 Latency"
+      thresholds={thresholds}
+      valueFormatter={(v) => `${v}ms`}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Architecture & Rendering Layers
+
+Threshold Line decouples the continuous time-series signal from the declarative horizontal boundary context. Reference shapes and guide lines are rendered strictly inside Recharts' Cartesian coordinate space without ad-hoc absolute positioning.
+
+<ThresholdContextFlow />
+
+### SVG Layering Order
+
+To ensure maximum visual legibility without visual clipping or occlusion, elements are stacked in strict depth order:
+
+1. **`ReferenceArea` (Base Layer)**: Soft horizontal region fills (`fillOpacity: 0.12`) rendered below the grid.
+2. **`CartesianGrid`**: Standard subtle horizontal dashed gridlines (`strokeDasharray: "3 3"`).
+3. **`ReferenceLine`**: Dashed horizontal threshold boundary lines (`strokeDasharray: "4 4"`) with collision-safe text badges aligned to the inside top-right edge.
+4. **`XAxis` & `YAxis`**: Thinned category ticks and auto-scaled vertical domain numbers.
+5. **`Line` (Top Visual Layer)**: High-contrast, solid 2.2px primary continuous trend stroke.
+6. **`Tooltip` & Crosshair**: Synchronized nearest-X scrub inspection reporting signal level and active threshold proximity.
+
+---
+
+## The Threshold Model: Line vs. Region
+
+Thresholds are declared via a discriminated union (`ThresholdDefinition`):
+
+```typescript
+// Single Horizontal Boundary Line
+export interface ThresholdBoundary {
+  id: string                   // Stable, unique identifier (never array index)
+  kind: "line"                 // Discriminated union discriminant
+  value: number                // Cartesian Y coordinate (must be finite)
+  label: string                // Human-readable title (e.g. "SLA limit")
+  color?: string               // Optional stroke color override
+  strokeDasharray?: string     // SVG stroke dash pattern (default: "4 4")
+}
+
+// Bounded Horizontal Operating Band
+export interface ThresholdRegion {
+  id: string                   // Stable, unique identifier
+  kind: "region"               // Discriminated union discriminant
+  from?: number                // Lower Y bound (omitted = domain min)
+  to?: number                  // Upper Y bound (omitted = domain max)
+  label: string                // Human-readable title (e.g. "Optimal band")
+  color?: string               // Optional fill color override
+  fillOpacity?: number         // Optional fill opacity override (default: 0.12)
+}
+
+export type ThresholdDefinition = ThresholdBoundary | ThresholdRegion
+```
+
+### Stable Threshold IDs
+
+Every threshold boundary and region requires an explicit, caller-defined `id` (such as `"sla-limit"` or `"target-range"`). Identity is **never derived from array index**. Stable IDs ensure deterministic React rendering keys, reliable keyboard navigation, and predictable tooltip association.
+
+---
+
+## Safe Auto-Domain Expansion
+
+In standard charting libraries, reference lines defined beyond the data minimum or maximum are routinely clipped outside the SVG viewport.
+
+Threshold Line eliminates this flaw through automated **domain expansion** (`calculateThresholdDomain`):
+
+1. **Extrema Detection**: Computes series minimum and maximum while safely ignoring `null`, `undefined`, `NaN`, and infinite values.
+2. **Threshold Inclusion**: Evaluates all finite boundary `value`s and region `from`/`to` limits.
+3. **Safe Coordinate Framing**: If a threshold sits at `300ms` but data only reaches `285ms`, the Y-domain automatically expands to encompass the threshold line with protective padding so the reference label is never clipped against the top edge.
+4. **Degenerate Case Handling**: Handles flat horizontal lines (zero variance), all-negative datasets, zero-baseline constraints, and threshold-only bounds without crashing or collapsing to zero height.
+5. **Explicit Overrides**: An explicit caller `domain={[0, 400]}` is always respected without modification.
+
+---
+
+## Truthful, Caller-Owned Semantics
+
+> [!IMPORTANT]
+> **Threshold Line never imposes subjective value judgements.**
+> The component never assumes that higher is bad or lower is good, and never automatically colors a line red or labels a point "Critical" unless explicitly instructed by caller props.
+
+- In latency monitoring, crossing an upper boundary is an SLA breach.
+- In revenue monitoring, dropping below a lower boundary is a quota deficit.
+- In temperature regulation, stepping outside a bounded region indicates thermal drift.
+
+Because analytical context is strictly domain-dependent, Threshold Line presents boundaries **factually and impartially**, leaving semantic interpretation to the application.
+
+---
+
+## Global Color System Integration
+
+Threshold Line seamlessly integrates with Plotcn's Global Chart Color Customization System:
+
+| Color Role | Prop | Fallback CSS Token | Description |
+| :--- | :--- | :--- | :--- |
+| **Primary Signal** | `color` | `var(--chart-1, #3b82f6)` | Continuous signal stroke, active dot, and primary indicator |
+| **Threshold Accent** | `thresholdColor` | `var(--chart-4, #f59e0b)` | Default stroke for boundary lines and fill for operating regions |
+| **Per-Threshold** | `threshold.color` | Inherits `thresholdColor` | Individual boundary stroke or region fill override |
+| **Band Opacity** | `regionOpacity` | `0.12` | Soft background fill opacity to maintain contrast with the primary line |
+
+Precedence is strictly evaluated as: `threshold.color` > `thresholdColor` > `theme CSS default`.
+
+---
+
+## Missing Data & Null Policy
+
+- **`missingValuePolicy="gap"` (Default)**: Missing observations (`null`, `undefined`, `NaN`) create an honest break in the primary trend line. The line stops at the last valid point and resumes at the next, never fabricating data.
+- **`missingValuePolicy="carry"`**: Persists the last known finite level forward across the missing interval.
+- **Threshold Integrity**: Regardless of gaps in the primary telemetry signal, **threshold boundary lines and operating regions span continuously across the entire domain without interruption**.
+
+---
+
+## Installation
+
+Install Threshold Line directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-threshold.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the shortened command `npx shadcn@latest add @plotcn/line-threshold` becomes available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g. time, date). |
+| `seriesKey` | `keyof TData & string` | `"value"` | No | Direct property name for the numeric metric series value. |
+| `series` | `ThresholdSeriesConfig` | `undefined` | No | Semantic series descriptor combining key, label, formatter, and color. |
+| `thresholds` | `readonly ThresholdDefinition[]` | `[]` | No | Collection of horizontal boundary lines and bounded operating regions. |
+| `color` | `string` | `"var(--chart-1, #3b82f6)"` | No | Primary theme stroke color for the continuous trend line. |
+| `thresholdColor` | `string` | `"var(--chart-4, #f59e0b)"` | No | Default fallback color for threshold lines, region fills, and badges. |
+| `regionOpacity` | `number` | `0.12` | No | Background fill opacity for region bands. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm for the continuous trend line. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `["auto", "auto"]` | No | Vertical scale range. "auto" includes all thresholds without clipping. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | Handling of null observations: honest visual break or forward carry. |
+| `height` | `number \| string` | `340` | No | Container height in pixels or standard CSS dimension strings. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal background reference gridlines. |
+| `showXAxis` | `boolean` | `true` | No | Whether to render the horizontal category scale. |
+| `showYAxis` | `boolean` | `true` | No | Whether to render the vertical numeric scale. |
+| `showLegend` | `boolean` | `false` | No | Whether to render the threshold and signal legend below the chart. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Custom formatter for Y-axis scale numbers and tooltip metric values. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for X-axis coordinate labels. |
+| `motion` | `boolean \| { duration?: number }` | `true` | No | Controls entry reveal animations, respecting reduced-motion preferences. |
+
+---
+
+## Responsive Behavior & Viewport Adaptation
+
+- **Desktop ($\ge 1024\text{px}$)**: Full coordinate labels, complete threshold descriptions in tooltip, and generous axis padding.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Thinned X-axis intervals, compact threshold label badges, and synchronized scrub inspection.
+- **Mobile ($< 640\text{px}$)**: Single-tap inspection, compact tooltip positioned safely within viewport boundaries, and internal label alignment so text never overflows the container frame.
+
+---
+
+## Accessibility & Screen Reader Statements
+
+- **Semantic Shell**: Rendered within a `<figure role="region">` container equipped with descriptive `aria-labelledby` and `aria-describedby` associations.
+- **Factual Announcement**: Generates an honest screen reader summary reporting observation count and defined thresholds without subjective bias (e.g. *"Threshold line chart showing 7 observations for Response Time. Defined limits: Target limit (220ms) at 220, SLA ceiling (300ms) at 300, and Optimal band (130-190ms) from 130 to 190."*).
+- **Keyboard Navigation**:
+  - `ArrowRight` / `ArrowLeft`: Navigate through observation points along the timeline.
+  - `Home` / `End`: Jump directly to the earliest or latest observation.
+  - `Escape`: Dismiss active inspection focus.
+- **Color Independence**: Dashed lines for boundaries, tinted areas with explicit text labels for regions, and solid lines for the signal ensure boundaries are immediately identifiable without color perception.
+- **Reduced Motion**: All animations immediately disable when `prefers-reduced-motion: reduce` is active.
+
+---
+
+## Data Safety Guarantees
+
+- **✓ Safe Auto-Domain**: Y-domain automatically expands to encompass threshold boundaries without clipping.
+- **✓ Immutability**: Caller data arrays and observation records are never mutated.
+- **✓ Missing Values Stay Missing**: Missing data creates an honest gap; thresholds remain unbroken across the canvas.
+- **✓ Finite Coordinates Only**: Rejects `NaN` and `Infinity` in data and threshold limits to prevent rendering crashes.
+- **✓ Region Validation**: Safely ignores invalid region definitions where `from > to`.
+- **✓ Impartial Presentation**: Avoids subjective "Warning" or "Critical" judgments without explicit caller configuration.
+- **✓ Responsive Label Clamping**: Reference labels remain inside the Cartesian frame on mobile viewports.

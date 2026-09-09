@@ -23,10 +23,10 @@ export function PackageManagerSelector({
 }: PackageManagerSelectorProps) {
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label="Select package manager"
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border border-border/60 bg-muted/40 p-0.5",
+        "inline-flex items-center gap-1 max-w-full overflow-x-auto rounded-md border border-border/60 bg-muted/40 p-0.5",
         className
       )}
     >
@@ -35,9 +35,8 @@ export function PackageManagerSelector({
         return (
           <button
             key={item.id}
-            role="tab"
             type="button"
-            aria-selected={active}
+            aria-pressed={active}
             aria-label={`Select ${item.label} package manager`}
             onClick={() => onChange(item.id)}
             className={cn(
@@ -49,11 +48,11 @@ export function PackageManagerSelector({
           >
             <PackageManagerLogo
               manager={item.id}
-              size={14}
+              size={15}
               variant={variant}
               className={cn(
-                "transition-all duration-150",
-                active ? "scale-105 opacity-100" : "opacity-75 group-hover:opacity-100"
+                "transition-all duration-150 shrink-0",
+                active ? "scale-105 opacity-100" : "opacity-90 group-hover:opacity-100"
               )}
             />
             <span>{item.label}</span>

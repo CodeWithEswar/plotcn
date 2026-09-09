@@ -62,6 +62,10 @@ export interface FlowTimelineProps {
   steps: FlowTimelineStep[]
   activeStep?: string | number
   className?: string
+  title?: string
+  eyebrow?: string
+  description?: string
+  ariaLabel?: string
 }
 
 export interface FlowDiagramProps {

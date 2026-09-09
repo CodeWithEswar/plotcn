@@ -41,7 +41,7 @@ export default async function RechartsChartPage({ params }: PageProps) {
   let sourceCode = ""
   let highlightedSourceCode = ""
   try {
-    const fullPath = path.join(process.cwd(), chart.componentPath)
+    const fullPath = path.join(/*turbopackIgnore: true*/ process.cwd(), chart.componentPath)
     if (fs.existsSync(fullPath)) {
       sourceCode = fs.readFileSync(fullPath, "utf-8")
       highlightedSourceCode = await highlightCode(sourceCode, "tsx")

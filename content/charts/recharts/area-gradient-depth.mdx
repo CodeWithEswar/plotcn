@@ -1,0 +1,216 @@
+---
+title: "Gradient Depth Area"
+description: "A single-series area chart whose fill uses a controlled semantic fade from the series toward the chart surface, adding visual depth without pretending that gradient intensity represents another variable."
+component: "GradientDepthArea"
+engine: "recharts"
+registryName: "area-gradient-depth"
+number: "016"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Gradient Depth Area** is the depth-specialized single-magnitude chart of the Plotcn **Area family**. It visualizes a single quantitative magnitude series across an ordered domain, featuring a controlled semantic opacity fade from the signal boundary toward the chart surface.
+
+The primary analytical question answered by Gradient Depth Area is:
+
+> **"How does this magnitude change across the ordered domain?"**
+
+Its visual specialization is:
+
+> **"Can the area retain useful magnitude while visually dissolving into the surrounding surface instead of behaving like a flat translucent block?"**
+
+Unlike decorative gradients that use arbitrary rainbow spectrums or glow filters, Gradient Depth Area employs a **semantic fade-to-surface**. The stroke and gradient share one single semantic series identity; opacity gradually tapers downward so the chart surface underneath emerges naturally.
+
+```tsx
+import { GradientDepthArea } from "@/components/charts/recharts/area-gradient-depth"
+
+const requestData = [
+  { date: "May 01", requests: 12400 },
+  { date: "May 05", requests: 14800 },
+  { date: "May 10", requests: 13900 },
+  { date: "May 15", requests: 18200 },
+  { date: "May 20", requests: 21500 },
+  { date: "May 25", requests: 19800 },
+  { date: "May 30", requests: 24600 },
+]
+
+export function ApiRequestVolume() {
+  return (
+    <GradientDepthArea
+      data={requestData}
+      xKey="date"
+      series={{
+        key: "requests",
+        label: "API Requests",
+        valueFormatter: (v) => `${v.toLocaleString()} reqs`,
+      }}
+      color="var(--chart-1)"
+      gradientMode="surface"
+      fillOpacity={0.32}
+      baseline="zero"
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides six distinct analytical instruments:
+
+| Consideration | Prism Area (011) | Stack Flow Area (012) | Percent Stream Area (013) | Range Area (014) | Comparison Area (015) | Gradient Depth Area (016) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude relative to baseline?"* | *"How do parts and total combine?"* | *"How does the composition of the whole evolve?"* | *"What envelope contains the observations?"* | *"How does primary compare with reference?"* | **"How does magnitude change with visual surface depth?"** |
+| **Fill Geometry** | Uniform translucent fill to baseline | Additive stacked layers to total | 100% normalized proportional shares | Fills between lower and upper bounds | Overlapping dual fills to shared baseline | **Semantic fade-to-surface fill to baseline** |
+| **Series Roles** | Single series | $N$ additive series | $N$ proportional series | Bounded envelope + optional center | Exactly two: Primary & Reference | **Single quantitative series** |
+| **Baseline Role** | Configurable ($y = 0$ or min) | Fixed baseline ($y = 0$) | Fixed baseline ($0\%$) | No baseline; lower bound is floor | Shared baseline for both roles | **Shared baseline ($y = 0$ or domain min)** |
+| **Visual Depth** | Flat fill | Flat stacked layers | Flat normalized streams | Bounded interval fill | Restrained overlap | **Controlled opacity fade (32% → 2%)** |
+
+### Gradient Depth Area vs Prism Area (011)
+
+- **Prism Area**: Uses a uniform, flat semantic fill. Preferred when styling must remain completely neutral or when presenting dense dashboards with multiple adjacent visual elements.
+- **Gradient Depth Area**: Uses a controlled opacity taper from the signal boundary toward the surface. The stroke defines the exact quantitative trend while the fill adds visual depth without introducing additional cognitive weight.
+
+---
+
+## Depth Model
+
+<GradientDepthModelFlow />
+
+### 1. Signal-to-Surface Opacity Attenuation
+
+At every domain coordinate $x$:
+
+$$\text{Opacity}(y) = \text{Taper}\left(y_{\text{stroke}} \to y_{\text{baseline}}\right)$$
+
+1. **Signal Boundary (0% Stop)**: Renders at the maximum configured `fillOpacity` (default: `0.32`). The crisp 2px solid stroke provides the authoritative quantitative boundary.
+2. **Transition Region (55% Stop)**: Opacity gently attenuates to $\sim 42\%$ of the leading value (default: `0.14`).
+3. **Surface Threshold (100% Stop)**: Opacity dissolves to $\le 2\%$, allowing the chart card surface or page background to emerge seamlessly without a hard boundary.
+
+---
+
+## Gradient Semantics
+
+> [!IMPORTANT]
+> **Governing Analytical Rule**:
+> **The gradient changes visual emphasis, but it never represents an additional quantitative variable.**
+
+Gradient opacity does **not** signify:
+- Higher or lower statistical confidence.
+- Probability distribution or uncertainty bounds.
+- Kernel density or observation concentration.
+- Projected future values versus observed history.
+
+The visual fade is an aesthetic technique for surface integration and depth perception. The data contains strictly **one quantitative number per observation coordinate**.
+
+---
+
+## Baseline Semantics
+
+Gradient Depth Area fills toward an explicit, truthful baseline:
+
+1. **`"zero"` (Default)**: Fills toward $y = 0$. The automatic domain calculation ensures $0$ is enclosed within the vertical axis scale.
+2. **`"domain-min"`**: Fills toward the minimum value observed across the visible domain. Ideal for elevated series where zero is far removed from the operating range.
+3. **Explicit Numeric Baseline**: Fills toward a specific user-configured threshold (e.g. `baseline={100}`).
+
+> [!CAUTION]
+> **Data Integrity**: Plotcn never fades toward an artificial canvas bottom when the mathematical baseline is elsewhere. The linear gradient aligns strictly with the data coordinate space.
+
+---
+
+## Data Contract
+
+Gradient Depth Area accepts a readonly array of observation records. Caller data is never mutated or sorted in place.
+
+```typescript
+export interface RequestVolumePoint {
+  date: string             // Chronological or ordinal domain key
+  requests: number | null   // Single quantitative magnitude
+}
+```
+
+### Truthful Missing Values
+
+| Observation at Coordinate $x$ | Boundary Stroke | Depth Area Fill | Tooltip Status | Accessibility Announcement |
+| :--- | :--- | :--- | :--- | :--- |
+| **Valid Number ($18,200$)** | Continuous stroke | Fading depth area | Formatted value | Factual observation read |
+| **Zero ($0$)** | Rendered at $y = 0$ | Collapsed to baseline | `$0` | Zero read as real value |
+| **Missing ($null$ or $undefined$)** | **Visual gap** | **Area gaps** | `"Unavailable"` | Announced as unavailable |
+| **Non-finite ($NaN$, $\infty$)** | Sanitized to null | **Area gaps** | `"Unavailable"` | Sanitized safely |
+
+---
+
+## Series Contract
+
+Gradient Depth Area is strictly specialized for a single series. Configuration is passed via the `series` prop:
+
+| Property | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `key` | `NumericKeyOf<TData>` | **Yes** | Property key on observation records containing metric values |
+| `label` | `string` | **Yes** | Descriptive label for tooltips, legend, and screen readers |
+| `valueFormatter` | `(value: number) => string` | No | Optional custom numeric formatter for values and tooltips |
+
+---
+
+## Color Customization
+
+Gradient Depth Area accepts semantic CSS theme tokens or custom color overrides:
+
+```tsx
+<GradientDepthArea
+  data={data}
+  xKey="date"
+  series={series}
+  color="var(--chart-1)"          // Primary stroke and all gradient stops
+  selectionColor="var(--chart-selection)" // Active locked crosshair line
+  gradientMode="surface"         // "surface" | "none"
+  fillOpacity={0.32}             // Leading boundary opacity (0.1 to 1.0)
+/>
+```
+
+- **Single Color System**: Changing `color` synchronizes the boundary stroke, all three gradient stops, active inspection dots, and tooltips simultaneously without remounting or replaying animations.
+- **Fade-to-Surface via Opacity**: Plotcn fades stops by varying `stopOpacity` against the single `color`. No background hex codes are hardcoded, ensuring instant portability across Light, Dark, and custom card backgrounds.
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property key representing horizontal domain coordinates. |
+| `series` | `GradientDepthAreaSeries<TData>` | *required* | Single series configuration declaring `key`, `label`, and optional formatter. |
+| `height` | `number \| string` | `320` | Container height in pixels or CSS units. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | Interpolation curve applied to boundary stroke and area geometry. |
+| `domain` | `[number, number] \| "auto"` | `"auto"` | Explicit vertical domain override. Defaults to auto-padded scale enclosing baseline. |
+| `baseline` | `"zero" \| "domain-min" \| number` | `"zero"` | Baseline reference toward which the area fills. |
+| `color` | `string` | `var(--chart-1)` | Primary series color applied to stroke, active marker, and gradient stops. |
+| `selectionColor` | `string` | `var(--chart-selection)` | Accent color for active crosshair and pinned inspection state. |
+| `gradientMode` | `"surface" \| "none"` | `"surface"` | Depth fill style: `"surface"` (semantic fade) or `"none"` (flat fill). |
+| `fillOpacity` | `number` | `0.32` | Leading fill opacity at the signal boundary (0.05 to 1.0). |
+| `showGrid` | `boolean` | `true` | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showXAxis` | `boolean` | `true` | Whether to render horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Whether to render vertical metric scale ticks. |
+| `showLegend` | `boolean` | `false` | Whether to render series identity indicator. |
+| `lockableTooltip` | `boolean` | `true` | Enables persistent tooltip pinning on click, tap, or Enter/Space. |
+| `missingValuePolicy` | `"gap" \| "connect"` | `"gap"` | Policy for missing data: `"gap"` preserves truthful breaks; `"connect"` bridges gaps visually. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Enables entry draw animation. Automatically bypassed under reduced motion. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | Formatter for metric values and tooltips. |
+| `xFormatter` | `(value: string \| number) => string` | — | Formatter for horizontal tick labels. |
+
+---
+
+## Data Safety Guarantees
+
+1. **Styling Is Not Data**: Gradient opacity never encodes confidence, density, probability, or a second variable.
+2. **Deterministic Single Series**: Specialized strictly for one series; multi-series stacking is prohibited.
+3. **Truthful Missing Values**: Missing observations ($null$) break geometry cleanly; zero is never substituted.
+4. **Finite Coordinates Only**: Non-finite coordinates (`NaN`, `Infinity`) are sanitized before reaching SVG paths.
+5. **No Baked Backgrounds**: Gradients fade via opacity; no hardcoded background colors are baked into the component.
+6. **SSR-Safe Gradient IDs**: Dynamic IDs generated via `React.useId()` prevent cross-instance gradient collisions.
+7. **Caller Immutability**: Original caller records are never mutated or sorted in place.
+8. **Accessibility Disclosure**: Off-screen structured HTML data table disclosure provides full non-visual access to all values.

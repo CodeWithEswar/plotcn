@@ -1,0 +1,220 @@
+---
+title: "Baseline Area"
+description: "A single-series area visualization for showing values above and below an explicit quantitative reference baseline, with truthful deviation semantics, restrained positive/negative treatment, and deterministic inspection."
+component: "BaselineArea"
+engine: "recharts"
+registryName: "area-baseline"
+number: "017"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Baseline Area** is the deviation-specialized chart of the Plotcn **Area family**. It partitions a single quantitative series across an ordered domain relative to an explicit reference baseline, visually highlighting positive and negative deviations with truthful occupied area fills.
+
+The primary analytical question answered by Baseline Area is:
+
+> **"How far is this value above or below the configured reference, and where does the signal cross?"**
+
+The defining mathematical relationship is:
+
+$$
+\text{deviation}(x) = \text{value}(x) - \text{baseline}
+$$
+
+Unlike generic area charts that silently default to zero or fabricate split datasets, Baseline Area requires an **explicit baseline reference**, preserves original observation values as canonical data, and derives deviations factually without imposing judgmental "good" or "bad" business labels.
+
+```tsx
+import { BaselineArea } from "@/components/charts/recharts/area-baseline"
+
+const utilizationData = [
+  { day: "Day 01", utilization: 68 },
+  { day: "Day 03", utilization: 72 },
+  { day: "Day 05", utilization: 84 },
+  { day: "Day 07", utilization: 89 },
+  { day: "Day 09", utilization: 79 },
+  { day: "Day 11", utilization: 75 },
+  { day: "Day 13", utilization: 66 },
+  { day: "Day 15", utilization: 61 },
+  { day: "Day 17", utilization: 74 },
+  { day: "Day 19", utilization: 82 },
+  { day: "Day 21", utilization: 88 },
+  { day: "Day 23", utilization: 77 },
+  { day: "Day 25", utilization: 71 },
+  { day: "Day 27", utilization: 67 },
+  { day: "Day 29", utilization: 75 },
+  { day: "Day 30", utilization: 83 },
+]
+
+export function ResourceUtilizationTracker() {
+  return (
+    <BaselineArea
+      data={utilizationData}
+      xKey="day"
+      series={{
+        key: "utilization",
+        label: "Resource Utilization",
+        valueFormatter: (v) => `${v}%`,
+      }}
+      baseline={75}
+      baselineLabel="Target SLA"
+      aboveLabel="Above SLA"
+      belowLabel="Below SLA"
+      aboveColor="var(--chart-1)"
+      belowColor="var(--chart-2)"
+      showGrid
+      showDeviation
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides specialized analytical instruments:
+
+| Consideration | Prism Area (011) | Threshold Line (008) | Comparison Area (015) | Gradient Depth Area (016) | Baseline Area (017) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude relative to baseline?"* | *"Where does signal cross boundary limits?"* | *"How does primary compare to reference series?"* | *"How does magnitude change with surface depth?"* | **"How far above or below the explicit baseline is the value?"** |
+| **Fill Geometry** | Uniform fill down to baseline | No filled volume (line stroke only) | Dual overlapping series fills | Semantic opacity fade (32% → 2%) | **Dual-region continuous fill partitioned at baseline** |
+| **Series Roles** | Single series | Single signal + boundary lines | Exactly two: Primary & Reference | Single quantitative series | **Single signal + required reference baseline** |
+| **Baseline Requirement** | Optional ($y = 0$ or domain min) | Contextual threshold lines | Shared area baseline | Baseline anchor ($y = 0$ or min) | **Strictly required constant baseline ($b \in \mathbb{R}$)** |
+| **Color Semantics** | One series color | Signal color + threshold color | Distinct primary vs reference colors | Single color driving stroke & gradient | **Signal stroke + aboveColor + belowColor + baselineColor** |
+
+### Baseline Area vs Threshold Line (008)
+
+- **Threshold Line**: Best when the signal curve is the primary focus and horizontal thresholds serve as secondary context or warning limits.
+- **Baseline Area**: Best when the **occupied space above and below the reference** is the primary analytical message. The filled volume makes the cumulative duration and severity of deviations immediately visible.
+
+### Baseline Area vs Prism Area (011)
+
+- **Prism Area**: Treats the baseline as a passive structural floor (conventionally zero). All observations are displayed as a continuous positive volume.
+- **Baseline Area**: Treats the baseline as an active evaluation reference. Observations above the reference fill downward toward it, while observations below the reference fill upward toward it.
+
+---
+
+## Baseline Model
+
+The Baseline Area evaluation model classifies each observation into one of three factual mathematical states:
+
+<BaselineAreaModelDiagram />
+
+1. **Above Reference ($\text{value} > \text{baseline}$)**: The observation exceeds the reference baseline. The area polygon fills downward to the baseline using `aboveColor`. Deviation is strictly positive.
+2. **Exact Baseline ($\text{value} = \text{baseline}$)**: The observation lands precisely on the reference baseline. Area thickness at this coordinate is zero; deviation is $0$.
+3. **Below Reference ($\text{value} < \text{baseline}$)**: The observation falls below the reference baseline. The area polygon fills upward to the baseline using `belowColor`. Deviation is strictly negative.
+
+> **Visual Invariant**: Classification is strictly relative to the explicit baseline, never mathematical zero. An observation of $+80$ against a baseline of $100$ is **below reference** (deviation $-20$), while an observation of $-80$ against a baseline of $-100$ is **above reference** (deviation $+20$).
+
+---
+
+## Above & Below Semantics
+
+Plotcn separates spatial position from moral or business judgment:
+
+- **Above Does Not Mean "Good"**: In metrics such as server latency, error rate, memory consumption, or defect count, exceeding a baseline represents degraded performance.
+- **Below Does Not Mean "Bad"**: In costs, wait times, or churn rates, falling below a reference baseline represents favorable outcomes.
+- **Semantic Neutrality**: `aboveColor` defaults to `var(--chart-1)` and `belowColor` defaults to `var(--chart-2)`. Developers can explicitly configure custom colors when their business domain warrants green/red polarity.
+
+---
+
+## Crossing Behavior
+
+In real continuous signals, the trajectory crosses the reference baseline between discrete sample intervals. Plotcn implements continuous vertical Y-axis segmentation:
+
+<BaselineAreaCrossingDiagram />
+
+- **Continuous Y Segmentation**: A single continuous SVG Area geometry is filled with an SVG `<linearGradient>` with a sharp stop transition aligned to the exact baseline coordinate.
+- **True Interpolated Crossing**: The color boundary between `aboveColor` and `belowColor` occurs at the exact mathematical crossing point $C$ along the horizontal baseline line.
+- **Zero Artifacts**: Crossings do not toggle abruptly by discrete X columns or create jagged polygon seams.
+
+---
+
+## Rendering Architecture
+
+Baseline Area is built purely on top of Recharts and native SVG primitives, guaranteeing zero dependencies on D3, Canvas, or WebGL:
+
+<BaselineAreaArchitectureDiagram />
+
+1. **Consumer Inputs & Validation**: Validates that `baseline` is an explicit finite number. Non-finite data (`NaN`, `Infinity`) is normalized to `null`.
+2. **Safe Domain & Baseline Offset**: Automatic Y-domain expands to enclose both the dataset range and the baseline. The normalized gradient stop offset is calculated as $\frac{\text{max} - \text{baseline}}{\text{max} - \text{min}}$.
+3. **Hard-Stop Linear Gradient**: Constructs an SSR-safe `<linearGradient>` with a deterministic collision-free ID.
+4. **Recharts Area & ReferenceLine**: Renders `<Area baseValue={baseline} fill="url(#id)" stroke={color} />` alongside a subtle dashed `<ReferenceLine y={baseline} stroke={baselineColor} />`.
+5. **Nearest-X Inspection**: Provides synchronized tooltips displaying original observed values, reference baseline, and signed deviation ($\pm$).
+
+---
+
+## Data Contract
+
+Baseline Area consumes sequential records with an ordered domain key and a single quantitative metric:
+
+| Field | Type | Required | Meaning |
+| :--- | :--- | :--- | :--- |
+| `[xKey]` | `string \| Date` | Yes | Ordered horizontal domain coordinate (day, month, timestamp). |
+| `[series.key]` | `number \| null` | Yes | Observed quantitative metric value. |
+| `baseline` | `number` | Yes | Explicit constant reference baseline (prop, not data field). |
+
+```ts
+interface BaselineAreaDatum {
+  day: string
+  utilization: number | null
+}
+```
+
+---
+
+## Series Contract
+
+```ts
+interface BaselineAreaSeries<TData> {
+  /** Property key on data records for quantitative values */
+  key: NumericKeyOf<TData>
+  /** Human-readable label for tooltip and screen readers */
+  label: string
+  /** Optional custom numeric formatter */
+  valueFormatter?: (value: number) => string
+}
+```
+
+---
+
+## Color Semantics
+
+The component enforces a clean, multi-token color hierarchy:
+
+- **Signal Stroke (`color`)**: Preserves the continuous identity of the quantitative signal across the domain. Defaults to `var(--chart-1)`.
+- **Above Region (`aboveColor`)**: Applied to occupied area above the baseline. Defaults to `var(--chart-1)`.
+- **Below Region (`belowColor`)**: Applied to occupied area below the baseline. Defaults to `var(--chart-2)`.
+- **Reference Line (`baselineColor`)**: Applied to the constant horizontal reference line and label. Defaults to `var(--chart-axis)`.
+- **Active Selection (`selectionColor`)**: Applied to persistent locked crosshair indicator. Defaults to `var(--chart-selection)`.
+
+---
+
+## Accessibility & Data Safety
+
+- **One Tab Stop**: Root figure is keyboard-focusable with comprehensive shortcuts:
+  - `ArrowLeft` / `ArrowRight`: Navigate chronological observations.
+  - `Home` / `End`: Jump to first / last observation.
+  - `Enter` / `Space`: Pin or unpin persistent tooltip inspection.
+  - `Escape`: Dismiss locked inspection.
+- **Off-Screen Structured Table**: Accessible `<table className="sr-only">` presents raw values, baseline reference, deviation arithmetic, and relative position classification to screen readers.
+- **Factual Narration**: Screen reader captions state deviations factually without editorializing (e.g. *"7 units above reference"*, not *"Performance good"*).
+- **Reduced Motion**: Entrance reveal animations immediately bypass when `prefers-reduced-motion` is active.
+
+---
+
+## Data Safety Guarantees
+
+- ✓ Baseline is explicit and never silently assumed to be zero
+- ✓ Baseline is constant and finite in V1
+- ✓ Automatic domain always encloses the reference baseline
+- ✓ Explicit domain is respected without clamping the baseline
+- ✓ Values are classified relative to baseline, not zero
+- ✓ Positive raw values can be below baseline; negative raw values can be above baseline
+- ✓ Exact-baseline values remain exact with zero deviation
+- ✓ Missing values never collapse into baseline values
+- ✓ Zero remains a valid observation
+- ✓ Non-finite values (`NaN`, `Infinity`) never reach SVG geometry
+- ✓ Caller data is never mutated

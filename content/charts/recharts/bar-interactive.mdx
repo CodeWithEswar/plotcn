@@ -1,0 +1,216 @@
+---
+title: Interactive Bars
+description: Category-first bar inspection with a precise band cursor, persistent touch locking, and single-tab-stop keyboard traversal across peer numeric series.
+component: InteractiveBars
+engine: recharts
+renderer: svg
+status: preview
+difficulty: intermediate
+category: bar
+tags: ["recharts", "bar", "interactive", "inspection", "touch-lock", "keyboard", "band-cursor", "accessible"]
+---
+
+# Interactive Bars
+
+<ChartPreview registryName="bar-interactive" />
+
+## Overview
+
+**Interactive Bars** is Plotcn's specialized categorical Bar chart engineered specifically for reliable data inspection across pointer, touch, and keyboard modalities.
+
+Rather than treating interaction as an afterthought or ephemeral hover decoration, Interactive Bars makes the **category band** the primary interaction target:
+
+> **Governing Principle:** Interactive Bars is designed for reliable inspection, not merely hover decoration. The active category must remain understandable and controllable across pointer, touch, and keyboard input without requiring pixel-perfect bar hits, blocking page scroll, fabricating values, or tying interaction state to ephemeral Recharts tooltip internals.
+
+### Interaction Hierarchy
+
+<InteractionHierarchyDiagram />
+
+---
+
+## Installation
+
+:::package-manager
+pnpm dlx shadcn@latest add "https://plotcn.vercel.app/r/bar-interactive.json"
+:::
+
+---
+
+## Usage
+
+```tsx
+import { InteractiveBars } from "@/components/charts/recharts/bar-interactive"
+
+const data = [
+  { quarter: "Q1", product: 82, services: 54, enterprise: 38 },
+  { quarter: "Q2", product: 96, services: 61, enterprise: 44 },
+  { quarter: "Q3", product: 88, services: 67, enterprise: 52 },
+  { quarter: "Q4", product: 104, services: 72, enterprise: 58 },
+]
+
+export function RevenueMixExample() {
+  return (
+    <InteractiveBars
+      data={data}
+      categoryKey="quarter"
+      series={[
+        { key: "product", label: "Product Revenue", valueFormatter: (v) => `$${v}M` },
+        { key: "services", label: "Services Revenue", valueFormatter: (v) => `$${v}M` },
+        { key: "enterprise", label: "Enterprise Sales", valueFormatter: (v) => `$${v}M` },
+      ]}
+      showLegend
+      lockOnTouch
+      lockOnClick
+    />
+  )
+}
+```
+
+---
+
+## Interaction State Machine
+
+The chart manages three clean states: `IDLE`, `ACTIVE`, and `LOCKED`.
+
+<InteractionStateMachineDiagram />
+
+1. **IDLE**: The chart is resting with no active category.
+2. **ACTIVE (Transient)**: A pointer enters a category band. The band lights up subtly and the tooltip opens. As soon as the pointer leaves the chart, the state resets to `IDLE`.
+3. **LOCKED (Persistent)**: A user taps a category on touch, clicks with a mouse, or presses `Enter`/`Space` while traversing with keyboard. The category and tooltip remain pinned even after the cursor leaves or the page is scrolled.
+
+---
+
+## Active vs Locked
+
+<ActiveVsLockedDiagram />
+
+- **Active**: Designed for fluid desktop exploration. Moving between bars updates the active readout immediately without cluttering the screen when moving away.
+- **Locked**: Solves the fundamental flaw of touch interfaces where hovering does not exist. The user taps to lock, reads the values, scrolls the page to review text, and dismisses when ready.
+
+---
+
+## Category Band vs Rectangle
+
+Conventional charts require users to position their cursor directly over thin rectangular bars to trigger a tooltip. In grouped charts or dense data, this causes frustrating missed hits.
+
+<CategoryBandVsRectangleDiagram />
+
+In Plotcn's Interactive Bars:
+- The **entire category band** acts as the primary hit area.
+- Hovering or tapping anywhere within the band activates the full category group.
+- The tooltip reports all visible peer series simultaneously.
+- Direct contact with a specific rectangle refines `activeSeriesKey` to emphasize that series without hiding peer comparisons.
+
+---
+
+## Zero & Tiny Bars
+
+<ZeroTinyBarHitRegionDiagram />
+
+In conventional bar charts, zero-valued bars have zero height and are impossible to hit. Designers often introduce dangerous "fake minimum bar heights" that visually falsify the data.
+
+Plotcn strictly guarantees **mathematical truthfulness**:
+- Zero-valued bars are drawn with 0 height.
+- Tiny bars (e.g. `0.001`) remain microscopically small.
+- Both remain **100% inspectable** because the broad category band captures the interaction, and the tooltip truthfully reports `$0.00` or `$0.01`.
+
+---
+
+## Touch Lock Lifecycle
+
+<TouchLockLifecycleDiagram />
+
+1. **Tap Bar**: Finger taps anywhere in the category band.
+2. **Lock Established**: The category band is outlined, and the tooltip is locked into place.
+3. **Finger Lifts**: The user removes their finger. The inspection state persists.
+4. **Scroll Page**: The user scrolls down to read accompanying text. Native scrolling is completely unimpeded (`touch-action` is never globally blocked).
+5. **Dismiss / Transfer**: Tapping another category transfers the lock; pressing `Escape` or tapping the locked category again dismisses the inspection.
+
+---
+
+## Single Tab-Stop Keyboard Traversal
+
+Plotcn avoids keyboard "tab explosions" where each bar creates an independent tab stop.
+
+<KeyboardTraversalDiagram />
+
+- **1 Tab Stop**: Pressing `Tab` focuses the entire chart container.
+- **Arrow Keys**: `ArrowLeft` / `ArrowRight` (vertical layout) or `ArrowUp` / `ArrowDown` (horizontal layout) step sequentially across categories.
+- **Extremes**: `Home` jumps to the first category, `End` jumps to the last.
+- **Locking**: `Enter` or `Space` locks the currently focused category; `Escape` unlocks it without losing focus.
+
+---
+
+## Grouped-Series Inspection
+
+<GroupedSeriesInspectionDiagram />
+
+When multiple peer series share a category:
+- The category band envelops the entire group.
+- The tooltip presents all visible series in their canonical configured order.
+- Exact bar contact highlights that individual series row with a star and bold readout while keeping the surrounding comparative numbers in view.
+
+---
+
+## Input Modality Precedence
+
+<InputHandoffDiagram />
+
+When transitioning between modalities (e.g., hovering with a mouse, then using arrow keys, or tapping on a touchscreen):
+1. **Locked State** takes top priority: transient mouse movement outside will not dismiss a deliberately locked card.
+2. **Keyboard Traversal** takes second priority: moving an arrow key intentionally moves the active inspection.
+3. **Pointer Hover** is transient: it updates only when no category is actively locked.
+
+---
+
+## Focus vs Active vs Locked
+
+<FocusVsActiveVsLockedDiagram />
+
+To prevent user confusion, Plotcn establishes three visually distinct treatments:
+- **FOCUS**: Structural blue focus ring around the `<figure>` container for keyboard awareness.
+- **ACTIVE**: Subtle, low-opacity band fill (`rgba(59, 130, 246, 0.09)`) indicating transient pointer hover.
+- **LOCKED**: High-contrast dashed structural border (`var(--chart-selection)`), persistent background tint, and an explicit `Locked` badge in the tooltip header.
+
+---
+
+## Interactive Legend
+
+<InteractiveLegendStateDiagram />
+
+When `interactiveLegend={true}` is enabled, clicking legend items toggles series visibility while preserving key invariants:
+- Hiding a series never shifts the palette colors of remaining series.
+- Active and locked categories remain intact.
+- The tooltip dynamically omits hidden series while truthfully reporting missing observations as `"Unavailable"`.
+
+---
+
+## Layout & Orientation
+
+<OrientationInteractionDiagram />
+
+Interactive Bars supports both vertical and horizontal layouts:
+- **Vertical (`layout="vertical"`)**: Ideal for standard categorical timelines (quarters, months, categories) with left-to-right arrow navigation.
+- **Horizontal (`layout="horizontal"`)**: Ideal for long category labels and mobile scorecards with top-to-bottom arrow navigation.
+
+---
+
+## Rendering Architecture
+
+<RenderingInteractionArchitectureDiagram />
+
+The component cleanly decouples visual mark rendering from interaction state management:
+1. **Recharts Core** handles the SVG Cartesian axes, gridlines, and grouped `<Bar>` shapes.
+2. **Interaction Reducer** manages discrete category band coordinates, active series keys, and persistent lock state.
+3. **Controlled Tooltip** renders outside the Recharts event loop, ensuring tooltip stability across resize, theme change, and touch scrolling.
+4. **Accessibility Shell** synchronizes live polite announcements and structured HTML tables.
+
+---
+
+## Data Safety Guarantees
+
+Plotcn enforces strict operational safety rules:
+- **Preserved Order**: Category order matches caller order without automatic ranking or sorting.
+- **Zero vs Missing**: Zero is a valid number (`0`); missing (`null` or `undefined`) is explicitly rendered as `"Unavailable"`.
+- **No Geometry Inflation**: Quantitative marks are never stretched to create larger hit targets; category bands provide the hit area.
+- **Data Updates While Locked**: If the underlying dataset updates while a category is locked, the tooltip immediately reflects the fresh values rather than showing a stale snapshot.

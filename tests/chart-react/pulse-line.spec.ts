@@ -292,13 +292,11 @@ describe("Component 002: Pulse Line (line-pulse)", () => {
       assert.equal(registryItem.type, "registry:component")
       assert.ok(registryItem.dependencies.includes("recharts"), "Must declare recharts dependency")
       assert.ok(
-        registryItem.registryDependencies.includes("@plotcn/chart-container") ||
-        registryItem.registryDependencies.includes("chart-container"),
+        registryItem.registryDependencies.some((d: string) => d.includes("chart-container")),
         "Must declare chart-container primitive"
       )
       assert.ok(
-        registryItem.registryDependencies.includes("@plotcn/chart-motion") ||
-        registryItem.registryDependencies.includes("chart-motion"),
+        registryItem.registryDependencies.some((d: string) => d.includes("chart-motion")),
         "Must declare chart-motion primitive"
       )
     })

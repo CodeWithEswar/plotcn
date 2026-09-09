@@ -1,0 +1,169 @@
+---
+title: "Twinline Compare"
+description: "Compare one primary series against one reference series with a strong visual hierarchy, synchronized inspection, precise delta context, and clean responsive behavior."
+component: "TwinlineCompare"
+engine: "recharts"
+registryName: "line-twin-compare"
+number: "003"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Twinline Compare** is Plotcn's specialized two-series comparative visualization. Designed specifically for period-over-period analytics, benchmark evaluations, and target vs actual metrics, it pairs one dominant **primary series** with one subdued **reference series** over a shared, honest Cartesian scale.
+
+Unlike casual multi-line charts where all series compete with identical visual weight, Twinline Compare establishes an unmistakable visual hierarchy:
+
+- **Primary Series**: Solid curve, dominant stroke weight (`2.5px`), and primary brand/theme color (`var(--chart-1)`).
+- **Reference Series**: Dashed curve (`4 4`), lighter stroke weight (`1.8px`), rendered behind the primary line in a muted tone (`var(--chart-2)`).
+- **Single Shared Y Scale**: Strictly avoids misleading dual axes. Both series share identical baseline, domain, and unit definitions.
+- **Synchronized Inspection**: A single hover crosshair snaps across both series simultaneously, rendering a contextual tooltip with explicit delta math (`+` / `−`, absolute difference, and percentage delta).
+
+```tsx
+import { TwinlineCompare } from "@/components/charts/recharts/line-twin-compare"
+
+export function RevenueComparisonCard() {
+  return (
+    <TwinlineCompare
+      data={revenueData}
+      xKey="date"
+      primaryKey="current"
+      referenceKey="previous"
+      primaryLabel="2024 Actual"
+      referenceLabel="2023 Benchmark"
+      deltaType="both"
+    />
+  )
+}
+```
+
+---
+
+## Best Suited For
+
+Twinline Compare is engineered for:
+
+- **Period-over-Period Analytics**: Current month vs previous month, Year-over-Year (YoY) performance, and quarter-to-date tracking.
+- **Goal & Benchmark Tracking**: Actual metrics measured against quarterly forecasts, SLAs, or industry baselines.
+- **A/B Experimentation**: Control vs Variant performance over test duration.
+- **Operational & System Drift**: Canary vs baseline deployment error rates, response latencies, and memory footprints.
+
+### When to Avoid
+
+- **Three or More Series**: Use `MultiSeriesLine` or `StackedArea` when comparing 3+ independent series simultaneously.
+- **Independent Unrelated Units**: When comparing metrics with completely different units (e.g. Temperature in °C vs Humidity in %), do not force them into a single chart. Render two stacked charts instead.
+- **Single Series Only**: Use `SignalLine` or `PulseLine` for uncompared operational signals.
+
+---
+
+## Installation
+
+Install Twinline Compare directly into your project via the shadcn CLI. The component source and its required dependencies (`recharts` and shared Plotcn primitives) will be copied directly into your repository under complete source ownership.
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-twin-compare.json
+:::
+
+> Once accepted into the official shadcn registry directory, the shortened namespace command `npx shadcn@latest add @plotcn/line-twin-compare` becomes available.
+
+---
+
+## Data Contract
+
+Twinline Compare accepts a readonly array of observations. Each record must contain a shared horizontal domain key (date, timestamp, or ordinal label) and numeric values for both the primary and reference series.
+
+```typescript
+export interface ComparisonDatum {
+  date: string        // ISO date string, formatted timestamp, or ordinal category
+  current: number     // Primary series observation (e.g. current year revenue)
+  previous: number    // Reference series observation (e.g. prior year revenue)
+}
+```
+
+### Truthful Missing Values & Zero References
+
+Twinline Compare guards comparison calculations against corrupting assumptions:
+
+1. **Independent Missing Points**: If one series has an observation at time $T$ while the other is missing, the missing series renders a clean visual gap (`missingValuePolicy="gap"`). It is **never** coerced to zero.
+2. **Safe Delta Computation**: Delta is evaluated **only** when both primary and reference values are finite numbers at the same point.
+3. **Zero Reference Protection**: When the reference series is `0`, percentage delta cannot be mathematically computed ($\frac{\Delta}{0}$). Rather than crashing with `Infinity` or `NaN`, the tooltip cleanly indicates `"Unavailable"`.
+
+---
+
+## Component Props
+
+### Core Configuration
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. The caller's array is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property name representing the horizontal X axis coordinate. |
+| `primaryKey` | `keyof TData & string` | *required* | Property name representing the primary series numeric value. |
+| `referenceKey` | `keyof TData & string` | *required* | Property name representing the reference benchmark series numeric value. |
+| `primaryLabel` | `string` | `"Primary"` | Human-readable label for the primary series displayed in legend and tooltip. |
+| `referenceLabel` | `string` | `"Reference"` | Human-readable label for the reference series displayed in legend and tooltip. |
+| `height` | `number \| string` | `340` | Container height in pixels or standard CSS string (e.g. `100%`, `360px`). |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | Line interpolation. Use `monotone` for continuous trends, `step` for scheduled rate tiers. |
+| `deltaType` | `"absolute" \| "percentage" \| "both"` | `"both"` | Formatting of delta context in tooltip. |
+| `invertDelta` | `boolean` | `false` | When `true`, negative deltas are styled as positive (emerald) and positive deltas as negative (rose) — useful for cost, latency, or errors. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `"auto"` | Explicit Y-axis bounds. Automatic mode calculates a single safe scale spanning both series. |
+
+### Visual & Appearance
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `primaryColor` | `string` | `"var(--chart-1)"` | Stroke color for the primary series. |
+| `referenceColor` | `string` | `"var(--chart-2)"` | Stroke color for the reference series. |
+| `showGrid` | `boolean` | `true` | Renders subtle horizontal dashed reference dividers (`var(--chart-grid)`). |
+| `showLegend` | `boolean` | `true` | Renders series legend with solid vs dashed indicator styles. |
+| `showXAxis` | `boolean` | `true` | Renders horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Renders vertical value tick labels on the shared scale. |
+| `showDeltaInTooltip` | `boolean` | `true` | Displays computed difference pill at the bottom of the hover tooltip. |
+| `motion` | `boolean \| { duration: number }` | `true` | Reveal animation (350ms). Automatically disabled under `prefers-reduced-motion`. |
+
+### Accessibility & States
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | `"Twinline Comparison Chart"` | Accessible name announced by screen readers for the `<figure>` region. |
+| `description` | `string` | `undefined` | Extended contextual description for assistive technologies. |
+| `loading` | `boolean` | `false` | Displays neutral loading state without fake data while preserving layout footprint. |
+| `error` | `Error \| string \| null` | `null` | Actionable error banner with optional retry trigger. |
+| `unavailable` | `boolean \| string \| null` | `false` | Unavailability notice (e.g. historical data retention limitations). |
+| `onRetry` | `() => void` | `undefined` | Callback invoked when user clicks the retry button in the error state. |
+
+---
+
+## Responsive Behavior
+
+Twinline Compare automatically adapts to its parent container:
+
+- **Desktop (1024px+)**: Spacious layout, complete legend, and comparative hover tooltip with absolute and percentage deltas.
+- **Tablet (640px – 1023px)**: Adaptive X-axis tick thinning to prevent collision, consolidated tooltip padding.
+- **Mobile (< 640px)**: Compact padding, preserved start/end axis labels, full-width touch scrub interaction, and stacked tooltip items.
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Twinline Compare conforms to WCAG 2.1 AAA and Section 508 accessibility guidelines:
+
+1. **Keyboard Operable**: Pressing <kbd>Tab</kbd> focuses the chart region with a prominent `var(--chart-focus)` ring.
+2. **Synchronized Point Inspection**:
+   - <kbd>→</kbd> Navigates to the next time observation.
+   - <kbd>←</kbd> Navigates to the previous time observation.
+   - <kbd>Home</kbd> Jumps to the first observation.
+   - <kbd>End</kbd> Jumps to the final observation.
+   - <kbd>Esc</kbd> Clears active point selection.
+3. **Screen Reader Announcement**: A live region announces both primary and reference observations along with the time label.
+4. **Factual Figure Summary**: An invisible `<figcaption>` provides an automated quantitative overview summarizing total observations, primary range, reference range, and final values without marketing spin.
+
+---
+
+## Data Safety Guarantee
+
+1. **Zero Fabricated Fallback Data**: Twinline Compare will never synthesize fake comparison curves when inputs are missing.
+2. **Finite Number Enforcement**: Non-finite values (`NaN`, `Infinity`, `-Infinity`) are cleanly caught before calculation, preventing corrupt SVG path operations.
+3. **Shared Scale Integrity**: The vertical scale is calculated over the combined extent of both series, guaranteeing accurate visual comparison without misleading axis scaling.
+4. **Zero Reference Division Protection**: Prevents `NaN%` or `Infinity%` by falling back to `"Unavailable"` when the baseline reference is zero.

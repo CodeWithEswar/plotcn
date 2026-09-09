@@ -1,0 +1,215 @@
+---
+title: Variance Bars
+description: Actual-versus-plan delta bars centered on a truthful zero-variance baseline, with neutral signed semantics and auditable source values.
+component: VarianceBars
+engine: recharts
+renderer: svg
+status: preview
+difficulty: intermediate
+category: bar
+tags: ["recharts", "bar", "variance", "actual-vs-plan", "delta", "zero-baseline", "signed", "accessible"]
+---
+
+# Variance Bars
+
+<ChartPreview registryName="bar-variance" />
+
+## Overview
+
+**Variance Bars** visualizes the categorical arithmetic difference between an observed measure and an explicit plan or reference value:
+
+$$\text{Variance} = \text{Actual} - \text{Plan}$$
+
+A positive bar indicates an actual value numerically above plan; a negative bar indicates an actual value numerically below plan; and zero represents exact parity with plan.
+
+> **Terminology Clarification:** In Plotcn, **variance** refers exclusively to categorical actual-versus-plan arithmetic delta. It does **not** mean statistical variance, sample variance, or dispersion around a mean.
+
+### Governing Principle
+
+> **Variance Bars visualizes the arithmetic difference between an actual value and an explicit plan/reference value. Zero means actual equals plan, positive means actual is numerically above plan, and negative means actual is numerically below plan. Plotcn must never automatically translate those directions into good/bad, favorable/unfavorable, success/failure, profit/loss, or healthy/unhealthy.**
+
+---
+
+## Installation
+
+:::package-manager
+pnpm dlx shadcn@latest add "https://plotcn.vercel.app/r/bar-variance.json"
+:::
+
+---
+
+## Usage
+
+```tsx
+import { VarianceBars } from "@/components/charts/recharts/bar-variance"
+
+const data = [
+  { segment: "Enterprise", actual: 124, plan: 110 },
+  { segment: "Mid-market", actual: 92, plan: 100 },
+  { segment: "SMB", actual: 74, plan: 74 },
+  { segment: "Public Sector", actual: 68, plan: 72 },
+  { segment: "Partners", actual: 81, plan: 75 },
+]
+
+export function BudgetVarianceExample() {
+  return (
+    <VarianceBars
+      data={data}
+      categoryKey="segment"
+      series={{
+        actualKey: "actual",
+        planKey: "plan",
+        label: "Revenue Variance",
+        valueFormatter: (v) => `$${v}M`,
+        varianceFormatter: (v) => `${v > 0 ? "+" : ""}$${v}M`,
+      }}
+    />
+  )
+}
+```
+
+---
+
+## Variance Model
+
+Variance Bars derives one signed quantitative delta bar from two caller-supplied fields: `actualKey` and `planKey`.
+
+<VarianceDerivationModelDiagram />
+
+### Actual vs Plan &rarr; Delta
+
+Every observation resolves to one of three canonical factual positions:
+
+<ActualPlanDeltaDiagram />
+
+1. **Above Plan**: Actual &gt; Plan &rArr; Variance &gt; 0. Bar extends upward (vertical) or rightward (horizontal).
+2. **On Plan (Equal)**: Actual = Plan &rArr; Variance = 0. No quantitative bar is rendered; the baseline itself communicates equality.
+3. **Below Plan**: Actual &lt; Plan &rArr; Variance &lt; 0. Bar extends downward (vertical) or leftward (horizontal).
+
+---
+
+## Zero-Variance Baseline
+
+The zero line is a semantic equality reference, not optional background decoration.
+
+<ZeroVarianceBaselineDiagram />
+
+- The zero line defaults to the structural `--chart-axis` token.
+- It remains visually stronger than ordinary grid lines but distinct from active focus rings.
+- Zero actual, zero plan, and zero variance are all legitimate, distinct states.
+
+---
+
+## Positive, Zero, and Negative Geometry
+
+<PositiveZeroNegativeGeometryDiagram />
+
+- Positive bars extrude outward in the positive direction.
+- Negative bars extrude outward in the negative direction.
+- Categories with zero variance produce no artificial minimum width or height, preventing distorted visual arithmetic while remaining fully interactive via category hit bands.
+
+---
+
+## Direction Is Not Favorability
+
+A common design pitfall in financial dashboards is treating all positive variances as "good" (green) and negative variances as "bad" (red).
+
+<DirectionNotFavorabilityDiagram />
+
+- **Revenue**: Actual `$120M` vs Plan `$100M` &rarr; Variance `+$20M` (Surplus).
+- **Infrastructure Cost**: Actual `$120K` vs Plan `$100K` &rarr; Variance `+$20K` (Budget overrun).
+
+Both have identical arithmetic direction (`+20`), but opposite operational implications. Plotcn strictly reports objective mathematical positions (`Above plan`, `Below plan`), leaving business interpretation to the consuming application.
+
+---
+
+## Negative Input Arithmetic
+
+Actual and plan values are not required to be non-negative. When dealing with signed inputs (such as debt, deficits, or sub-zero temperatures), variance direction is derived strictly by subtraction:
+
+<NegativeInputArithmeticDiagram />
+
+```math
+Actual = -80, \quad Plan = -100 \implies (-80) - (-100) = +20
+```
+
+Even though the observed actual value is negative, it is numerically above the reference plan, yielding a positive variance bar.
+
+---
+
+## Pairwise Validity & Missing Data
+
+A valid variance requires **both** `actual` and `plan` to be finite numbers (`Number.isFinite`).
+
+<MissingPairSemanticsDiagram />
+
+- **Missing Actual**: If `actual` is `null` and `plan` is 100, variance is **unavailable**. Never infer 0 &minus; 100 = &minus;100.
+- **Missing Plan**: If `actual` is 80 and `plan` is `null`, variance is **unavailable**. Never infer 80 &minus; 0 = +80.
+- **Non-Finite Values**: `NaN`, `Infinity`, and `-Infinity` are rejected as unavailable and never entered into SVG coordinates.
+
+---
+
+## Symmetric Domain Policy (Policy B)
+
+To guarantee that equal absolute deviations (e.g. `+40` and `−40`) receive equal visual bar lengths, Plotcn applies **Policy B**:
+
+<MixedSignSymmetricDomainDiagram />
+
+- **Mixed Signs**: Symmetric domain `[-extent, +extent]` centered at zero, where `extent = max(|min|, |max|)`.
+- **Positive Only**: `[0, safeMax]` (preserves zero without wasting the negative half of the canvas).
+- **Negative Only**: `[safeMin, 0]` (preserves zero without wasting the positive half of the canvas).
+- **All Zero**: Safe expansion `[-1, 1]` centered at zero.
+
+---
+
+## Interaction & Category Band Hit Region
+
+Zero-variance categories, tiny deviations, and rows with missing data must remain easily inspectable without distorting bar geometry.
+
+<CategoryBandHitRegionDiagram />
+
+- Pointer and touch hit testing are bound to the full category band (36–48px).
+- Tiny bars do not require sub-pixel pointer accuracy.
+- Vertical page scrolling is preserved on mobile devices (`touch-action: pan-y`).
+
+---
+
+## Layout: Vertical vs Horizontal
+
+Both orientations are first-class, specialized compositions:
+
+<VerticalVsHorizontalCompositionDiagram />
+
+- **Vertical (`orientation="vertical"`, default)**: Ideal for short category labels (quarters, regions) in standard dashboard layouts. Traversal uses `ArrowLeft` and `ArrowRight`.
+- **Horizontal (`orientation="horizontal"`)**: Ideal for long department names, ledger accounts, and narrow mobile viewports. Traversal uses `ArrowUp` and `ArrowDown`.
+
+---
+
+## Rendering Architecture
+
+<VarianceRenderingArchitectureDiagram />
+
+---
+
+## Props Reference
+
+| Property | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | **Required** | Source dataset. Array order is strictly caller-preserved. |
+| `categoryKey` | `keyof TData & string` | **Required** | Property key representing the discrete category label. |
+| `series` | `VarianceBarSeries<TData>` | **Required** | Semantic series contract declaring `actualKey` and `planKey`. |
+| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Axis arrangement for categories and quantitative variance bars. |
+| `height` | `number \| string` | `340` | Chart container height in pixels or CSS dimension. |
+| `domain` | `[number, number] \| "auto"` | `"auto"` | Quantitative scale bounds. Must include zero. |
+| `positiveColor` | `string` | `"var(--chart-1)"` | Fill color for bars where actual is numerically above plan. |
+| `negativeColor` | `string` | `"var(--chart-2)"` | Fill color for bars where actual is numerically below plan. |
+| `zeroColor` | `string` | `"var(--chart-axis)"` | Stroke color for the zero baseline reference rule. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | Stroke emphasis for the currently focused category bar. |
+| `showGrid` | `boolean` | `true` | Whether to render subtle background Cartesian gridlines. |
+| `showZeroLine` | `boolean` | `true` | Whether to render the prominent zero reference line. |
+| `showLegend` | `boolean` | `false` | Whether to render the structural directional legend. |
+| `valueLabel` | `"none" \| "variance" \| "auto"` | `"none"` | Permanent outward numeric variance label policy. |
+| `tooltipMode` | `"variance" \| "full"` | `"full"` | Tooltip detail level (`"full"` audits actual, plan, and variance). |
+| `maxBarSize` | `number` | `36` | Maximum bar thickness in pixels. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Animation toggle (honors `prefers-reduced-motion`). |
+| `loading` | `boolean` | `false` | Whether to render the skeleton loading state. |

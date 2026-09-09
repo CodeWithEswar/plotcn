@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts"
 import { useChartReducedMotion } from "../shared/use-chart-reduced-motion"
+import { ChartLegend } from "../shared/chart-legend"
 import { ChartContainer } from "../shared/chart-container"
 import { ChartTooltip } from "../shared/chart-tooltip"
 import {
@@ -104,7 +105,7 @@ export interface SignalLineProps<TData extends Record<string, unknown> = Record<
 
   /**
    * Primary color for the signal line. Defaults to Plotcn semantic token.
-   * Default: "var(--chart-1, #10b981)"
+   * Default: "var(--chart-1)"
    */
   color?: string
 
@@ -282,7 +283,7 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
   showLegend = false,
   showXAxis = true,
   showYAxis = true,
-  color = "var(--chart-1, #10b981)",
+  color = "var(--chart-1)",
   missingValuePolicy = "gap",
   motion = true,
   title = "Signal Line",
@@ -307,76 +308,6 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
   const summaryId = `signal-summary-${containerId}`
 
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null)
-
-  // 1. Error state handling
-  if (error) {
-    if (errorContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {errorContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartErrorState
-          title="Unable to load signal"
-          description={typeof error === "string" ? error : error.message}
-          onRetry={onRetry}
-        />
-      </div>
-    )
-  }
-
-  // 2. Unavailable state handling
-  if (unavailable) {
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartUnavailableState
-          title="Signal unavailable"
-          description={typeof unavailable === "string" ? unavailable : undefined}
-        />
-      </div>
-    )
-  }
-
-  // 3. Loading state handling
-  if (loading) {
-    if (loadingContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {loadingContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartLoadingState
-          title="Loading signal visualization..."
-          description="Preparing time-series metrics and calculating axes"
-        />
-      </div>
-    )
-  }
-
-  // 4. Empty data handling
-  if (!data || data.length === 0) {
-    if (emptyContent) {
-      return (
-        <div className={cn("w-full", className)} style={{ height }}>
-          {emptyContent}
-        </div>
-      )
-    }
-    return (
-      <div className={cn("w-full", className)} style={{ height }}>
-        <ChartEmptyState
-          title="No signal observations"
-          description="Observations will appear when metrics are recorded for this timeline."
-        />
-      </div>
-    )
-  }
 
   // Normalized safe data
   const safeData = normalizeSignalData(data, xKey, activeSeriesKey, missingValuePolicy)
@@ -423,6 +354,22 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
     return "preserveStartEnd"
   }, [tickStrategy, safeData.length])
 
+  if (error) {
+    if (errorContent) return <div className={cn("w-full", className)} style={{ height }}>{errorContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartErrorState title="Unable to load signal" description={typeof error === "string" ? error : error.message} onRetry={onRetry} /></div>
+  }
+  if (unavailable) {
+    return <div className={cn("w-full", className)} style={{ height }}><ChartUnavailableState title="Signal unavailable" description={typeof unavailable === "string" ? unavailable : undefined} /></div>
+  }
+  if (loading) {
+    if (loadingContent) return <div className={cn("w-full", className)} style={{ height }}>{loadingContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartLoadingState title="Loading signal visualization..." description="Preparing time-series metrics and calculating axes" /></div>
+  }
+  if (data.length === 0) {
+    if (emptyContent) return <div className={cn("w-full", className)} style={{ height }}>{emptyContent}</div>
+    return <div className={cn("w-full", className)} style={{ height }}><ChartEmptyState title="No signal observations" description="Observations will appear when metrics are recorded for this timeline." /></div>
+  }
+
   // Keyboard navigation across observations (Section 33, 34)
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (safeData.length === 0) return
@@ -461,7 +408,7 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
       onKeyDown={handleKeyDown}
       onBlur={() => setActiveIndex(null)}
       className={cn(
-        "group relative flex flex-col w-full outline-none focus-visible:ring-1 focus-visible:ring-[var(--chart-focus,#10b981)] rounded-xl transition-all",
+        "group relative flex flex-col w-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--chart-focus)] rounded-xl transition-all",
         className
       )}
       style={{ height }}
@@ -488,7 +435,7 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
-                stroke="var(--chart-grid, rgba(255,255,255,0.08))"
+                stroke="var(--chart-grid)"
               />
             )}
 
@@ -498,7 +445,7 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
               tickLine={false}
               axisLine={false}
               interval={tickInterval}
-              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis)" }}
               dy={6}
             />
 
@@ -507,7 +454,7 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
               domain={safeDomain as any}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11, fill: "var(--chart-axis, #a1a1aa)" }}
+              tick={{ fontSize: 11, fill: "var(--chart-axis)" }}
               tickFormatter={valueFormatter ? (v) => valueFormatter(Number(v)) : undefined}
               dx={-4}
             />
@@ -518,16 +465,17 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
                   indicator="line"
                   formatter={(val, name) => defaultFormatter(val)}
                   labelFormatter={(label) => label}
+                  compact={typeof height === "number" ? height <= 260 : false}
                 />
               }
               cursor={{
-                stroke: "var(--chart-crosshair, rgba(255,255,255,0.25))",
+                stroke: "var(--chart-crosshair)",
                 strokeDasharray: "3 3",
                 strokeWidth: 1.2,
               }}
             />
 
-            {showLegend && <Legend />}
+            {showLegend && <Legend content={<ChartLegend/>} />}
 
             <Line
               type={curve}
@@ -537,13 +485,13 @@ export function SignalLine<TData extends Record<string, unknown> = Record<string
               strokeWidth={2}
               dot={
                 safeData.length === 1
-                  ? { r: 4.5, fill: color, stroke: "var(--background, #09090b)", strokeWidth: 2 }
+                  ? { r: 4.5, fill: color, stroke: "var(--chart-background)", strokeWidth: 2 }
                   : false
               }
               activeDot={{
                 r: 4.5,
                 fill: color,
-                stroke: "var(--background, #09090b)",
+                stroke: "var(--chart-background)",
                 strokeWidth: 2,
               }}
               connectNulls={missingValuePolicy === "connect"}

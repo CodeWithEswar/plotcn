@@ -92,35 +92,41 @@ export function SourceAnatomy({ anatomy, sourceCode, highlightedSourceCode, comp
 
       {/* Full Inline Source Viewer */}
       <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/90 overflow-hidden shadow-xl">
-        <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5 bg-white/[0.02]">
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-300">
-            <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-emerald-400" />
-            <span className="font-semibold">{componentPath}</span>
+        <div className="flex items-center justify-between border-b border-white/[0.08] px-3.5 py-2.5 sm:px-4 bg-white/[0.02] gap-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-300 min-w-0 flex-1 mr-1">
+            <HugeiconsIcon icon={SourceCodeIcon} size={14} className="text-emerald-400 shrink-0" />
+            <span className="font-semibold truncate" title={componentPath}>{componentPath}</span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => setIsWrapped(!isWrapped)}
               aria-label={isWrapped ? "Disable line wrapping" : "Enable line wrapping"}
               className={cn(
-                "inline-flex items-center gap-1 px-2.5 py-1 rounded-md border text-xs font-mono transition-colors cursor-pointer",
+                "h-7 sm:h-7.5 inline-flex items-center justify-center gap-1 px-2.5 rounded-md border text-xs font-mono whitespace-nowrap shrink-0 transition-colors cursor-pointer",
                 isWrapped
                   ? "bg-white/[0.15] border-white/20 text-white font-medium shadow-xs"
                   : "bg-white/[0.04] hover:bg-white/[0.08] border-white/[0.06] text-zinc-400 hover:text-zinc-200"
               )}
             >
-              <HugeiconsIcon icon={TextWrapIcon} size={13} />
+              <HugeiconsIcon icon={TextWrapIcon} size={13} className="shrink-0" />
               <span>{isWrapped ? "Wrapped" : "Wrap"}</span>
             </button>
 
             <button
               type="button"
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs font-mono text-zinc-300 transition-colors cursor-pointer"
+              className="h-7 sm:h-7.5 inline-flex items-center justify-center gap-1.5 px-2.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] text-xs font-mono text-zinc-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
-              <HugeiconsIcon icon={copied ? Tick02Icon : Copy01Icon} size={13} className={copied ? "text-emerald-400" : ""} />
-              <span>{copied ? "Copied" : "Copy Source"}</span>
+              <HugeiconsIcon
+                icon={copied ? Tick02Icon : Copy01Icon}
+                size={13}
+                className={cn("shrink-0", copied ? "text-emerald-400" : "")}
+              />
+              <span>
+                {copied ? "Copied" : <>Copy<span className="hidden xs:inline"> Source</span></>}
+              </span>
             </button>
           </div>
         </div>

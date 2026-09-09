@@ -1,0 +1,358 @@
+---
+title: "Stack Ledger Bars"
+description: "Additive stacked bars for multi-series categorical composition with stable contributor identity, truthful visible totals, category-centric inspection, and source-first Recharts implementation."
+component: "StackLedgerBars"
+engine: "recharts"
+registryName: "bar-stack-ledger"
+number: "022"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Stack Ledger Bars** is Plotcn's canonical absolute stacked bar component for visualizing additive categorical composition. It answers the fundamental analytical question:
+
+> **“What is the total magnitude for each category, and how do additive contributors compose that total?”**
+
+Secondary analytical questions answered by this component include:
+
+- *“How much does each contributor add to the category whole?”*
+- *“How does the internal composition differ from category to category?”*
+- *“At this inspected category, what are the exact contributor magnitudes and the resulting total?”*
+
+The word **Ledger** reinforces disciplined accounting of composition: each category represents a whole assembled from meaningfully summable parts. Contributor segment thickness encodes contribution magnitude, the outer stack extent encodes the category total, series configuration order strictly governs vertical stacking, and missing values are never silently converted into fake zero contributions.
+
+```tsx
+import { StackLedgerBars } from "@/components/charts/recharts/bar-stack-ledger"
+
+const quarterlyCloudCosts = [
+  { quarter: "Q1", compute: 48000, storage: 31000, network: 21000 },
+  { quarter: "Q2", compute: 54000, storage: 35000, network: 24000 },
+  { quarter: "Q3", compute: 51000, storage: 42000, network: 26000 },
+  { quarter: "Q4", compute: 62000, storage: 48000, network: 31000 },
+]
+
+export function CloudBudgetBreakdown() {
+  return (
+    <StackLedgerBars
+      data={quarterlyCloudCosts}
+      categoryKey="quarter"
+      series={[
+        { key: "compute", label: "Compute", color: "var(--chart-1)" },
+        { key: "storage", label: "Storage", color: "var(--chart-2)" },
+        { key: "network", label: "Network", color: "var(--chart-3)" },
+      ]}
+      valueLabel="total"
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Bar-Family Positioning
+
+The Bar family specializes in discrete categorical comparison. Within this family, each component fulfills an unambiguous, distinct analytical specialization:
+
+| Component | Registry ID | Primary Analytical Question | Baseline Model | Geometric Encoding |
+| :--- | :--- | :--- | :--- | :--- |
+| **Signal Bars (019)** | `bar-signal` | *"How do discrete categories compare on single or grouped measures?"* | Grounded Zero | Grouped peer bars side-by-side |
+| **Rank Bars (020)** | `bar-rank` | *"Which categories perform highest or lowest in top-N rank?"* | Grounded Zero | Sorted horizontal bars |
+| **Group Compare (021)** | `bar-group-compare` | *"How do peer measures compare directly against each other?"* | Grounded Zero | Multi-series clustered bars |
+| **Stack Ledger (022)** | `bar-stack-ledger` | **"How do additive contributors compose the category total?"** | **Grounded Zero** | **Additive vertical/horizontal stack** |
+
+### Grouped Bars vs. Stacked Ledger Bars
+
+The distinction between grouped bars (`bar-group-compare` / `bar-signal`) and stacked bars (`bar-stack-ledger`) is foundational to data visualization integrity:
+
+<GroupedVsStackedDiagram />
+
+- **Grouped Bars**: Place peer measures side-by-side. Every bar originates directly from the common zero baseline, prioritizing visual comparison of individual series values across categories.
+- **Stacked Ledger Bars**: Place additive contributors on top of each other. Individual segments sacrifice baseline alignment in order to visually communicate the cumulative category total and whole-part composition.
+
+---
+
+## Absolute Stacking Principle
+
+Plotcn intentionally specializes `StackLedgerBars` away from generic `stackMode` abstractions. The component does **not** expose toggles for:
+
+```tsx
+// Disallowed on StackLedgerBars:
+stackMode="none"
+stackMode="grouped"
+stackMode="percent"
+```
+
+### Why Absolute-Only Matters
+
+Suppose a cloud infrastructure bill contains:
+
+$$
+\text{Compute} = \$48\text{k}, \quad \text{Storage} = \$32\text{k}, \quad \text{Network} = \$20\text{k}
+$$
+
+`StackLedgerBars` communicates:
+
+$$
+\text{Total} = \$100\text{k}
+$$
+
+alongside physical contributor magnitudes (\$48k, \$32k, \$20k).
+
+A 100% normalized stacked bar chart would instead transform these values into percentages (48%, 32%, 20%), intentionally removing all absolute volume context. Comparing absolute volume and comparing relative share are two different analytical tasks that belong in dedicated components, never hidden behind a single confusing toggle.
+
+---
+
+## Stack Composition Model
+
+> **Governing Principle**: Each category contains exactly one stack. Every segment represents an additive contributor. Segment thickness encodes contribution magnitude, and the outer stack extent encodes the category total.
+
+<StackCompositionModelDiagram />
+
+In `StackLedgerBars`:
+- Stacks originate firmly from a truthful zero baseline ($B_0 = 0$).
+- All contributor bars share one deterministic internal stack identifier: `stackId="ledger"`.
+- The outermost visible segment receives subtle corner rounding (`[4, 4, 0, 0]` in vertical layout; `[0, 4, 4, 0]` in horizontal layout). Interior segments remain flat to prevent visually decomposing the stack into disconnected pills.
+- Contributor segments visually join with a subtle 1px structural boundary (`stroke="var(--background)"`), ensuring that adjacent segments remain distinct even when monochrome or identical color palettes are applied.
+
+---
+
+## Additive Data Contract
+
+Stacking inherently implies mathematical addition. **Plotcn never infers additivity from field names or property types.** When a developer chooses `StackLedgerBars`, they make an explicit semantic assertion that the configured series represent mutually exclusive and summable parts of a single quantitative whole:
+
+<AdditiveDataContractDiagram />
+
+### Valid Additive Datasets
+- **Cloud Spending**: Compute Cost + Storage Cost + Network Cost = Total Infrastructure Cost.
+- **Website Traffic Sessions**: Desktop Sessions + Mobile Sessions + Tablet Sessions = Total Traffic.
+- **Support Tickets**: Bug Tickets + Feature Inquiries + Account Issues = Total Inbound Volume.
+
+### Invalid Stacking Attempts
+- **Non-summable Metrics**: Revenue (\$40k) + Conversion Rate (30%) + API Latency (20ms). These belong to completely different units and can never be summed.
+- **Overlapping or Peer Series**: Current Year Revenue + Previous Year Revenue. These are benchmark peers and belong in `TwinlineCompare` or `GroupCompareBars`.
+- **Pre-computed Averages or Percentages**: Stacking percentages or averages produces a mathematically misleading composite.
+
+---
+
+## Series Order & Stable Stack Identity
+
+In Plotcn, **series configuration order defines stack order deterministically**:
+
+$$
+\text{series} = [\text{Compute}, \text{Storage}, \text{Network}] \implies \text{Bottom} \to \text{Middle} \to \text{Top}
+$$
+
+<StableStackOrderDiagram />
+
+Even when individual contributor magnitudes fluctuate dramatically from category to category—for example, if Storage is smallest in Q1 but becomes largest in Q2—the visual stack order remains **Compute at bottom, Storage in middle, Network on top**.
+
+### Why Stacks Must Never Dynamically Reorder by Magnitude
+1. **Semantic Spatial Anchoring**: Users rely on consistent spatial coordinates to track series over time or categories. Reordering segments destroys cognitive tracking.
+2. **Color Invariance**: Reordering segments creates chaotic color patterns that look like visual bugs.
+3. **Tooltip Alignment**: The tooltip and the visual stack reinforce each other when both preserve the exact same canonical series order.
+
+---
+
+## V1 Sign Model & Non-Negative Contract
+
+Stack Ledger Bars V1 enforces a strict mathematical sign policy:
+
+> **V1 supports non-negative additive contributions only ($V \ge 0$).**
+
+A classic stacked ledger answers how positive parts compose a whole. Negative contributions introduce diverging variance or waterfall semantics (subtraction, adjustments, deficit), which require dedicated visualization mechanics.
+
+Therefore:
+- $V > 0$: Valid positive contribution.
+- $V = 0$: Valid zero contribution (preserves total).
+- $V < 0$: Unsupported in V1.
+
+If a negative finite value is encountered in the dataset:
+- Plotcn invalidates the complete total for that category.
+- A development console warning alerts the developer:
+  ```text
+  [Plotcn StackLedgerBars] Negative contributor values detected in dataset.
+  StackLedgerBars V1 supports non-negative additive contributions only.
+  Categories with negative values are marked incomplete.
+  ```
+- **Negative values are never clamped to zero, never transformed with `Math.abs()`, and never allowed to render as deceptive positive bars.**
+
+---
+
+## Missing vs. Zero vs. Hidden
+
+A primary source of silent data distortion in chart libraries is collapsing missing, zero, and hidden states into one another. In Plotcn, these three states represent fundamentally different analytical realities:
+
+<MissingVsZeroVsHiddenDiagram />
+
+### 1. Zero Value ($V = 0$)
+- **Status**: Configured, measured, available.
+- **Meaning**: The contributor contributed zero magnitude to this category.
+- **Rendering**: Zero visual thickness. Tooltip displays `$0`. Category total remains valid.
+
+### 2. Missing Value (`null` / `undefined` / `NaN`)
+- **Status**: Configured, expected, unrecorded.
+- **Meaning**: The actual contributor value is unknown.
+- **Default Policy (`"incomplete"`):** Because an additive whole cannot be truthfully calculated without all its parts, missing data **invalidates the category total**. Tooltip displays `Unavailable — incomplete composition`.
+- **Opt-in Policy (`"zero"`):** If the developer explicitly supplies `missingValuePolicy="zero"`, missing values are treated as $0 contribution.
+
+### 3. Hidden Contributor (User Legend Toggle)
+- **Status**: Configured, available, intentionally excluded by the user.
+- **Meaning**: The user temporarily filtered out a contributor to examine the subtotal of the remaining parts.
+- **Rendering**: The stack recomposes immediately. Outer extent encodes the **Visible total**. Tooltip displays `Visible total` rather than `Total`. Colors and stack order of remaining series remain strictly stable.
+
+---
+
+## Complete vs. Incomplete Composition Geometry
+
+When a visible contributor is missing under default `missingValuePolicy="incomplete"`, how should the chart render that category?
+
+<CompleteVsIncompleteCompositionDiagram />
+
+Recharts by default treats `null` as $0$, which would silently render a shorter bar whose top looks like a real, smaller total. This is severe visual misinformation.
+
+`StackLedgerBars` resolves this truthfully:
+- **Omitted Stack Geometry**: Under `"incomplete"` policy, the physical stacked rectangles are omitted for that category.
+- **Preserved Category Band**: The category band and axis tick remain fully present, interactive, and focusable.
+- **Truthful Tooltip**: Hovering or focusing the category reveals the exact status: known values are listed, missing values show `Unavailable`, and the total is labeled `Unavailable — incomplete composition`.
+
+---
+
+## Interactive Legend & Visible Totals
+
+`StackLedgerBars` includes an interactive, accessible legend by default (`showLegend = true`):
+
+<LegendVisibilityDiagram />
+
+When a contributor (e.g. Network) is toggled off:
+1. **Stack Recomposition**: Remaining visible series (Compute + Storage) animate to form the new stack height.
+2. **Outer Radius Transfer**: The new highest visible series (Storage) automatically inherits the outer rounded corners.
+3. **Visible Total Semantics**: The tooltip updates its summary row from `Total` to `Visible total`, ensuring users know a contributor is excluded.
+4. **Stable Color Mapping**: Compute remains `--chart-1` and Storage remains `--chart-2`. Hiding series never triggers color cycling.
+5. **Recoverable All-Hidden State**: If all series are hidden, the chart displays a clean recoverable message: *"All contributors are currently hidden"* with a *"Show all"* button.
+
+---
+
+## Hit Testing & Touch Architecture
+
+Stacked bars often contain slim or tiny contributor segments. Requiring users to click a 3px segment on mobile creates frustrating dead clicks.
+
+<CategorySegmentHitRegionsDiagram />
+
+`StackLedgerBars` implements a robust **two-tier hit testing architecture**:
+1. **Tier 1 — Category Band Target (Forgiving)**: A wide vertical hit region (44px+) captures any pointer or touch event across the category slot, instantly opening the composition card.
+2. **Tier 2 — Segment Hover (Secondary)**: Hovering directly over an individual segment highlights that specific contributor row in the tooltip and legend without altering quantitative geometry.
+3. **Mobile Scroll Preservation**: The chart container uses `touch-action: pan-y`, ensuring vertical page scrolling is never trapped by the visualization surface.
+
+---
+
+## Layout: Vertical vs. Horizontal Orientation
+
+`StackLedgerBars` supports both vertical and horizontal orientations via the `layout` prop:
+
+<VerticalVsHorizontalOrientationDiagram />
+
+- **`layout="vertical"` (Default)**: Categories are arranged along the horizontal X-axis, and stacks grow vertically. Best for concise labels like quarters, months, and short identifiers.
+- **`layout="horizontal"`**: Categories are placed along the vertical Y-axis, and stacks extend horizontally to the right. Essential for lengthy categorical labels (e.g. enterprise departments, microservice names, long team titles) to eliminate cramped diagonal typography.
+
+---
+
+## Rendering Architecture
+
+The internal pipeline of `StackLedgerBars` enforces deterministic validation, missing data isolation, and accessibility coordination:
+
+<RenderingArchitectureFlowDiagram />
+
+---
+
+## Installation
+
+Install `bar-stack-ledger` directly into your Next.js or React application via shadcn CLI:
+
+```bash
+npx shadcn@latest add "https://plotcn.vercel.app/r/bar-stack-ledger.json"
+```
+
+### Dependencies
+- `recharts` (^3.8.0)
+- `@plotcn/chart-container`
+- `@plotcn/chart-state`
+- `@plotcn/chart-tooltip`
+- `@plotcn/chart-motion`
+
+---
+
+## Component API & Props
+
+### Core Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` * | `readonly TData[]` | — | Readonly array of categorical records. Caller data is immutable. |
+| `categoryKey` * | `keyof TData & string` | — | Property key identifying the discrete category domain. |
+| `series` * | `readonly StackLedgerSeries<TData>[]` | — | Array of additive contributor series. Order strictly defines bottom-to-top stacking. |
+| `layout` | `"vertical" \| "horizontal"` | `"vertical"` | Orientation layout: vertical columns or horizontal stacked rows. |
+| `height` | `number \| string` | `340` | Container height in pixels or CSS dimension. |
+| `domain` | `[number, number] \| Function` | `[0, MaxTotal + 8%]` | Quantitative scale domain enclosing 0 and max total with headroom padding. |
+| `maxBarSize` | `number` | `48` | Maximum thickness of stacked bars in pixels. |
+| `groupGap` | `number` | `20` | Pixel spacing between adjacent category stacks. |
+| `showGrid` | `boolean` | `true` | Whether to render subtle reference grid lines. |
+| `showLegend` | `boolean` | `true` | Whether to render the interactive series visibility legend. |
+| `interactiveLegend` | `boolean` | `true` | Whether legend items can be clicked to toggle contributor visibility. |
+| `showTotal` | `boolean` | `true` | Whether to calculate and display total magnitude in tooltips and tables. |
+| `valueLabel` | `"none" \| "total" \| "auto"` | `"none"` | Numeric label rendering mode. |
+| `missingValuePolicy` | `"incomplete" \| "zero"` | `"incomplete"` | Handling for missing/non-finite values: `"incomplete"` (safe default) or `"zero"`. |
+| `motion` | `boolean \| { duration?: number }` | `true` | Motion animation configuration. Respects `prefers-reduced-motion`. |
+| `onActiveChange` | `Function` | — | Callback fired when the active inspected category changes. |
+
+---
+
+## Keyboard Navigation & Accessibility
+
+`StackLedgerBars` conforms to WCAG 2.2 AA non-text contrast and keyboard navigation criteria:
+
+- **Single Chart Tab Stop**: The root `<figure>` element is the sole focusable tab stop (`tabIndex={0}`). Users traverse categories using arrow keys rather than tabbing through hundreds of individual segments.
+- **Orientation-Aware Keys**:
+  - Vertical layout: `ArrowLeft` (previous category) / `ArrowRight` (next category).
+  - Horizontal layout: `ArrowUp` (previous category) / `ArrowDown` (next category).
+  - `Home` / `End`: Jump directly to the first or last category.
+  - `Escape`: Clear active category inspection.
+- **Polite ARIA Live Region**: As users navigate via keyboard, an `aria-live="polite"` region announces the category name, position, individual contributor values, and resulting total.
+- **Full Off-Screen Structured HTML Table**: Assistive technologies receive a complete, semantic HTML `<table>` containing categorical rows, per-series columns, and computed totals.
+- **Non-Color Identity**: Contributor order, 1px structural boundaries, tooltip text labels, and legend swatches ensure full readability under Monochrome and Colorblind accessibility modes.
+
+---
+
+## Data Safety Checklist
+
+`StackLedgerBars` enforces 20 architectural invariants to guarantee visual and statistical truthfulness:
+
+- [x] **Additive Semantics**: Stacking communicates additive composition; Plotcn never infers additivity from field names.
+- [x] **Category Invariance**: Caller category order is preserved strictly without automatic ranking or sorting.
+- [x] **Stack Order Invariance**: Series configuration order governs stacking; segments never dynamically sort by magnitude.
+- [x] **Zero Anchored**: The quantitative baseline is firmly fixed at zero ($B_0 = 0$).
+- [x] **V1 Non-Negative**: Contributor values must be $\ge 0$. Negative values trigger dev warnings and invalidate totals.
+- [x] **No Negative Clamping**: Negative values are never clamped to zero or converted via `Math.abs()`.
+- [x] **Zero is Valid**: A measured zero represents legitimate $0 magnitude and does not invalidate totals.
+- [x] **Missing is Not Zero**: Missing values are not quietly converted to zero under default policy.
+- [x] **Truthful Incomplete Geometry**: Incomplete categories omit stack geometry to prevent deceptive shorter bars.
+- [x] **Opt-In Zero Policy**: Coercing missing values to zero requires explicit developer opt-in (`missingValuePolicy="zero"`).
+- [x] **Nonfinite Sanitization**: `NaN`, `Infinity`, and `-Infinity` are sanitized before reaching SVG geometry.
+- [x] **Validated Totals**: Totals are computed solely from validated, finite, visible contributors.
+- [x] **Visible Total Labeling**: Hiding a series updates tooltip language from "Total" to "Visible total".
+- [x] **Stable Color Mapping**: Toggling series in the legend never reassigns colors of remaining contributors.
+- [x] **Same-Color Boundaries**: A 1px structural stroke ensures adjacent same-color segments remain distinct.
+- [x] **Outer Radius Ownership**: Only the outermost visible segment receives rounded corners.
+- [x] **Quantitative Truth**: Tiny values are never artificially inflated to ensure clickability.
+- [x] **Forgiving Hit Testing**: 44px+ category bands guarantee reliable touch inspection on mobile.
+- [x] **Page Scroll Preservation**: Container uses `touch-action: pan-y` to prevent touch-scroll trapping.
+- [x] **Immutable Caller Data**: Raw data records are never mutated or altered in memory.
+
+---
+
+## Related Components
+
+- [019 · Signal Bars](/charts/recharts/bar-signal): Canonical zero-anchored bars for discrete categorical comparison with grouped peer series.
+- [021 · Group Compare Bars](/charts/recharts/bar-signal): Clustered side-by-side comparison of peer measures from a common zero baseline.

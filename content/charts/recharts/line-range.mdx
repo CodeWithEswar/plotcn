@@ -1,0 +1,178 @@
+---
+title: "Range Line"
+description: "Visualizes a central trend alongside a lower-to-upper interval envelope for forecasts, confidence intervals, and operational tolerance bands."
+component: "RangeLine"
+engine: "recharts"
+registryName: "line-range"
+number: "004"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Range Line** visualizes a central trend alongside a continuous **lower-to-upper interval envelope**. It models three values per horizontal observation — a central observation, a lower boundary, and an upper boundary — over a shared, honest Cartesian scale.
+
+Unlike generic multi-line charts that represent three disconnected lines, Range Line establishes an integrated visual hierarchy:
+
+- **Central Signal Line**: Rendered as a prominent solid stroke (`2px`) in the primary theme color (`var(--chart-1)`).
+- **Interval Envelope Band**: Rendered behind the central line as a filled area band between the lower and upper limits with configurable opacity (`0.18` default).
+- **Optional Boundary Strokes**: Subtle dashed boundary lines (`3 3`) along the upper and lower limits of the envelope to clarify envelope edges.
+- **Single Shared Y Scale**: Evaluates the combined extent of all central values, lower limits, and upper limits to guarantee the interval envelope is never clipped.
+- **Truthful Outlier Policy**: If an actual observation falls outside the interval envelope, it is **never clamped**. Outliers remain visible outside the band.
+
+```tsx
+import { RangeLine } from "@/components/charts/recharts/line-range"
+
+export function DemandForecastCard() {
+  return (
+    <RangeLine
+      data={forecastData}
+      xKey="month"
+      valueKey="forecast"
+      lowerKey="lower"
+      upperKey="upper"
+      label="Expected Demand"
+      rangeLabel="95% Confidence"
+      curve="monotone"
+      showRangeBoundary
+    />
+  )
+}
+```
+
+---
+
+## Best Suited For
+
+Range Line is specifically engineered for:
+
+- **Demand & Capacity Forecasting**: Projected demand surrounded by widening confidence intervals over future planning horizons.
+- **Operational SLA Envelopes**: System latency, request duration, or throughput tracked against contracted minimum and maximum tolerance bands.
+- **Process & Quality Control**: Sensor telemetry and manufacturing metrics evaluated against upper and lower control limits (UCL / LCL).
+- **Financial & Market Volatility**: Asset price trends bounded by Bollinger Bands, implied volatility ranges, or price targets.
+
+### When to Avoid
+
+- **Two Independent Competing Series**: Use `TwinlineCompare` when comparing two distinct time periods (e.g. 2024 Actual vs 2023 Prior Year).
+- **Unbounded Multiple Series**: Use `LineMultiple` when plotting three or more independent metrics that do not represent an upper/lower interval.
+- **Single Series Only**: Use `LineBasic` or `PulseLine` when there is no uncertainty or tolerance range to display.
+
+---
+
+## Installation
+
+Install Range Line directly into your project via the shadcn CLI. The component source and its required dependencies (`recharts` and shared Plotcn primitives) will be copied directly into your repository under complete source ownership.
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-range.json
+:::
+
+> Once accepted into the official shadcn registry directory, the shortened namespace command `npx shadcn@latest add @plotcn/line-range` becomes available.
+
+---
+
+## Data Contract
+
+Range Line accepts a readonly array of observations. Each record must contain a shared horizontal domain key and three numeric properties: central trend, lower boundary, and upper boundary.
+
+```typescript
+export interface RangeLineDatum {
+  month: string       // Horizontal domain coordinate (e.g. "Jan", "2026-Q1")
+  forecast: number    // Central observation value (e.g. expected demand)
+  lower: number       // Lower interval limit (e.g. 5th percentile)
+  upper: number       // Upper interval limit (e.g. 95th percentile)
+}
+```
+
+### Interval Integrity & Outlier Policy
+
+Range Line enforces deterministic data safety across all observations:
+
+1. **Mandatory Interval Validation (`lower <= upper`)**: For every observation, Range Line verifies that `lower <= upper`. If an inverted interval is encountered (e.g. `lower = 200, upper = 100`), the interval is treated as missing for that point to prevent rendering an inverted polygon. In development mode, a console warning is emitted.
+2. **Unclamped Outlier Preservation**: Range Line never assumes `lower <= value <= upper`. Real-world observations legitimately exceed tolerances or forecast bounds. Central points outside the band remain visible in their true position.
+3. **Partial Missing Bounds**: If only one boundary is present (e.g. `lower = 100, upper = null`), no valid interval exists. Range Line preserves the central line while leaving a clean gap in the envelope.
+4. **Missing Central Value**: If the central point is `null` but both lower and upper bounds are valid, the range band remains visible while the central line shows a gap.
+
+---
+
+## Component Props
+
+### Core Configuration
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Readonly array of observation records. The caller's array is never mutated. |
+| `xKey` | `keyof TData & string` | *required* | Property name representing the horizontal X-axis coordinate. |
+| `valueKey` | `keyof TData & string` | `"value"` | Property name representing the central observation value. |
+| `lowerKey` | `keyof TData & string` | `"lower"` | Property name representing the lower limit of the interval band. |
+| `upperKey` | `keyof TData & string` | `"upper"` | Property name representing the upper limit of the interval band. |
+| `series` | `RangeLineSeriesConfig` | `undefined` | Optional series descriptor combining keys, labels, and color overrides. |
+| `label` | `string` | `"Central"` | Human-readable label for the central line displayed in tooltip and legend. |
+| `rangeLabel` | `string` | `"Range"` | Human-readable label for the interval envelope (e.g. "95% Confidence"). |
+| `height` | `number \| string` | `340` | Container height in pixels or standard CSS dimension strings. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | Geometric curve interpolation applied synchronously to both the line and band. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `"auto"` | Explicit Y-axis bounds. Automatic mode calculates a unified scale spanning central and range limits. |
+| `missingValuePolicy` | `"gap" \| "connect"` | `"gap"` | Handling of null observations in the central line. |
+
+### Visual & Appearance
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `color` | `string` | `"var(--chart-1)"` | Stroke color for the central line. |
+| `rangeColor` | `string` | `color` | Fill color for the interval band. Defaults to the central line color. |
+| `rangeOpacity` | `number` | `0.18` | Fill opacity of the interval band (0 to 1). |
+| `showRangeBoundary` | `boolean` | `false` | Whether to render subtle dashed boundary strokes along the upper and lower limits. |
+| `rangeBoundaryDash` | `string` | `"3 3"` | Dash array for the boundary strokes if `showRangeBoundary` is enabled. |
+| `showGrid` | `boolean` | `true` | Renders subtle horizontal dashed reference dividers (`var(--chart-grid)`). |
+| `showLegend` | `boolean` | `false` | Renders legend distinguishing central line from range band. |
+| `showXAxis` | `boolean` | `true` | Renders horizontal domain tick labels. |
+| `showYAxis` | `boolean` | `true` | Renders vertical value tick labels on the shared scale. |
+| `showRangeWidthInTooltip` | `boolean` | `false` | Calculates and displays the derived interval span (`upper - lower`) in the tooltip. |
+| `motion` | `boolean \| { duration: number }` | `true` | Coordinated reveal animation (350ms). Automatically disabled under `prefers-reduced-motion`. |
+
+### Accessibility & States
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `title` | `string` | `"Range Line Chart"` | Accessible name announced by screen readers for the `<figure>` region. |
+| `description` | `string` | `undefined` | Extended contextual description for assistive technologies. |
+| `loading` | `boolean` | `false` | Displays neutral loading state without fake data while preserving layout footprint. |
+| `error` | `Error \| string \| null` | `null` | Actionable error banner with optional retry trigger. |
+| `unavailable` | `boolean \| string \| null` | `false` | Unavailability notice (e.g. missing prediction interval model). |
+| `onRetry` | `() => void` | `undefined` | Callback invoked when user clicks the retry button in the error state. |
+
+---
+
+## Responsive Behavior
+
+Range Line automatically adapts to its parent container without clipping or layout shifts:
+
+- **Desktop (1024px+)**: Spacious presentation, complete interval tooltip with exact lower and upper values, and optional range span calculation.
+- **Tablet (640px – 1023px)**: Adaptive X-axis tick thinning to prevent collision, preserved band continuity, consolidated tooltip padding.
+- **Mobile (< 640px)**: Compact padding, preserved start/end axis labels, full-width touch scrub interaction, and stacked tooltip items.
+
+---
+
+## Accessibility & Keyboard Navigation
+
+Range Line conforms to WCAG 2.1 AAA accessibility standards:
+
+1. **Keyboard Operable**: Pressing <kbd>Tab</kbd> focuses the chart region with a prominent `var(--chart-focus)` ring.
+2. **Observation Navigation**:
+   - <kbd>→</kbd> Navigates to the next time observation.
+   - <kbd>←</kbd> Navigates to the previous time observation.
+   - <kbd>Home</kbd> Jumps to the first observation.
+   - <kbd>End</kbd> Jumps to the final observation.
+   - <kbd>Esc</kbd> Clears active point selection.
+3. **Screen Reader Announcement**: Announces central values and lower–upper interval limits without requiring manual SVG node traversal.
+4. **Factual Figure Summary**: An invisible `<figcaption>` provides an automated quantitative overview summarizing total observations, central range, and interval availability without marketing spin.
+
+---
+
+## Data Safety Guarantee
+
+1. **Zero Fabricated Fallback Data**: Range Line will never synthesize fake interval bands or fill missing data points with fabricated curves.
+2. **Interval Boundary Check**: Enforces `lower <= upper` before rendering any band polygon to prevent visual distortion.
+3. **Shared Scale Integrity**: The vertical scale is calculated across all central, lower, and upper values, guaranteeing that interval envelopes are never cut off by the container viewport.
+4. **Unclamped Outliers**: Preserves true observations when they exceed normal or expected limits rather than hiding anomalous behavior.

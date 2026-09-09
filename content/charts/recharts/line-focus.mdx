@@ -1,0 +1,207 @@
+---
+title: "Focus Line"
+description: "An interaction-first time-series line optimized for precise keyboard focus, pointer/touch scrubbing, crosshair inspection, and persistent locked tooltips."
+component: "FocusLine"
+engine: "recharts"
+registryName: "line-focus"
+number: "008"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Focus Line** is a specialized Recharts time-series line component engineered around the observation inspection model. While Signal Line prioritizes trend perception, Focus Line prioritizes precise observation access:
+
+> **"Let me move through this series precisely, inspect individual observations, and keep one observation selected while I continue using the interface."**
+
+It bridges pointer scrubbing, accessible keyboard stepping, neutral crosshair inspection, and persistent locked tooltips into a unified, predictable observation architecture.
+
+<FocusModelFlow />
+
+```tsx
+import { FocusLine } from "@/components/charts/recharts/line-focus"
+
+const latencyData = [
+  { time: "09:00", latency: 122 },
+  { time: "10:00", latency: 138 },
+  { time: "11:00", latency: 147 },
+  { time: "12:00", latency: 133 },
+  { time: "13:00", latency: 164 },
+  { time: "14:00", latency: 181 },
+  { time: "15:00", latency: 156 },
+]
+
+export function LatencyInspector() {
+  return (
+    <FocusLine
+      data={latencyData}
+      xKey="time"
+      series={{
+        key: "latency",
+        label: "P95 latency",
+      }}
+      lockableTooltip
+      initialFocus="none"
+      valueFormatter={(v) => `${v} ms`}
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## The Tri-State Mental Model
+
+Focus Line enforces a strict separation between keyboard focus, transient inspection, and persistent selection. Collapsing these three concepts into a single boolean state causes unpredictable UX and accessibility failures.
+
+| Concept | Role | User Action | Visual Representation | CSS Token |
+| :--- | :--- | :--- | :--- | :--- |
+| **Focus** | Keyboard navigation capability | <kbd>Tab</kbd> into chart | Root container focus ring | `var(--chart-focus)` |
+| **Active Datum** | Transient inspection state | Pointer move or <kbd>←</kbd> <kbd>→</kbd> | Solid dot + neutral crosshair | `color` + `var(--chart-crosshair)` |
+| **Locked Datum** | Persistent selection state | Click, tap, or <kbd>Enter</kbd> / <kbd>Space</kbd> | Concentric double ring (`───◎───`) + pinned tooltip | `selectionColor` |
+
+### Focus is Not Selection
+
+- **Keyboard Focus** signals that the chart surface is ready to receive arrow navigation. It does not select or commit a data point.
+- **Active Datum** represents what the user is inspecting right now. If unlocked, moving the pointer off the chart clears the active datum.
+- **Locked Datum** represents an observation intentionally pinned by the user. Moving the mouse elsewhere, resizing the window, or toggling dark mode **does not dismiss the pinned tooltip**.
+- Pressing <kbd>Escape</kbd> or clicking the pinned point releases the lock.
+
+---
+
+## Dual Modality & Nearest-X Inspection
+
+Focus Line treats pointer scrubbing and keyboard navigation as two access paths into the **same underlying observation sequence**.
+
+<FocusInspectionFlow />
+
+### Horizontal Nearest-X Scrubbing
+
+Users should never be forced to land their pointer directly on a 2px SVG line. Focus Line utilizes the entire Cartesian plot area:
+
+1. Moving horizontally across the plot resolves the nearest observation along the X-axis.
+2. The neutral vertical crosshair aligns seamlessly with the observation's coordinate.
+3. The custom inspection tooltip updates with tabular numerals and series color identity.
+4. If a datum is locked, pointer scrubbing does not displace the pinned observation until unlocked.
+
+### Mobile Touch Safety
+
+To prevent trapping users on touchscreens:
+
+- The root element uses `touch-action: pan-y`, ensuring vertical page scrolling is never blocked.
+- Tapping anywhere along the observation's vertical column inspects that datum.
+- Tapping locks the observation; tapping again or outside dismisses the pinned selection.
+
+---
+
+## Keyboard Navigation Reference
+
+Focus Line provides a single tab stop on the root `<figure tabIndex={0}>`. It **never injects individual tab stops on hundreds of SVG points**.
+
+| Key | Action | Context |
+| :--- | :--- | :--- |
+| <kbd>→</kbd> / <kbd>ArrowRight</kbd> | Inspect next chronological observation | Active inspection steps forward |
+| <kbd>←</kbd> / <kbd>ArrowLeft</kbd> | Inspect previous chronological observation | Active inspection steps backward |
+| <kbd>Home</kbd> | Jump to the first observation in the series | Jumps directly to start |
+| <kbd>End</kbd> | Jump to the latest observation in the series | Jumps directly to end |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Lock / unlock the currently inspected observation | Toggles persistent selection |
+| <kbd>Escape</kbd> | Dismiss locked selection | Reverts to transient inspection |
+
+---
+
+## Global Color System Integration
+
+Focus Line participates in the Plotcn global color architecture with independent appearance roles:
+
+| Color Role | Prop | Default Token | Visual Impact |
+| :--- | :--- | :--- | :--- |
+| **Series Color** | `color` | `var(--chart-1)` | Trend line stroke, active marker point, tooltip series indicator |
+| **Selection Color** | `selectionColor` | `var(--chart-selection)` | Concentric outer ring, pinned inner dot, lock badge |
+| **Crosshair** | — | `var(--chart-crosshair)` | Neutral dashed vertical guide line (remains theme-neutral) |
+| **Chart Focus** | — | `var(--chart-focus)` | Root keyboard focus shell ring (independent of series colors) |
+
+### Non-Color Geometric Distinction
+
+Even when `color` and `selectionColor` are assigned identical values (e.g., `#18181b` in monochrome dashboards), locked selection remains immediately distinguishable through geometry:
+- **Active Point**: Single filled circle (`r: 4.5px`).
+- **Locked Point**: Concentric double-ring marker (`───◎───`) with an outer ring (`r: 8px`) and inner anchor dot (`r: 4px`).
+
+---
+
+## Truthful Missing Data Contract
+
+When telemetry signals experience dropouts, Focus Line adheres to strict data integrity:
+
+- **Missing Observations Remain Missing**: `null` or `undefined` values are never converted to zero (`null ≠ 0`).
+- **Visual Gaps**: The line breaks cleanly across missing intervals under `missingValuePolicy="gap"`.
+- **No Fabricated Tooltip Values**: Focus Line does not interpolate fake synthetic numbers between missing points.
+- **Truthful Tooltip Readout**: Inspecting an observation with missing metrics explicitly shows `—` or `Unavailable`.
+
+---
+
+## Installation
+
+Install Focus Line directly into your project using the shadcn CLI:
+
+:::package-manager
+npx shadcn@latest add https://plotcn.vercel.app/r/line-focus.json
+:::
+
+> Once accepted into the official shadcn registry catalog, the standard command `npx shadcn@latest add @plotcn/line-focus` becomes available.
+
+---
+
+## Component Props
+
+| Property | Type | Default | Required | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `data` | `readonly TData[]` | `[]` | Yes | Readonly array of observation records. Caller data is never mutated. |
+| `xKey` | `keyof TData & string` | — | Yes | Property name for horizontal domain coordinates (e.g., time, timestamp). |
+| `series` | `FocusSeriesConfig<TData>` | — | Yes | Single primary series configuration (`{ key, label }`). |
+| `color` | `string` | `"var(--chart-1)"` | No | Primary theme stroke color for trend line, active dot, and tooltip marker. |
+| `selectionColor` | `string` | `"var(--chart-selection)"` | No | Accent color for the locked concentric marker and pinned selection. |
+| `lockableTooltip` | `boolean` | `true` | No | Enables persistent tooltip locking via click, tap, or Enter/Space. |
+| `initialFocus` | `"none" \| "first" \| "last"` | `"none"` | No | Datum selection state when chart first receives keyboard focus. |
+| `curve` | `"monotone" \| "linear" \| "step"` | `"monotone"` | No | Curve interpolation algorithm for the continuous trend line. |
+| `domain` | `[number, number] \| ["auto", "auto"]` | `["auto", "auto"]` | No | Vertical Y scale range with zero-span safeguarding. |
+| `height` | `number \| string` | `320` | No | Container height in pixels or standard CSS dimension strings. |
+| `showGrid` | `boolean` | `true` | No | Whether to render subtle horizontal Cartesian grid reference lines. |
+| `showLegend` | `boolean` | `false` | No | Whether to display the series legend below the chart. |
+| `missingValuePolicy` | `"gap" \| "carry"` | `"gap"` | No | Visual treatment of missing values: honest visual break or forward carry. |
+| `animation` | `"draw" \| "fade" \| "none"` | `"draw"` | No | Entry animation style. Bypassed automatically when reduced motion is preferred. |
+| `onActiveDatumChange` | `(datum: ActiveDatum \| null) => void` | `undefined` | No | Callback fired whenever the transiently inspected datum changes. |
+| `onLockedDatumChange` | `(datum: ActiveDatum \| null) => void` | `undefined` | No | Callback fired when an observation is pinned or released. |
+| `valueFormatter` | `(value: number) => string` | `n.toLocaleString()` | No | Custom formatter for tooltip metric values and vertical scale ticks. |
+| `xFormatter` | `(value: string \| number) => string` | `String` | No | Custom formatter for horizontal domain tick labels. |
+
+---
+
+## Responsive Behavior
+
+- **Desktop ($\ge 1024\text{px}$)**: Full X-axis tick intervals, spacious container padding, and full tooltip layout.
+- **Tablet ($640\text{px} - 1023\text{px}$)**: Thinned ticks, compact margins, and synchronized nearest-X inspection.
+- **Mobile ($< 640\text{px}$)**: Safe pan-y touch gestures preserving page scrolling, single-tap inspection, and viewport-clamped tooltip positioning.
+- **Persistent Selection Across Resize**: Resizing the container or toggling device previews retains the active locked observation coordinate.
+
+---
+
+## Accessibility & Screen Reader Model
+
+1. **Semantic Shell**: Encapsulated within a `<figure role="region" tabIndex={0}>` element with `aria-labelledby` and `aria-describedby`.
+2. **Accessible Description**: Clarifies observation count, series identity, and explicit keyboard instructions: *"P95 latency time-series over 7 observations. Use Left and Right Arrow keys to inspect, Enter to lock, and Escape to release."*
+3. **Single Tab Stop**: Focuses the container once. Arrow keys navigate observations internally without polluting the document tab sequence.
+4. **Restrained Live Regions**: Avoids aggressive `aria-live` chatter during rapid pointer scrubbing; updates screen reader announcements during intentional keyboard steps.
+5. **Reduced Motion**: Entry draw transitions are immediately bypassed when `prefers-reduced-motion: reduce` is enabled.
+
+---
+
+## Data Safety Checklist
+
+- **✓ Truthful Observations**: Nearest-X inspection selects real, recorded observations; never synthetic interpolated numbers.
+- **✓ No Null-to-Zero Conversion**: Missing data renders as explicit gaps (`null ≠ 0`).
+- **✓ Non-Finite Filtering**: `NaN`, `Infinity`, and unparseable values are excluded from geometry calculations.
+- **✓ Immutability**: Caller data arrays are never mutated.
+- **✓ Stale Selection Cleanup**: If the underlying dataset changes and the locked observation is removed, the lock state is safely cleared.
+- **✓ Modality Stability**: Switching between mouse and keyboard does not produce conflicting multi-cursor artifacts.

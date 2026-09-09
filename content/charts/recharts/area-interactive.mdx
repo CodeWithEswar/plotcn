@@ -1,0 +1,296 @@
+---
+title: "Interactive Area"
+description: "An inspection-first single-series area chart designed for precise nearest-X pointer scrubbing, a neutral crosshair, keyboard navigation, touch-friendly exploration, and a persistent lockable tooltip."
+component: "InteractiveArea"
+engine: "recharts"
+registryName: "area-interactive"
+number: "018"
+status: "preview"
+renderer: "svg"
+---
+
+## Overview
+
+**Interactive Area** is the inspection-specialized instrument of the Plotcn **Area family**. While other area components prioritize continuous visual magnitude or semantic fills, Interactive Area focuses on exact observation inspection: nearest-X pointer scrubbing, an observation-aligned neutral crosshair, keyboard navigation, touch-friendly exploration, and a persistent lockable tooltip.
+
+The primary analytical question answered by Interactive Area is:
+
+> **"What exact observed value belongs to this position on the ordered domain?"**
+
+The defining interaction question is:
+
+> **"Can I inspect that observation, keep it selected, move through neighboring observations, and compare context without the tooltip disappearing?"**
+
+```tsx
+import { InteractiveArea } from "@/components/charts/recharts/area-interactive"
+
+const apiTrafficData = [
+  { date: "May 01", requests: 12400 },
+  { date: "May 04", requests: 14200 },
+  { date: "May 08", requests: 11900 },
+  { date: "May 12", requests: 16800 },
+  { date: "May 16", requests: 18500 },
+  { date: "May 20", requests: 15300 },
+  { date: "May 24", requests: 19800 },
+  { date: "May 28", requests: 23400 },
+  { date: "May 31", requests: 26100 },
+]
+
+export function RequestVolumeTracker() {
+  return (
+    <InteractiveArea
+      data={apiTrafficData}
+      xKey="date"
+      series={{
+        key: "requests",
+        label: "API Requests",
+        valueFormatter: (v) => `${v.toLocaleString()} req/s`,
+      }}
+      color="var(--chart-1)"
+      selectionColor="var(--chart-selection)"
+      fillOpacity={0.22}
+      curve="monotone"
+      showGrid
+    />
+  )
+}
+```
+
+---
+
+## Area-Family Positioning
+
+The Plotcn Area family provides specialized analytical instruments across quantitative domains:
+
+| Consideration | Prism Area (011) | Focus Line (008) | Comparison Area (015) | Baseline Area (017) | Interactive Area (018) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Primary Question** | *"How much magnitude relative to baseline?"* | *"What is the exact value along the signal curve?"* | *"How does primary compare to reference series?"* | *"How far above or below the baseline?"* | **"What exact observed value belongs to this domain position?"** |
+| **Defining Feature** | Restrained translucent fill magnitude | High-precision line inspection | Overlapping dual-series fill | Dual-color deviation fill | **Nearest-X scrubbing + observation crosshair + persistent lock** |
+| **Geometry** | 1 filled area polygon | 1 continuous stroke (no fill) | 2 overlapping areas | Dual-region baseline partitioned area | **1 filled area polygon + 1 observation crosshair + 0–1 marker dot** |
+| **Inspection Model** | Standard pointer hover | Nearest-X line focus & lock | Multi-series hover inspection | Signed deviation inspection | **Inspection-first nearest-X scrubbing, crosshair snap, persistent lock** |
+| **Interaction Surface** | Standard plot container | Plot-wide Cartesian surface | Standard plot container | Standard plot container | **Unified touch-action: pan-y hit region with $O(\log N)$ resolver** |
+
+### Interactive Area vs. Focus Line (008)
+
+- **Focus Line**: Best when lower visual mass is desired and the line trajectory alone provides sufficient analytical context.
+- **Interactive Area**: Best when the **occupied space between trend and baseline** communicates essential volume context, while high-precision nearest-X inspection remains the primary user task.
+
+### Interactive Area vs. Prism Area (011)
+
+- **Prism Area**: The visual area itself is the primary experience, using conventional hover tooltips.
+- **Interactive Area**: The filled area provides ambient context, while **exact observation inspection**, keyboard traversal, and persistent locking are the primary experience.
+
+---
+
+## Inspection Model
+
+> **Governing Principle**: Interaction may help users reach data more easily, but it must never manufacture data that was not observed.
+
+If the user points between observations:
+
+$$
+x_1 \quad \bullet \text{ --------- } \uparrow_{\text{pointer}} \text{ --------- } \bullet \quad x_2
+$$
+
+The component resolves the **nearest real observation** ($x_1$ or $x_2$). It never calculates synthetic midpoints, interpolated Y values, or fictional timestamps.
+
+<InteractiveAreaInspectionDiagram />
+
+The inspection lifecycle follows a deterministic pipeline:
+
+1. **Input Event**: Dispatched via pointer move, keyboard arrow navigation, or mobile tap.
+2. **Coordinate Normalization**: Normalizes viewport coordinates against chart plot margins.
+3. **Nearest-X Resolution**: Maps horizontal plot position to the nearest ordered domain observation index.
+4. **Real Observation Binding**: Pulls the authentic datum from caller data. No curve interpolation is presented as observed data.
+5. **Observation-Aligned Crosshair**: Snaps the structural crosshair to the exact observation X coordinate.
+6. **Persistent Lock**: Prevents incidental pointer drift from changing the selected observation.
+
+---
+
+## Nearest-X Model
+
+In Cartesian time-series analysis, inspection is strictly horizontal:
+
+> **Pointer Y does not choose the observation.** Only horizontal plot position resolves the nearest ordered domain observation.
+
+<InteractiveAreaNearestXDiagram />
+
+Midpoint boundaries conceptually partition the domain:
+
+$$
+m_{i, i+1} = \frac{x_i + x_{i+1}}{2}
+$$
+
+### Tie-Break Rule
+
+When the pointer coordinate lands at the exact mathematical midpoint between two observations:
+
+$$
+\text{dist}(x, x_i) = \text{dist}(x, x_{i+1})
+$$
+
+The resolver deterministically chooses the **earlier index** ($i$). This prevents visual flickering and floating-point oscillations.
+
+### Algorithmic Complexity
+
+Because domain coordinates are ordered, nearest-X resolution runs via binary search in $O(\log N)$ time, avoiding expensive linear scans or per-point DOM hit rectangles.
+
+---
+
+## Interaction States
+
+Interactive Area decouples three distinct states that are often conflated in lesser charting libraries:
+
+<InteractiveAreaStateDiagram />
+
+### 1. FOCUSED State
+
+The chart interaction surface currently holds keyboard focus. It is visually framed by the standard focus ring:
+
+```css
+outline: none;
+box-shadow: 0 0 0 2px var(--chart-focus, #38bdf8);
+```
+
+Focus does not require a point to be locked.
+
+### 2. ACTIVE State
+
+A real observation is actively inspected through transient pointer scrubbing, initial keyboard focus, or tap. The observation is indicated by:
+
+- A solid marker dot in series `color`
+- An observation-aligned crosshair in neutral `--chart-crosshair`
+- A synchronized inspection tooltip
+
+### 3. LOCKED State
+
+The user has intentionally pinned the observation. It gains:
+
+- A concentric double-ring marker (───◎───) using `selectionColor`
+- A persistent crosshair using `selectionColor`
+- A persistent tooltip with a `Locked` badge and lock icon
+- **Pointer Immunity**: Incidental pointer movement across the plot does not move or dismiss the locked observation.
+
+---
+
+## Locking Behavior
+
+Locking turns fleeting inspection into stable analysis:
+
+- **Locking on Desktop**: Click any observation or press `Enter` or `Space` while focused.
+- **Moving Locked Observation**: 
+  - Click any other observation to move the lock directly to that coordinate.
+  - Press `ArrowLeft` or `ArrowRight` while locked to advance the locked selection step-by-step.
+- **Unlocking**:
+  - Press `Escape`.
+  - Click the currently locked observation again to release the lock.
+- **Touch Behavior**: Tap any observation to inspect and pin. Tapping elsewhere moves the lock.
+- **Resize & Theme Immunity**: Resizing the window, toggling dark mode, or updating series colors does not clear the locked observation.
+
+---
+
+## Missing Observations
+
+An observation can exist along an ordered domain even when its quantitative value was not recorded:
+
+$$
+\text{Observation}(x) \in \text{Domain}, \quad \text{Value}(x) = \text{null}
+$$
+
+Interactive Area treats missingness truthfully:
+
+- **Domain Preservation**: Missing observations remain in the domain and are navigable via keyboard arrows and pointer scrub.
+- **Truthful Tooltip**: The tooltip reports `"Unavailable"` or `"—"`. It never fabricates zero.
+- **Crosshair Continuity**: The crosshair snaps to the missing observation's horizontal X coordinate.
+- **No Fake Dot**: No marker dot is rendered on the canvas because there is no observed Y coordinate.
+- **Zero is Valid**: A recorded value of `0` is rendered at zero; it is never treated as missing.
+- **Non-Finite Sanitization**: `NaN`, `Infinity`, and `-Infinity` are safely treated as missing to protect SVG path geometry.
+
+---
+
+## Keyboard Navigation
+
+Interactive Area provides a single accessible tab stop on its root `<figure>` element. Observations are not individually tabbable:
+
+| Key | Action | Description |
+| :--- | :--- | :--- |
+| `Tab` | Focus Chart | Moves focus to the chart container; displays `--chart-focus` ring. |
+| `ArrowRight` | Next Observation | Steps forward to the next domain coordinate (including missing observations). |
+| `ArrowLeft` | Previous Observation | Steps backward to the previous domain coordinate. |
+| `Home` | First Observation | Jumps immediately to observation index `0`. |
+| `End` | Last Observation | Jumps immediately to the final observation in the dataset. |
+| `Enter` / `Space` | Toggle Lock | Locks or unlocks the currently active observation. Page scroll is prevented. |
+| `Escape` | Release Lock | Unlocks the persistent selection without clearing active focus. |
+
+---
+
+## Touch Exploration
+
+Touch interactions are engineered to respect page scrolling:
+
+- **Scroll Preservation**: The container uses `touch-action: pan-y`. Vertical swipes scroll the page naturally without being hijacked by chart gestures.
+- **Tap Inspection**: Tapping anywhere within the plot region resolves the nearest observation X and pins the tooltip.
+- **Zero Gesture Dependencies**: Implemented purely using native Pointer Events; no Hammer.js or external gesture frameworks required.
+
+---
+
+## Color Customization
+
+The component enforces a clean, multi-token color hierarchy:
+
+```tsx
+<InteractiveArea
+  data={data}
+  xKey="date"
+  series={{ key: "requests", label: "Requests" }}
+  color="var(--chart-1)"
+  selectionColor="var(--chart-selection)"
+/>
+```
+
+- **Series Color (`color`)**: Controls the area fill, boundary stroke, active marker point, and tooltip dot. Defaults to `var(--chart-1)`.
+- **Selection Color (`selectionColor`)**: Controls the locked concentric double-ring marker, locked crosshair, and locked tooltip badge. Defaults to `var(--chart-selection)`.
+- **Crosshair Token (`--chart-crosshair`)**: Structural neutral line (`rgba(255, 255, 255, 0.28)`). Not modified by series colors.
+- **Focus Token (`--chart-focus`)**: Structural keyboard focus ring (`#38bdf8`).
+
+---
+
+## Rendering Architecture
+
+Interactive Area is built purely on top of Recharts and native SVG primitives:
+
+<InteractiveAreaArchitectureDiagram />
+
+1. **Single Interaction Surface**: The entire plot region acts as one unified hit area. There are no per-datum invisible DOM rectangles.
+2. **Deterministic $O(\log N)$ Resolver**: Binary search calculates the active observation index without querying or parsing SVG path geometry.
+3. **Observation-Aligned Crosshair**: Crosshair rendered via `<ReferenceLine x={activeX} />`, strictly locked to the observation's scaled coordinate.
+4. **Active / Locked Dot Callback**: Exactly 0 or 1 marker is rendered by the Area component, preventing DOM bloat on dense datasets.
+
+---
+
+## Accessibility & Data Safety
+
+- **One Tab Stop**: Chart shell receives keyboard focus without trapping the user or creating dozens of SVG tab stops.
+- **Screen Reader Announcements**: An off-screen live region provides concise, factual orientation:
+  > *"Interactive time-series area chart depicting 30 observations for API Requests. Currently locked on observation 8 of 30 at May 08 with value 11,900."*
+- **Structured Data Table**: A complete HTML `<table>` is provided in an off-screen container for non-visual exploration.
+- **No Live-Region Spam**: Rapid pointer scrubbing does not flood screen readers with aria-live announcements.
+- **Reduced Motion**: Respects `prefers-reduced-motion` by disabling path animations while keeping pointer and keyboard inspection immediate.
+
+---
+
+## Data Safety Guarantees
+
+- ✓ Active values always correspond to real observations
+- ✓ Pointer position never manufactures an interpolated value
+- ✓ Crosshair snaps to the selected observation X, not raw cursor X
+- ✓ Pointer Y does not alter horizontal nearest-X selection
+- ✓ Missing observations remain inspectable as unavailable
+- ✓ Missing values are never silently coerced to zero
+- ✓ Zero remains a valid quantitative observation
+- ✓ Non-finite values (`NaN`, `Infinity`) never reach SVG path strings
+- ✓ Locking alters interaction state only; underlying caller data is never mutated
+- ✓ Resizing the viewport preserves active and locked observations
+- ✓ Theme switches and color changes preserve lock state without remounting
+- ✓ Single plot-level interaction surface with zero per-point DOM overhead
+- ✓ Caller data array is treated as strictly readonly

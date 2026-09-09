@@ -84,7 +84,12 @@ for (const item of catalog.items) {
     title: item.title || item.name,
     description: item.description || "",
     dependencies: item.dependencies || [],
-    registryDependencies: item.registryDependencies || [],
+    registryDependencies: (item.registryDependencies || []).map((dependency) => {
+      const cleanDependency = dependency.replace(/^@plotcn\//, "")
+      return catalog.items.some((entry) => entry.name === cleanDependency)
+        ? `${(process.env.NEXT_PUBLIC_SITE_URL || catalog.homepage).replace(/\/$/, "")}/r/${cleanDependency}.json`
+        : dependency
+    }),
     files: itemFiles,
     categories: item.categories || ["charts"],
   }
@@ -117,4 +122,3 @@ fs.writeFileSync(
 )
 
 console.log(`[build-registry] Successfully generated ${builtCount} canonical items + ${Object.keys(ALIASES).length} aliases into public/r/`)
-

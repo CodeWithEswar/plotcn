@@ -56,6 +56,15 @@ declare global {
 
 export type GoogleChartsLoaderState = "idle" | "loading" | "ready" | "error"
 
+export function escapeGoogleTooltipText(value: unknown): string {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;")
+}
+
 export const googleChartPackages = {
   core: ["corechart"],
   geo: ["geochart"],
