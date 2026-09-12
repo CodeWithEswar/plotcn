@@ -61,10 +61,10 @@ export function ChartSidebarFamily({
         aria-controls={controlsId}
         className={cn(
           "group/family relative flex w-full items-center gap-2.5 rounded-lg py-1.5 px-2 text-left text-[13px] font-medium transition-colors select-none",
-          "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-400",
+          "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
           isRouteActive
-            ? "bg-zinc-900/80 text-zinc-100 border border-white/[0.08] shadow-xs"
-            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50"
+            ? "bg-muted text-foreground border border-border shadow-xs"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
         )}
       >
         {/* Family Icon Node on Rail */}
@@ -72,8 +72,8 @@ export function ChartSidebarFamily({
           className={cn(
             "flex size-5 shrink-0 items-center justify-center rounded transition-colors",
             isRouteActive
-              ? "text-zinc-100"
-              : "text-zinc-400 group-hover/family:text-zinc-200"
+              ? "text-foreground"
+              : "text-muted-foreground group-hover/family:text-foreground"
           )}
         >
           <ChartFamilyIcon family={category} className="size-4" />
@@ -87,8 +87,8 @@ export function ChartSidebarFamily({
           className={cn(
             "ml-auto font-mono text-[11px] tabular-nums transition-colors",
             isRouteActive
-              ? "text-zinc-300 font-medium px-1.5 py-0.5 rounded bg-zinc-800/80 border border-white/[0.06]"
-              : "text-zinc-500 group-hover/family:text-zinc-400"
+              ? "text-foreground font-medium px-1.5 py-0.5 rounded bg-background border border-border"
+              : "text-muted-foreground/80 group-hover/family:text-muted-foreground"
           )}
         >
           {items.length}
@@ -100,8 +100,8 @@ export function ChartSidebarFamily({
           size={14}
           strokeWidth={1.8}
           className={cn(
-            "shrink-0 text-zinc-500 transition-transform duration-200 ease-out motion-reduce:transition-none group-hover/family:text-zinc-300",
-            isExpanded ? "rotate-0 text-zinc-300" : "-rotate-90 text-zinc-600"
+            "shrink-0 text-muted-foreground transition-transform duration-200 ease-out motion-reduce:transition-none group-hover/family:text-foreground",
+            isExpanded ? "rotate-0 text-foreground" : "-rotate-90 text-muted-foreground/60"
           )}
         />
       </button>
@@ -112,7 +112,7 @@ export function ChartSidebarFamily({
           id={controlsId}
           role="region"
           aria-label={`${label} charts`}
-          className="relative mt-1 ml-4 pl-3.5 border-l border-zinc-800/80 space-y-0.5"
+          className="relative mt-1 ml-4 pl-3.5 border-l border-border space-y-0.5"
         >
           {items.map((chart) => {
             const isItemActive = chart.id === currentChart.id
@@ -126,7 +126,7 @@ export function ChartSidebarFamily({
                 aria-current={isItemActive ? "page" : undefined}
                 className={cn(
                   "group/item relative flex min-h-[32px] w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12px] transition-colors",
-                  "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-400",
+                  "focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring",
                   isItemActive
                     ? "bg-muted text-foreground font-medium border border-border shadow-xs"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"

@@ -53,6 +53,14 @@ export function InstallCommand({
   // Initialize and persist preferred package manager in localStorage (Section 48)
   React.useEffect(() => {
     React.startTransition(() => setPm(getStoredPackageManager()))
+    const handlePmChangeEvt = (e: Event) => {
+      const customEvent = e as CustomEvent<PackageManager>
+      if (customEvent.detail && ["pnpm", "npm", "yarn", "bun"].includes(customEvent.detail)) {
+        setPm(customEvent.detail)
+      }
+    }
+    window.addEventListener("plotcn-pm-change", handlePmChangeEvt)
+    return () => window.removeEventListener("plotcn-pm-change", handlePmChangeEvt)
   }, [])
 
   const handlePmChange = (newPm: PackageManager) => {
@@ -187,10 +195,9 @@ export function InstallCommand({
           <button
             type="button"
             onClick={handleCopy}
-            disabled={availability !== "ready"}
             aria-label={`Copy ${pm} install command to clipboard`}
             className={cn(
-              "inline-flex items-center justify-center size-7 rounded-md border text-xs font-mono font-medium transition-all shrink-0 select-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50",
+              "inline-flex items-center justify-center size-7 rounded-md border text-xs font-mono font-medium transition-all shrink-0 select-none cursor-pointer",
               copied
                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                 : "border-border/80 bg-background text-muted-foreground hover:text-foreground hover:bg-muted"

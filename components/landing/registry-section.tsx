@@ -24,7 +24,7 @@ export function RegistrySection() {
           Not another dependency to work around. A starting point that becomes part of your codebase. Read it, change it, make it
           unmistakably yours.
         </p>
-        <InstallCommand name="line-basic" />
+        <InstallCommand name="@plotcn" />
         <div className="ownership-path min-w-0 max-w-full">
           <span>
             <Icon name="layers" />Registry
@@ -35,7 +35,7 @@ export function RegistrySection() {
           </span>
         </div>
         <p className="registry-note">
-          Run in a React project with shadcn/ui initialized. The CLI adds the source and required dependencies.
+          Run in a React project with shadcn/ui initialized. The CLI adds the registry configuration and components.
         </p>
         <a href={registryUrl} className="text-link" target="_blank" rel="noreferrer">
           Inspect the registry file<Icon name="external" />

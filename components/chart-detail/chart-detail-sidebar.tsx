@@ -56,7 +56,7 @@ function Navigation({ current, charts, onItemClick }: NavigationProps) {
           className="chart-nav-root-link chart-nav-back-btn"
           onClick={onItemClick}
         >
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={13} className="text-zinc-400 shrink-0" />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={13} className="text-muted-foreground shrink-0" />
           <span>All charts</span>
           <span>{filteredCharts.length}</span>
         </Link>
@@ -87,7 +87,7 @@ function Navigation({ current, charts, onItemClick }: NavigationProps) {
                 className="flex cursor-pointer items-center justify-between rounded-lg py-1.5 px-2 text-left transition-colors hover:bg-muted/50"
               >
                 <EngineBrandBadge engine={engine} className="border-0 bg-transparent p-0" />
-                <small className="font-mono text-[10px] text-zinc-500">
+                <small className="font-mono text-[10px] text-muted-foreground">
                   {engineCharts.length}
                 </small>
               </summary>
@@ -142,27 +142,27 @@ export function ChartDetailMobileSidebar(props: Omit<NavigationProps, "onItemCli
         render={
           <Button
             variant="outline"
-            className="w-full flex-1 h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-white/[0.1] bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 justify-start shrink-0"
+            className="w-full flex-1 h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-border bg-background hover:bg-muted text-foreground justify-start shrink-0 focus-visible:ring-1 focus-visible:ring-ring shadow-xs"
           />
         }
       >
-        <HugeiconsIcon icon={Menu01Icon} size={15} className="text-zinc-400 shrink-0" />
+        <HugeiconsIcon icon={Menu01Icon} size={15} className="text-muted-foreground shrink-0" />
         <span className="truncate">Browse charts</span>
       </SheetTrigger>
       <SheetContent
         side="left"
         showCloseButton={false}
-        className="charts-surface flex flex-col h-full w-[300px] sm:w-[340px] max-w-[85vw] p-0 gap-0 border-r border-white/[0.1] bg-zinc-950 text-zinc-100 shadow-2xl"
+        className="charts-surface flex flex-col h-full w-[300px] sm:w-[340px] max-w-[85vw] p-0 gap-0 border-r border-border bg-background text-foreground shadow-2xl"
         data-theme="follow"
       >
         {/* Responsive Header: Fixed, perfectly aligned in a single row with back button, compact title, badge, and close button */}
-        <div className="chart-detail-drawer-header flex items-center justify-between px-3.5 py-2.5 border-b border-white/[0.08] bg-zinc-950/90 backdrop-blur-sm shrink-0 gap-2">
+        <div className="chart-detail-drawer-header flex items-center justify-between px-3.5 py-2.5 border-b border-border bg-background/90 backdrop-blur-sm shrink-0 gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <SheetClose
               render={
                 <button
                   type="button"
-                  className="size-7 rounded-md bg-zinc-900 border border-white/[0.1] text-zinc-300 hover:text-white hover:bg-zinc-800 flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
+                  className="size-7 rounded-md bg-muted/60 border border-border text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
                   aria-label="Back to chart"
                 />
               }
@@ -170,12 +170,12 @@ export function ChartDetailMobileSidebar(props: Omit<NavigationProps, "onItemCli
               <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
             </SheetClose>
             <SheetTitle
-              className="!text-[12px] !font-semibold uppercase tracking-wider text-zinc-200 truncate m-0 leading-none"
+              className="!text-[12px] !font-semibold uppercase tracking-wider text-foreground truncate m-0 leading-none"
               style={{ fontSize: "12px", lineHeight: "1" }}
             >
               Chart Catalog
             </SheetTitle>
-            <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-zinc-800/90 text-zinc-400 border border-white/[0.06] shrink-0">
+            <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border shrink-0">
               {props.charts.length}
             </span>
           </div>
@@ -183,7 +183,7 @@ export function ChartDetailMobileSidebar(props: Omit<NavigationProps, "onItemCli
             render={
               <button
                 type="button"
-                className="size-7 rounded-md bg-zinc-900 border border-white/[0.1] text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
+                className="size-7 rounded-md bg-muted/60 border border-border text-muted-foreground hover:text-foreground hover:bg-muted flex items-center justify-center shrink-0 transition-colors shadow-xs cursor-pointer"
                 aria-label="Close chart catalog"
               />
             }

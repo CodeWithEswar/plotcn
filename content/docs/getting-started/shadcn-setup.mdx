@@ -120,7 +120,9 @@ Plotcn adapts to your existing application palette (`background`, `foreground`, 
 
 ## Configure the Plotcn registry
 
-Modern versions of shadcn support external namespaced registries directly in `components.json`.
+Because `@plotcn` is officially included in the shadcn/ui community registry directory, simply running an `add` command (like `npx shadcn@latest add @plotcn/line-basic`) works out of the box and registers the entry in your `components.json` automatically.
+
+You can also explicitly define the registry in your `components.json`:
 
 ```json title="components.json"
 {
@@ -146,7 +148,11 @@ Modern shadcn also supports installing components directly from public GitHub re
 
 ## Add a Plotcn component
 
-Once the `@plotcn` namespace is configured, you install visualization components just like standard shadcn primitives:
+You install visualization components using the `@plotcn` namespace just like standard shadcn primitives:
+
+:::package-manager
+npx shadcn@latest add @plotcn/line-basic
+:::
 
 <ComponentInstallFlow />
 

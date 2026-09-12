@@ -2036,7 +2036,7 @@ html:not(.dark) .charts-surface[data-theme="follow"] .lens-brand.recharts {
 .chart-nav-root-link:hover { color: var(--foreground); background: var(--muted); }
 .chart-nav-root-link > span { margin-left: auto; font: 10px var(--font-geist-mono), monospace; color: var(--muted-foreground); }
 .chart-nav-back-btn {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--card);
   border: 1px solid var(--border);
   color: var(--foreground) !important;
   font-weight: 500;
@@ -2053,7 +2053,7 @@ html:not(.dark) .charts-surface[data-theme="follow"] .lens-brand.recharts {
   letter-spacing: 0.04em !important;
   text-transform: uppercase !important;
   margin: 0 !important;
-  color: #e4e4e7 !important;
+  color: var(--foreground) !important;
 }
 .chart-engine-details > summary {
   cursor: pointer;

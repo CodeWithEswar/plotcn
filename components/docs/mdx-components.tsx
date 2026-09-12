@@ -409,7 +409,7 @@ async function parseMarkdownToReact(
       }
       i++ // skip closing :::
       const fullCmd = cmdLines.join("\n").trim()
-      const registryMatch = fullCmd.match(/\/r\/([a-z0-9-]+)\.json/)
+      const registryMatch = fullCmd.match(/@plotcn\/([a-z0-9-]+)/) || fullCmd.match(/\/r\/([a-z0-9-]+)\.json/)
 
       if (registryMatch) {
         elements.push(

@@ -93,8 +93,8 @@ To enable the `@plotcn` namespace in your project, declare it under the `registr
 
 The `{name}` parameter acts as a URL template. When you request `@plotcn/line-basic`, the CLI substitutes `{name}` with `line-basic` and requests `https://plotcn.vercel.app/r/line-basic.json`.
 
-<DocsCallout title="Strict Truthfulness & Registry Status" type="note">
-The `@plotcn` namespace is currently in **active preview / beta development**. While the infrastructure is built and tested against the shadcn specification, we also document direct local development endpoints and public GitHub fallback paths below so you can install and test components today.
+<DocsCallout title="Official Shadcn Registry Directory" type="note">
+The `@plotcn` namespace is officially merged into the shadcn/ui community registry directory! The shadcn CLI natively resolves `@plotcn` components out of the box with zero manual configuration.
 </DocsCallout>
 
 ---
@@ -341,12 +341,12 @@ In addition to HTTP registry endpoints, the shadcn CLI supports installing compo
 | :--- | :--- | :--- |
 | **Command Syntax** | `shadcn add @plotcn/line-basic` | `shadcn add https://github.com/.../line-basic.json` |
 | **Branding** | Clean, branded developer experience | Repository URL path |
-| **Configuration** | Requires entry in `components.json` | Zero configuration required |
-| **Best Used For** | Production apps, teams, long-term DX | Fast prototyping, branch previews, testing PRs |
+| **Configuration** | Handled automatically by shadcn CLI (or in `components.json`) | Zero configuration required |
+| **Best Used For** | Production apps, teams, standard DX | Fast prototyping, branch previews, testing PRs |
 
 #### Plotcn recommendation
 
-For standard projects, configure the `@plotcn` namespace in `components.json` for concise, memorable install commands. Use direct GitHub or local URLs when testing unpublished branches or preview builds.
+For standard projects, use `shadcn add @plotcn/<chart>` for concise, native installations. Use direct GitHub or local URLs when testing unpublished branches or preview builds.
 
 ---
 

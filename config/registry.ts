@@ -33,16 +33,16 @@ export const plotcnRegistry: PlotcnRegistryConfig = {
     return `${this.origin}${this.basePath}/${name}.json`
   },
   getInstallCommand(name: string, packageManager = "npm") {
-    const url = this.getItemUrl(name)
+    const cleanName = name.replace(/\.json$/, "").replace(/^@plotcn\//, "")
     switch (packageManager) {
       case "pnpm":
-        return `pnpm dlx shadcn@latest add ${url}`
+        return `pnpm dlx shadcn@latest add ${this.namespace}/${cleanName}`
       case "yarn":
-        return `yarn dlx shadcn@latest add ${url}`
+        return `yarn dlx shadcn@latest add ${this.namespace}/${cleanName}`
       case "bun":
-        return `bunx --bun shadcn@latest add ${url}`
+        return `bunx --bun shadcn@latest add ${this.namespace}/${cleanName}`
       default:
-        return `npx shadcn@latest add ${url}`
+        return `npx shadcn@latest add ${this.namespace}/${cleanName}`
     }
   },
   getNamespaceCommand(name: string, packageManager = "npm") {

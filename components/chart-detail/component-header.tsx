@@ -91,8 +91,8 @@ export function ComponentHeader({ chart }: ComponentHeaderProps) {
                       chart.status === "stable"
                         ? "text-foreground"
                         : chart.status === "preview"
-                        ? "text-amber-300"
-                        : "text-purple-300"
+                        ? "text-amber-600 dark:text-amber-300"
+                        : "text-purple-600 dark:text-purple-300"
                     )}
                   >
                     {chart.status}
@@ -103,10 +103,10 @@ export function ComponentHeader({ chart }: ComponentHeaderProps) {
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          <a href="#section-source" className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.15] px-3.5 py-2 text-xs font-mono text-zinc-300 hover:text-white transition-colors shadow-xs">
+          <a href="#section-source" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground px-3.5 py-2 text-xs font-mono transition-colors shadow-xs">
             <HugeiconsIcon icon={SourceCodeIcon} size={14} /> Source
           </a>
-          <a href={`${siteConfig.github}/blob/main/${chart.componentPath}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/[0.15] px-3.5 py-2 text-xs font-mono text-zinc-300 hover:text-white transition-colors shadow-xs">
+          <a href={`${siteConfig.github}/blob/main/${chart.componentPath}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground px-3.5 py-2 text-xs font-mono transition-colors shadow-xs">
             <HugeiconsIcon icon={GithubIcon} size={14} /> GitHub
           </a>
         </div>

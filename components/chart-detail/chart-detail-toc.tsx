@@ -358,7 +358,7 @@ export function ChartDetailToc({
             render={
               <Button
                 variant="outline"
-                className="w-full h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-white/[0.1] bg-zinc-900/80 hover:bg-zinc-800 text-zinc-200 justify-between shrink-0 focus-visible:ring-1 focus-visible:ring-ring"
+                className="w-full h-9 min-h-[36px] max-h-[36px] rounded-lg gap-2 px-3 text-xs font-medium border-border bg-background hover:bg-muted text-foreground justify-between shrink-0 focus-visible:ring-1 focus-visible:ring-ring shadow-xs"
               />
             }
           >
@@ -367,7 +367,7 @@ export function ChartDetailToc({
                 icon={ActiveIcon}
                 size={15}
                 strokeWidth={1.75}
-                className="shrink-0 text-zinc-400"
+                className="shrink-0 text-muted-foreground"
               />
               <span className="truncate">{activeItem?.label || "On this page"}</span>
             </span>
@@ -375,18 +375,18 @@ export function ChartDetailToc({
               icon={ArrowDown01Icon}
               size={13}
               strokeWidth={2}
-              className="pointer-events-none shrink-0 text-zinc-400 ml-1.5"
+              className="pointer-events-none shrink-0 text-muted-foreground ml-1.5"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
             sideOffset={6}
-            className="w-(--anchor-width) min-w-[220px] max-h-80 overflow-y-auto bg-zinc-950/95 border border-white/[0.1] backdrop-blur-md p-1 shadow-2xl rounded-lg"
+            className="w-(--anchor-width) min-w-[220px] max-h-80 overflow-y-auto bg-popover text-popover-foreground border border-border backdrop-blur-md p-1 shadow-xl rounded-lg"
           >
-            <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+            <DropdownMenuLabel className="px-2 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               On this page
             </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-white/[0.08] my-1" />
+            <DropdownMenuSeparator className="bg-border my-1" />
             {items.map((item) => {
               const isActive = activeId === item.id
               const ItemIcon = resolveIcon(item)
@@ -397,8 +397,8 @@ export function ChartDetailToc({
                   className={cn(
                     "flex items-center justify-between gap-2.5 px-2.5 py-1.5 text-xs rounded-md cursor-pointer transition-colors outline-hidden select-none",
                     isActive
-                      ? "bg-zinc-800/90 text-white font-medium"
-                      : "text-zinc-300 hover:bg-zinc-800/50 hover:text-white focus:bg-zinc-800/50 focus:text-white"
+                      ? "bg-accent text-accent-foreground font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
                   <span className="flex items-center gap-2 min-w-0 truncate">

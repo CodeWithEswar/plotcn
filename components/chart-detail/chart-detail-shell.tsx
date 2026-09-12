@@ -131,7 +131,7 @@ export default function ChartDemo() {
           <div className="chart-detail-mobile-controls flex flex-row items-center gap-2 w-full">
             <Link
               href="/charts"
-              className="chart-detail-back-link inline-flex items-center justify-center size-9 min-h-[36px] max-h-[36px] rounded-lg border border-white/[0.1] bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white shrink-0 transition-colors shadow-xs"
+              className="chart-detail-back-link inline-flex items-center justify-center size-9 min-h-[36px] max-h-[36px] rounded-lg border border-border bg-background hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 transition-colors shadow-xs"
               aria-label="Back to charts gallery"
               title="Back to charts gallery"
             >

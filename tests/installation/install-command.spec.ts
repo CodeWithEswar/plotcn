@@ -2,33 +2,58 @@ import { describe, it } from "node:test"
 import assert from "node:assert/strict"
 import {
   getInstallCommand,
+  getUrlInstallCommand,
   getNamespaceInstallCommand,
   tokenizeInstallCommand,
   packageManagers,
-  type PackageManager,
+  getStoredPackageManager,
+  setStoredPackageManager,
+  getRegistryAddCommand,
 } from "../../lib/registry/install-command"
 import { getRegistryItemInfo } from "../../lib/registry/manifest"
 
 describe("Registry Install Command System", () => {
+  it("generates correct registry add commands across all four package managers for @plotcn", () => {
+    const pnpmCmd = getRegistryAddCommand("pnpm")
+    const npmCmd = getRegistryAddCommand("npm")
+    const yarnCmd = getRegistryAddCommand("yarn")
+    const bunCmd = getRegistryAddCommand("bun")
+
+    assert.equal(pnpmCmd, "pnpm dlx shadcn@latest registry add @plotcn")
+    assert.equal(npmCmd, "npx shadcn@latest registry add @plotcn")
+    assert.equal(yarnCmd, "yarn dlx shadcn@latest registry add @plotcn")
+    assert.equal(bunCmd, "bunx --bun shadcn@latest registry add @plotcn")
+
+    assert.equal(getInstallCommand("@plotcn", "npm"), "npx shadcn@latest registry add @plotcn")
+    assert.equal(getInstallCommand("@plotcn", "pnpm"), "pnpm dlx shadcn@latest registry add @plotcn")
+  })
+
   it("generates correct commands across all four package managers for reference chart line-basic", () => {
     const pnpmCmd = getInstallCommand("line-basic", "pnpm")
     const npmCmd = getInstallCommand("line-basic", "npm")
     const yarnCmd = getInstallCommand("line-basic", "yarn")
     const bunCmd = getInstallCommand("line-basic", "bun")
 
-    assert.equal(pnpmCmd, "pnpm dlx shadcn@latest add https://plotcn.vercel.app/r/line-basic.json")
-    assert.equal(npmCmd, "npx shadcn@latest add https://plotcn.vercel.app/r/line-basic.json")
-    assert.equal(yarnCmd, "yarn dlx shadcn@latest add https://plotcn.vercel.app/r/line-basic.json")
-    assert.equal(bunCmd, "bunx --bun shadcn@latest add https://plotcn.vercel.app/r/line-basic.json")
+    assert.equal(pnpmCmd, "pnpm dlx shadcn@latest add @plotcn/line-basic")
+    assert.equal(npmCmd, "npx shadcn@latest add @plotcn/line-basic")
+    assert.equal(yarnCmd, "yarn dlx shadcn@latest add @plotcn/line-basic")
+    assert.equal(bunCmd, "bunx --bun shadcn@latest add @plotcn/line-basic")
   })
 
   it("supports flexible parameter ordering (name, pm) and (pm, name)", () => {
     assert.equal(
       getInstallCommand("pnpm", "line-basic"),
-      "pnpm dlx shadcn@latest add https://plotcn.vercel.app/r/line-basic.json"
+      "pnpm dlx shadcn@latest add @plotcn/line-basic"
     )
     assert.equal(
       getInstallCommand("line-basic", "pnpm"),
+      "pnpm dlx shadcn@latest add @plotcn/line-basic"
+    )
+  })
+
+  it("supports direct URL install commands when explicitly requested", () => {
+    assert.equal(
+      getUrlInstallCommand("line-basic", "pnpm"),
       "pnpm dlx shadcn@latest add https://plotcn.vercel.app/r/line-basic.json"
     )
   })
@@ -94,5 +119,44 @@ describe("Registry Install Command System", () => {
   it("declares the approved package managers with authentic IDs", () => {
     const ids = packageManagers.map((pm) => pm.id)
     assert.deepEqual(ids, ["pnpm", "npm", "yarn", "bun"])
+  })
+
+  it("handles getStoredPackageManager and setStoredPackageManager with mock window", () => {
+    // SSR fallback without window
+    assert.equal(getStoredPackageManager(), "pnpm")
+
+    // Mock window & localStorage
+    const storage: Record<string, string> = {}
+    let dispatchedEvent: any = null
+    ;(globalThis as any).window = {
+      localStorage: {
+        getItem: (k: string) => storage[k] || null,
+        setItem: (k: string, v: string) => { storage[k] = v },
+      },
+      dispatchEvent: (e: any) => { dispatchedEvent = e },
+    }
+    ;(globalThis as any).CustomEvent = class CustomEvent {
+      type: string
+      detail: any
+      constructor(type: string, init?: any) {
+        this.type = type
+        this.detail = init?.detail
+      }
+    }
+
+    setStoredPackageManager("bun")
+    assert.equal(storage["plotcn-preferred-pm"], "bun")
+    assert.equal(storage["plotcn_pkg_mgr"], "bun")
+    assert.equal(dispatchedEvent?.type, "plotcn-pm-change")
+    assert.equal(dispatchedEvent?.detail, "bun")
+    assert.equal(getStoredPackageManager(), "bun")
+
+    setStoredPackageManager("yarn")
+    assert.equal(getStoredPackageManager(), "yarn")
+    assert.equal(dispatchedEvent?.detail, "yarn")
+
+    // Clean up mock
+    delete (globalThis as any).window
+    delete (globalThis as any).CustomEvent
   })
 })

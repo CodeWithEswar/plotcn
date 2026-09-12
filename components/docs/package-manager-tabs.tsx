@@ -11,7 +11,7 @@ import {
   ComputerTerminal01Icon,
 } from "@hugeicons/core-free-icons"
 import { PackageManagerIcon } from "./installation/package-manager-icons"
-import { useInstallation } from "./installation/installation-context"
+import { useOptionalInstallation } from "./installation/installation-context"
 import { type PackageManager, formatCommand } from "./package-manager-utils"
 export type { PackageManager }
 export { formatCommand }
@@ -28,21 +28,31 @@ export function PackageManagerTabs({
   highlightedCommands,
 }: PackageManagerTabsProps) {
   // Synchronize with global installation context if available
-  const installation = useInstallation()
+  const installation = useOptionalInstallation()
   const [localTab, setLocalTab] = useState<PackageManager>("pnpm")
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    const stored = localStorage.getItem("plotcn_pkg_mgr") as PackageManager | null
-    if (stored && ["pnpm", "npm", "yarn", "bun"].includes(stored)) {
-      setLocalTab(stored)
+    React.startTransition(() => {
+      setMounted(true)
+      const stored = (localStorage.getItem("plotcn-preferred-pm") || localStorage.getItem("plotcn_pkg_mgr")) as PackageManager | null
+      if (stored && ["pnpm", "npm", "yarn", "bun"].includes(stored)) {
+        setLocalTab(stored)
+      }
+    })
+    const handlePmChangeEvt = (e: Event) => {
+      const customEvent = e as CustomEvent<PackageManager>
+      if (customEvent.detail && ["pnpm", "npm", "yarn", "bun"].includes(customEvent.detail)) {
+        setLocalTab(customEvent.detail)
+      }
     }
+    window.addEventListener("plotcn-pm-change", handlePmChangeEvt)
+    return () => window.removeEventListener("plotcn-pm-change", handlePmChangeEvt)
   }, [])
 
-  // Priority: global context packageManager if mounted, otherwise localTab
-  const activeTab: PackageManager = mounted && installation?.packageManager
+  // Priority: global context packageManager if mounted & inside provider, otherwise localTab
+  const activeTab: PackageManager = mounted && installation
     ? installation.packageManager
     : localTab
 
@@ -53,7 +63,9 @@ export function PackageManagerTabs({
       installation.setPackageManager(pkg)
     }
     try {
+      localStorage.setItem("plotcn-preferred-pm", pkg)
       localStorage.setItem("plotcn_pkg_mgr", pkg)
+      window.dispatchEvent(new CustomEvent("plotcn-pm-change", { detail: pkg }))
     } catch {
       // Ignore in sandbox
     }

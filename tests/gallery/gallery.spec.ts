@@ -87,7 +87,7 @@ describe("Charts discovery", () => {
       for (const pm of ["npm", "pnpm", "bun"] as const)
         assert.match(
           getInstallCommand(chart.registryName, pm),
-          new RegExp(`/r/${chart.registryName}\\.json$`)
+          new RegExp(`@plotcn/${chart.registryName}$`)
         )
       assert.ok(!getInstallCommand(chart.registryName).includes("localhost"))
     }

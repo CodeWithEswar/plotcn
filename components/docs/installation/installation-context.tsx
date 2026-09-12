@@ -35,17 +35,30 @@ export function InstallationProvider({
       const params = new URLSearchParams(window.location.search)
       const fwParam = params.get("framework") as SupportedFramework | null
       if (fwParam && frameworks.some((f) => f.id === fwParam)) {
-        setFrameworkState(fwParam)
+        React.startTransition(() => {
+          setFrameworkState(fwParam)
+        })
       }
 
       // 2. Check localStorage for package manager preference
-      const storedPkg = localStorage.getItem("plotcn_pkg_mgr") as PackageManager | null
+      const storedPkg = (localStorage.getItem("plotcn-preferred-pm") || localStorage.getItem("plotcn_pkg_mgr")) as PackageManager | null
       if (storedPkg && ["pnpm", "npm", "yarn", "bun"].includes(storedPkg)) {
-        setPackageManagerState(storedPkg)
+        React.startTransition(() => {
+          setPackageManagerState(storedPkg)
+        })
       }
     } catch {
       // Ignore local storage or search param errors in restricted sandbox
     }
+
+    const handlePmChangeEvt = (e: Event) => {
+      const customEvent = e as CustomEvent<PackageManager>
+      if (customEvent.detail && ["pnpm", "npm", "yarn", "bun"].includes(customEvent.detail)) {
+        setPackageManagerState(customEvent.detail)
+      }
+    }
+    window.addEventListener("plotcn-pm-change", handlePmChangeEvt)
+    return () => window.removeEventListener("plotcn-pm-change", handlePmChangeEvt)
   }, [])
 
   const setFramework = useCallback((fw: SupportedFramework) => {
@@ -67,6 +80,8 @@ export function InstallationProvider({
     setPackageManagerState(pkg)
     try {
       localStorage.setItem("plotcn_pkg_mgr", pkg)
+      localStorage.setItem("plotcn-preferred-pm", pkg)
+      window.dispatchEvent(new CustomEvent("plotcn-pm-change", { detail: pkg }))
     } catch {
       // Non-browser or SSR fallback
     }
@@ -98,4 +113,8 @@ export function useInstallation(): InstallationContextValue {
     }
   }
   return ctx
+}
+
+export function useOptionalInstallation(): InstallationContextValue | null {
+  return useContext(InstallationContext)
 }
